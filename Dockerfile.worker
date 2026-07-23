@@ -1,0 +1,68 @@
+# ────────────────────────────────────────────────────────────
+# EVA ADAM v2 — Worker Sidecar (Levier 4)
+# Dockerfile multi-stage minimisé
+#
+# Image : eva-adam-worker
+# Desc  : Exécute les handlers d'événements dans un conteneur
+#         isolé avec moindre privilège.
+#
+# Build :
+#   docker build -t eva-adam-worker -f Dockerfile.worker .
+# ────────────────────────────────────────────────────────────
+
+FROM python:3.11-slim AS base
+
+# ── Évite les dialogues interactifs ──
+ENV DEBIAN_FRONTEND=noninteractive \
+    PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1
+
+# ── Paquets système nécessaires au worker ──
+#   sqlite3 : accès direct à la base SQLite (debug)
+#   git     : exécution de handlers git (hooks, commits)
+#   curl    : requêtes HTTP depuis les handlers
+#   procps  : ps/pgrep pour HEALTHCHECK et diagnostics
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    sqlite3=* \
+    git \
+    curl=* \
+    procps=2:4.* \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# ── Répertoire applicatif ──
+WORKDIR /app
+
+# ── Copie des sources Python du worker ──
+#   event_bus.py  : bibliothèque du bus d'événements SQLite
+#   worker_loop.py: boucle principale du worker
+COPY event_bus.py worker_loop.py /app/
+
+# ── Création de l'utilisateur non-root (moindre privilège) ──
+#   uid 1000 aligné sur l'utilisateur hôte pour la compatibilité des volumes
+RUN addgroup --system --gid 1000 worker \
+    && adduser --system --uid 1000 --gid 1000 --home /app --no-create-home worker \
+    && chown -R worker:worker /app
+
+# ── Points de montage attendus (documents la structure volume) ──
+#   /data/event_bus.db  : base SQLite partagée (lecture/écriture)
+#   /data/logs/          : logs du worker (lecture/écriture)
+#   /handlers/           : scripts exécutables (lecture seule)
+VOLUME ["/data", "/handlers"]
+
+# ── Passage à l'utilisateur non-root ──
+USER worker
+
+# ── Variables d'environnement par défaut ──
+#   Surchargeables via l'option -e de docker run / deploy
+ENV WORKER_ID=worker-1 \
+    WORKER_TIMEOUT=180 \
+    DB_PATH=/data/event_bus.db
+
+# ── Healthcheck : vérifie que le processus tourne ──
+#   Le worker écrit dans un PID fichier ou répond au signal 0
+HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
+    CMD ["sh", "-c", "pgrep -af 'worker_loop.py' | grep -qv pgrep || exit 1"]
+
+# ── Point d'entrée ──
+ENTRYPOINT ["python3", "worker_loop.py"]

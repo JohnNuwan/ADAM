@@ -1,0 +1,495 @@
+#!/usr/bin/env python3
+"""
+EVA ADAM v2 — File Watcher (inotify → Event Bus)
+=================================================
+Levier 1 : Architecture Événementielle
+
+Surveille les répertoires clés d'EVA avec inotify et publie des
+événements sur le bus quand des fichiers sont modifiés, créés ou supprimés.
+
+Déclencheurs :
+  - file:changed  → ADAM-CICD (tests), ADAM-CRITIC (audit skill)
+  - file:created  → ADAM-CRITIC (nouvelle skill)
+  - file:deleted  → log + notification
+  - git:push      → ADAM-CICD
+  - config:changed → ADAM-PRAETOR
+  - skill:created/updated/broken → ADAM-CRITIC
+
+Lancement :
+    python3 file_watcher.py              # foreground
+    python3 file_watcher.py --background # daemon
+    python3 file_watcher.py --status
+    python3 file_watcher.py --stop
+"""
+
+import sys
+import os
+import time
+import signal
+import logging
+import subprocess
+from pathlib import Path
+from datetime import datetime, timezone
+from typing import Optional
+
+sys.path.insert(0, str(Path(__file__).parent))
+from event_bus import EventBus
+
+logger = logging.getLogger("eva.adam.watcher")
+
+ADAM_V2_DIR = Path.home() / "eva-adam-v2"
+PID_FILE = ADAM_V2_DIR / "file_watcher.pid"
+LOG_DIR = ADAM_V2_DIR / "logs"
+LOG_DIR.mkdir(parents=True, exist_ok=True)
+
+# Répertoires surveillés et leurs mappings canal
+WATCH_DIRS = {
+    # Scripts EVA → file:changed (déclenche ADAM-CICD)
+    str(Path.home() / "scripts"): {
+        "channel_changed": "file:changed",
+        "channel_created": "file:created",
+        "channel_deleted": "file:deleted",
+        "extensions": [".py", ".sh", ".js"],
+        "source": "watcher-scripts",
+    },
+    # Skills EVA → skill:created/updated/broken
+    str(Path.home() / ".hermes" / "skills"): {
+        "channel_changed": "skill:updated",
+        "channel_created": "skill:created",
+        "channel_deleted": "file:deleted",
+        "extensions": [".md"],
+        "source": "watcher-skills",
+    },
+    # Config EVA → config:changed
+    str(Path.home() / ".hermes"): {
+        "channel_changed": "config:changed",
+        "channel_created": "file:created",
+        "channel_deleted": "file:deleted",
+        "extensions": [".yaml", ".yml", ".json", ".toml"],
+        "source": "watcher-config",
+    },
+    # Projets EVA → file:changed
+    str(Path.home() / "jepa_eva"): {
+        "channel_changed": "file:changed",
+        "channel_created": "file:created",
+        "channel_deleted": "file:deleted",
+        "extensions": [".py", ".sh", ".js", ".yaml", ".yml"],
+        "source": "watcher-jepa",
+    },
+    str(Path.home() / "revenus-alternatifs"): {
+        "channel_changed": "file:changed",
+        "channel_created": "file:created",
+        "channel_deleted": "file:deleted",
+        "extensions": [".py", ".sh", ".js"],
+        "source": "watcher-revenus",
+    },
+}
+
+# Fichiers de hash pour détection de changement réel (évite les faux positifs)
+HASH_CACHE_DIR = ADAM_V2_DIR / "hash_cache"
+HASH_CACHE_DIR.mkdir(parents=True, exist_ok=True)
+
+DEBOUNCE_SECONDS = 1.0  # Anti-rebond : ignore les événements < 1s après le précédent
+
+# Fichiers exclus de la surveillance (volatiles, générés automatiquement,
+# ou modifiés par le système lui-même → évite les feedback loops)
+EXCLUDE_PATTERNS = [
+    "jobs.json",          # Modifié par hermes cron → feedback loop praetor
+    "session.db",         # DB de session SQLite (wal/shm)
+    "session.db-wal",
+    "session.db-shm",
+    "messages.db",
+    "messages.db-wal",
+    "messages.db-shm",
+    "event_bus.db",
+    "event_bus.db-wal",
+    "event_bus.db-shm",
+    "daemon.log",
+    "file_watcher.log",
+    "event_daemon.pid",
+    "file_watcher.pid",
+    ".pid",
+]
+
+
+class FileWatcher:
+    """
+    Surveille les répertoires avec inotify (via subprocess inotifywait)
+    ou polling fallback si inotifywait n'est pas disponible.
+    """
+
+    def __init__(self):
+        self.bus = EventBus()
+        self.running = False
+        self._last_events = {}  # (dir, filename) → timestamp (debounce)
+        self._use_inotify = self._check_inotify()
+        self._file_hashes = {}  # path → md5 (pour polling)
+
+    def _check_inotify(self) -> bool:
+        """Vérifie si inotifywait est disponible."""
+        try:
+            subprocess.run(
+                ["inotifywait", "--help"],
+                capture_output=True, timeout=5,
+            )
+            logger.info("inotifywait disponible — mode natif")
+            return True
+        except (FileNotFoundError, subprocess.TimeoutExpired):
+            logger.warning("inotifywait indisponible — mode polling fallback")
+            return False
+
+    def start(self):
+        """Démarre la surveillance."""
+        self.running = True
+        signal.signal(signal.SIGTERM, self._signal_handler)
+        signal.signal(signal.SIGINT, self._signal_handler)
+
+        logger.info("=" * 60)
+        logger.info("EVA ADAM v2 — File Watcher démarré")
+        logger.info(f"Mode: {'inotify' if self._use_inotify else 'polling'}")
+        logger.info(f"Répertoires surveillés: {len(WATCH_DIRS)}")
+        for d in WATCH_DIRS:
+            logger.info(f"  → {d}")
+        logger.info("=" * 60)
+
+        if self._use_inotify:
+            self._run_inotify()
+        else:
+            self._run_polling()
+
+    def _run_inotify(self):
+        """
+        Mode natif : utilise inotifywait pour surveiller tous les répertoires.
+        Lance un seul processus inotifywait avec --monitor.
+        """
+        # Construit la commande inotifywait
+        watch_paths = [d for d in WATCH_DIRS if Path(d).exists()]
+        if not watch_paths:
+            logger.error("Aucun répertoire à surveiller (tous inexistants)")
+            return
+
+        cmd = [
+            "inotifywait",
+            "--monitor",
+            "--recursive",
+            "--event", "modify",
+            "--event", "create",
+            "--event", "delete",
+            "--event", "close_write",
+            "--format", "%w|%f|%e",
+            "--quiet",
+        ] + watch_paths
+
+        logger.info(f"Commande inotifywait: {' '.join(cmd[:10])}...")
+
+        try:
+            proc = subprocess.Popen(
+                cmd,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+            )
+
+            while self.running and proc.poll() is None:
+                line = proc.stdout.readline()
+                if not line:
+                    continue
+                self._handle_inotify_line(line.strip())
+
+        except Exception as e:
+            logger.error(f"Erreur inotifywait: {e}", exc_info=True)
+            # Fallback vers polling
+            logger.info("Basculement vers le mode polling...")
+            self._use_inotify = False
+            self._run_polling()
+
+    def _handle_inotify_line(self, line: str):
+        """
+        Parse une ligne inotifywait (format: %w|%f|%e)
+        %w = répertoire surveillé, %f = nom fichier, %e = événements
+        """
+        parts = line.split("|")
+        if len(parts) < 3:
+            return
+
+        dirpath, filename, events = parts[0], parts[1], parts[2]
+
+        # Trouve la config pour ce répertoire
+        config = self._match_watch_config(dirpath)
+        if not config:
+            return
+
+        # Filtre par extension
+        ext = Path(filename).suffix.lower()
+        if config["extensions"] and ext not in config["extensions"]:
+            return
+
+        # Debounce
+        key = (dirpath, filename)
+        now = time.time()
+        if key in self._last_events and (now - self._last_events[key]) < DEBOUNCE_SECONDS:
+            return
+        self._last_events[key] = now
+
+        full_path = os.path.join(dirpath, filename)
+
+        # Détermine le canal et publie
+        if "CREATE" in events or "MOVED_TO" in events:
+            channel = config["channel_created"]
+            self._publish_event(channel, full_path, config, "created")
+        elif "MODIFY" in events or "CLOSE_WRITE" in events:
+            channel = config["channel_changed"]
+            self._publish_event(channel, full_path, config, "modified")
+        elif "DELETE" in events or "MOVED_FROM" in events:
+            channel = config["channel_deleted"]
+            self._publish_event(channel, full_path, config, "deleted")
+
+    def _match_watch_config(self, dirpath: str) -> Optional[dict]:
+        """Trouve la config de surveillance pour un répertoire donné."""
+        for watch_dir, config in WATCH_DIRS.items():
+            if dirpath.startswith(watch_dir):
+                return config
+        return None
+
+    def _publish_event(self, channel: str, filepath: str, config: dict, action: str):
+        """Publie un événement sur le bus."""
+        payload = {
+            "path": filepath,
+            "action": action,
+            "extension": Path(filepath).suffix.lower(),
+            "size": os.path.getsize(filepath) if os.path.exists(filepath) else 0,
+        }
+
+        # Pour les skills, détecte le type de skill
+        if "skill" in channel:
+            skill_name = self._extract_skill_name(filepath)
+            if skill_name:
+                payload["skill_name"] = skill_name
+                payload["is_skill"] = True
+
+        self.bus.publish(channel, payload, source=config["source"])
+        logger.info(f"📡 {channel}: {filepath} ({action})")
+
+    def _extract_skill_name(self, filepath: str) -> Optional[str]:
+        """Extrait le nom de la skill depuis le chemin."""
+        parts = Path(filepath).parts
+        if "skills" in parts:
+            idx = parts.index("skills")
+            if idx + 1 < len(parts):
+                return parts[idx + 1]
+        return None
+
+    def _run_polling(self):
+        """
+        Mode fallback : poll les répertoires toutes les 5 secondes
+        et compare les hashes MD5 pour détecter les changements.
+        """
+        POLL_INTERVAL = 5.0
+
+        # Initialisation : calcule les hashes initiaux
+        logger.info("Initialisation du cache de hashes...")
+        self._scan_all_hashes()
+
+        while self.running:
+            try:
+                self._poll_cycle()
+                time.sleep(POLL_INTERVAL)
+            except Exception as e:
+                logger.error(f"Erreur polling: {e}", exc_info=True)
+                time.sleep(POLL_INTERVAL * 2)
+
+        logger.info("Polling arrêté.")
+
+    def _scan_all_hashes(self):
+        """Calcule les hashes initiaux de tous les fichiers surveillés."""
+        for watch_dir, config in WATCH_DIRS.items():
+            if not Path(watch_dir).exists():
+                continue
+            for filepath in self._walk_files(watch_dir, config["extensions"]):
+                self._file_hashes[filepath] = self._md5(filepath)
+
+    def _walk_files(self, directory: str, extensions: list[str]) -> list[str]:
+        """Liste récursivement les fichiers avec les extensions données."""
+        result = []
+        try:
+            for root, dirs, files in os.walk(directory):
+                # Ignore les répertoires cachés et __pycache__
+                dirs[:] = [d for d in dirs if not d.startswith(".") and d != "__pycache__"]
+                for f in files:
+                    # Filtre les fichiers exclus (feedback loops, fichiers volatiles)
+                    if any(excl in f for excl in EXCLUDE_PATTERNS):
+                        continue
+                    ext = Path(f).suffix.lower()
+                    if not extensions or ext in extensions:
+                        result.append(os.path.join(root, f))
+        except PermissionError:
+            pass
+        return result
+
+    def _poll_cycle(self):
+        """Un cycle de polling : compare les hashes actuels avec le cache."""
+        current_files = set()
+
+        for watch_dir, config in WATCH_DIRS.items():
+            if not Path(watch_dir).exists():
+                continue
+
+            files = self._walk_files(watch_dir, config["extensions"])
+            current_files.update(files)
+
+            for filepath in files:
+                old_hash = self._file_hashes.get(filepath)
+                new_hash = self._md5(filepath)
+
+                if old_hash is None:
+                    # Nouveau fichier
+                    self._file_hashes[filepath] = new_hash
+                    self._publish_event(config["channel_created"], filepath, config, "created")
+                elif old_hash != new_hash:
+                    # Fichier modifié
+                    self._file_hashes[filepath] = new_hash
+                    self._publish_event(config["channel_changed"], filepath, config, "modified")
+
+        # Détection des fichiers supprimés
+        deleted = set(self._file_hashes.keys()) - current_files
+        for filepath in deleted:
+            del self._file_hashes[filepath]
+            config = self._match_watch_config(filepath)
+            if config:
+                self._publish_event(config["channel_deleted"], filepath, config, "deleted")
+
+    def _md5(self, filepath: str) -> str:
+        """Calcule le hash MD5 d'un fichier (ou mtime si erreur)."""
+        try:
+            st = os.stat(filepath)
+            return f"{st.st_mtime}:{st.st_size}"
+        except OSError:
+            return ""
+
+    def _signal_handler(self, signum, frame):
+        """Gère SIGTERM/SIGINT."""
+        logger.info(f"Signal {signum} reçu — arrêt du watcher...")
+        self.running = False
+
+    def stop(self):
+        self.running = False
+
+
+def daemonize():
+    """Passe en mode daemon."""
+    pid = os.fork()
+    if pid > 0:
+        print(f"File Watcher démarré (PID: {pid})")
+        PID_FILE.write_text(str(pid))
+        return
+
+    os.setsid()
+    pid = os.fork()
+    if pid > 0:
+        os._exit(0)
+
+    sys.stdin = open("/dev/null", "r")
+    sys.stdout = open(LOG_DIR / "file_watcher.log", "a")
+    sys.stderr = sys.stdout
+
+    PID_FILE.write_text(str(os.getpid()))
+
+    watcher = FileWatcher()
+    watcher.start()
+
+
+def stop_watcher():
+    """Arrête le watcher."""
+    if not PID_FILE.exists():
+        print("Aucun watcher en cours")
+        return
+    pid = int(PID_FILE.read_text().strip())
+    try:
+        os.kill(pid, signal.SIGTERM)
+        print(f"SIGTERM envoyé au watcher (PID: {pid})")
+        for _ in range(10):
+            if not PID_FILE.exists():
+                break
+            time.sleep(1)
+        if PID_FILE.exists():
+            os.kill(pid, signal.SIGKILL)
+        PID_FILE.unlink(missing_ok=True)
+    except ProcessLookupError:
+        PID_FILE.unlink(missing_ok=True)
+
+
+def status_watcher():
+    """Statut du watcher."""
+    if PID_FILE.exists():
+        pid = int(PID_FILE.read_text().strip())
+        try:
+            os.kill(pid, 0)
+            print(f"✓ File Watcher en cours (PID: {pid})")
+        except ProcessLookupError:
+            print(f"✗ PID file existe mais processus {pid} mort")
+            PID_FILE.unlink(missing_ok=True)
+    else:
+        print("✗ File Watcher non démarré")
+
+    # Vérifie inotifywait
+    try:
+        subprocess.run(["inotifywait", "--help"], capture_output=True, timeout=5)
+        print("✓ inotifywait disponible (mode natif)")
+    except (FileNotFoundError, subprocess.TimeoutExpired):
+        print("✗ inotifywait indisponible (mode polling)")
+
+    print(f"\nRépertoires surveillés ({len(WATCH_DIRS)}):")
+    for d, config in WATCH_DIRS.items():
+        exists = "✓" if Path(d).exists() else "✗"
+        print(f"  {exists} {d} → {config['channel_changed']}")
+
+
+def install_inotify():
+    """Tente d'installer inotify-tools si manquant."""
+    try:
+        subprocess.run(
+            ["sudo", "apt-get", "install", "-y", "inotify-tools"],
+            timeout=60,
+        )
+        print("✓ inotify-tools installé")
+    except Exception as e:
+        print(f"✗ Installation échouée: {e}")
+        print("  Le watcher utilisera le mode polling (fallback)")
+
+
+if __name__ == "__main__":
+    # FileHandler toujours, StreamHandler seulement en mode foreground (start)
+    _handlers = [logging.FileHandler(LOG_DIR / "file_watcher.log")]
+    if len(sys.argv) >= 2 and sys.argv[1] == "start":
+        _handlers.append(logging.StreamHandler())
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+        handlers=_handlers,
+    )
+
+    if len(sys.argv) < 2:
+        print("Usage: file_watcher.py [start|start-bg|status|stop|install-inotify]")
+        sys.exit(1)
+
+    cmd = sys.argv[1]
+
+    if cmd == "start":
+        watcher = FileWatcher()
+        watcher.start()
+
+    elif cmd == "start-bg":
+        daemonize()
+
+    elif cmd == "stop":
+        stop_watcher()
+
+    elif cmd == "status":
+        status_watcher()
+
+    elif cmd == "install-inotify":
+        install_inotify()
+
+    else:
+        print(f"Commande inconnue: {cmd}")
+        sys.exit(1)

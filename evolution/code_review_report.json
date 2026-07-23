@@ -1,0 +1,210 @@
+{
+  "findings": [
+    {
+      "type": "high_complexity",
+      "severity": "warning",
+      "file": "file_watcher.py",
+      "line": 206,
+      "message": "Fonction '_handle_inotify_line' complexité=13 (> 10) — considérer refactoriser",
+      "suggestion": ""
+    },
+    {
+      "type": "unused_import",
+      "severity": "info",
+      "file": "file_watcher.py",
+      "line": 32,
+      "message": "Import 'datetime' non utilisé — supprimer",
+      "suggestion": "Retirer: import datetime"
+    },
+    {
+      "type": "unused_import",
+      "severity": "info",
+      "file": "file_watcher.py",
+      "line": 32,
+      "message": "Import 'timezone' non utilisé — supprimer",
+      "suggestion": "Retirer: import timezone"
+    },
+    {
+      "type": "high_complexity",
+      "severity": "warning",
+      "file": "v2_adapter.py",
+      "line": 186,
+      "message": "Fonction 'run_agent' complexité=16 (> 10) — considérer refactoriser",
+      "suggestion": ""
+    },
+    {
+      "type": "high_complexity",
+      "severity": "warning",
+      "file": "adam.py",
+      "line": 207,
+      "message": "Fonction 'cmd_status' complexité=12 (> 10) — considérer refactoriser",
+      "suggestion": ""
+    },
+    {
+      "type": "high_complexity",
+      "severity": "warning",
+      "file": "adam.py",
+      "line": 516,
+      "message": "Fonction 'main' complexité=17 (> 10) — considérer refactoriser",
+      "suggestion": ""
+    },
+    {
+      "type": "unused_import",
+      "severity": "info",
+      "file": "event_bus.py",
+      "line": 24,
+      "message": "Import 'Callable' non utilisé — supprimer",
+      "suggestion": "Retirer: import Callable"
+    },
+    {
+      "type": "high_complexity",
+      "severity": "warning",
+      "file": "worker_loop.py",
+      "line": 181,
+      "message": "Fonction 'worker_loop' complexité=11 (> 10) — considérer refactoriser",
+      "suggestion": ""
+    },
+    {
+      "type": "high_complexity",
+      "severity": "warning",
+      "file": "adam-evolution.py",
+      "line": 719,
+      "message": "Fonction '_check_unused_imports' complexité=16 (> 10) — considérer refactoriser",
+      "suggestion": ""
+    },
+    {
+      "type": "high_complexity",
+      "severity": "warning",
+      "file": "adam-evolution.py",
+      "line": 757,
+      "message": "Fonction '_check_dead_functions' complexité=11 (> 10) — considérer refactoriser",
+      "suggestion": ""
+    },
+    {
+      "type": "high_complexity",
+      "severity": "warning",
+      "file": "adam-evolution.py",
+      "line": 831,
+      "message": "Fonction '_check_factorization' complexité=14 (> 10) — considérer refactoriser",
+      "suggestion": ""
+    },
+    {
+      "type": "unused_import",
+      "severity": "info",
+      "file": "adam-evolution.py",
+      "line": 40,
+      "message": "Import 'deque' non utilisé — supprimer",
+      "suggestion": "Retirer: import deque"
+    },
+    {
+      "type": "high_complexity",
+      "severity": "warning",
+      "file": "event_daemon.py",
+      "line": 174,
+      "message": "Fonction '_dispatch' complexité=12 (> 10) — considérer refactoriser",
+      "suggestion": ""
+    },
+    {
+      "type": "unused_import",
+      "severity": "info",
+      "file": "event_daemon.py",
+      "line": 35,
+      "message": "Import 'Optional' non utilisé — supprimer",
+      "suggestion": "Retirer: import Optional"
+    },
+    {
+      "type": "unused_import",
+      "severity": "info",
+      "file": "event_daemon.py",
+      "line": 39,
+      "message": "Import 'CHANNELS' non utilisé — supprimer",
+      "suggestion": "Retirer: import CHANNELS"
+    },
+    {
+      "type": "high_complexity",
+      "severity": "warning",
+      "file": "self_heal.py",
+      "line": 756,
+      "message": "Fonction '_fix_handler' complexité=12 (> 10) — considérer refactoriser",
+      "suggestion": ""
+    },
+    {
+      "type": "high_complexity",
+      "severity": "warning",
+      "file": "self_heal.py",
+      "line": 1169,
+      "message": "Fonction 'demarrer' complexité=11 (> 10) — considérer refactoriser",
+      "suggestion": ""
+    },
+    {
+      "type": "syntax_error",
+      "severity": "critical",
+      "file": "/home/aza/eva-adam-v2/scripts/bad_syntax.py",
+      "line": 1,
+      "message": "Erreur de syntaxe: unterminated string literal (detected at line 1)",
+      "suggestion": ""
+    },
+    {
+      "type": "factorization",
+      "severity": "info",
+      "file": "hive_cycler.py",
+      "line": 156,
+      "message": "7 fonctions similaires (préfixe 'get'): get_uncommitted_changes(hive_cycler.py:156), get_agent_status(state_isolation.py:425), get_latest_health(state_isolation.py:350), get_all_states(state_isolation.py:373)",
+      "suggestion": "Considérer une factory ou classe de base pour 'get...'"
+    },
+    {
+      "type": "factorization",
+      "severity": "info",
+      "file": "hive_cycler.py",
+      "line": 248,
+      "message": "5 fonctions similaires (préfixe 'pha'): phase_code_scan(hive_cycler.py:248), phase_git_check(hive_cycler.py:265), phase_health_check(hive_cycler.py:282), phase_research(hive_cycler.py:299)",
+      "suggestion": "Considérer une factory ou classe de base pour 'pha...'"
+    },
+    {
+      "type": "factorization",
+      "severity": "info",
+      "file": "adam.py",
+      "line": 48,
+      "message": "5 fonctions similaires (préfixe 'cmd'): cmd_init(adam.py:48), cmd_start(adam.py:102), cmd_stop(adam.py:157), cmd_agents(adam.py:320)",
+      "suggestion": "Considérer une factory ou classe de base pour 'cmd...'"
+    },
+    {
+      "type": "factorization",
+      "severity": "info",
+      "file": "state_isolation.py",
+      "line": 168,
+      "message": "9 fonctions similaires (préfixe 'get'): get_state(state_isolation.py:168), get_counter(state_isolation.py:304), get_history(state_isolation.py:327), get_subscriptions(event_bus.py:263)",
+      "suggestion": "Considérer une factory ou classe de base pour 'get...'"
+    },
+    {
+      "type": "factorization",
+      "severity": "info",
+      "file": "state_isolation.py",
+      "line": 120,
+      "message": "3 fonctions similaires (préfixe '__i'): __init__(state_isolation.py:120), __init__(adam-evolution.py:918), __init__(self_heal.py:407)",
+      "suggestion": "Considérer une factory ou classe de base pour '__i...'"
+    },
+    {
+      "type": "factorization",
+      "severity": "info",
+      "file": "adam-evolution.py",
+      "line": 811,
+      "message": "4 fonctions similaires (préfixe '_ch'): _check_duplication(adam-evolution.py:811), _check_gpu(self_heal.py:1054), _check_memory(self_heal.py:1088), _check_service(self_heal.py:1109)",
+      "suggestion": "Considérer une factory ou classe de base pour '_ch...'"
+    }
+  ],
+  "summary": {
+    "total": 24,
+    "critical": 1,
+    "warning": 11,
+    "info": 12,
+    "by_type": {
+      "high_complexity": 11,
+      "unused_import": 6,
+      "syntax_error": 1,
+      "factorization": 6
+    }
+  },
+  "files_scanned": 13,
+  "total_lines": 6775
+}

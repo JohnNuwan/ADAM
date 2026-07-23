@@ -1,0 +1,67 @@
+# ────────────────────────────────────────────────────────────
+# EVA ADAM v2 — Worker Sidecar (Levier 4)
+# Docker Compose pour le service eva-adam-worker
+#
+# Usage :
+#   docker compose -f docker-compose.worker.yml up -d
+#   docker compose -f docker-compose.worker.yml logs -f
+#   docker compose -f docker-compose.worker.yml down
+#
+# Intégration :
+#   Le worker sidecar partage la base SQLite et les logs
+#   via volumes bind-mount avec l'hôte.
+# ────────────────────────────────────────────────────────────
+
+services:
+  eva-adam-worker:
+    build:
+      context: .
+      dockerfile: Dockerfile.worker
+    container_name: eva-adam-worker
+
+    # Aucun port exposé — c'est un sidecar interne
+    # qui communique uniquement via le bus SQLite partagé
+    ports: []
+
+    # Variables d'environnement du worker
+    environment:
+      - WORKER_ID=worker-1
+      - WORKER_TIMEOUT=180
+      - DB_PATH=/data/event_bus.db
+
+    # Volumes :
+    #   event_bus.db   : base SQLite partagée (rw) — nécessaire pour écrire les résultats
+    #   ./logs          : logs du worker (rw)
+    #   ./scripts       : handlers exécutables (ro) — moindre privilège
+    volumes:
+      - ./event_bus.db:/data/event_bus.db:rw
+      - ./logs:/data/logs:rw
+      - ./scripts:/handlers:ro
+
+    # Limites de ressources pour isolation
+    mem_limit: 256m
+    memswap_limit: 512m
+    cpu_count: 1
+    cpu_shares: 512
+
+    # Politique de redémarrage
+    restart: unless-stopped
+
+    # Arrêt gracieux : SIGTERM → worker_loop.py → cleanup
+    stop_signal: SIGTERM
+    stop_grace_period: 30s
+
+    # Santé du conteneur (surcouche du HEALTHCHECK du Dockerfile)
+    healthcheck:
+      test: ["CMD-SHELL", "pgrep -af 'worker_loop.py' | grep -qv pgrep || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+    # Métadonnées
+    labels:
+      app: "eva-adam-v2"
+      component: "worker-sidecar"
+      version: "1.0.0"
+      description: "ADAM v2 worker sidecar — exécute les handlers d'événements"
