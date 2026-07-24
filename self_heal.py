@@ -1295,13 +1295,16 @@ class SelfHealLoop:
                 "SELECT agent_id, channel, handler FROM subscriptions WHERE enabled=1"
             ).fetchall()
             for agent_id, channel, handler in subs:
+                # Ignorer les handlers vides, placeholders, ou non-fichiers
+                if not handler or handler in ("{}", "", "null", "None"):
+                    continue
                 # Extraire le chemin du handler (peut être "bash ~/scripts/xxx.sh")
                 handler_path = handler.split()[-1] if " " in handler else handler
                 handler_path = os.path.expanduser(handler_path)
-                if handler_path.startswith("/"):
-                    full_path = handler_path
-                else:
-                    full_path = os.path.expanduser(handler_path)
+                # Ignorer si ce n'est pas un chemin de fichier valide
+                if not handler_path.startswith(("/", "~/", "./")):
+                    continue
+                full_path = os.path.expanduser(handler_path)
                 if not os.path.exists(full_path):
                     logger.warning(
                         f"[STRUCTURE] Handler inexistant pour {agent_id}←{channel}: "
