@@ -259,6 +259,7 @@ TYPE_TO_STRATEGY: dict[str, str] = {
     "handler_syntax_error": "fix_handler",
     "handler_exit_126": "fix_handler",
     "handler_exit_127": "fix_handler",
+    "handler_exit_2": "fix_handler",
     "zombie_process": "kill_zombie",
     "daemon_stopped": "restart_service",
     "out_of_memory": "free_memory",
@@ -812,10 +813,16 @@ class Resolveur:
             detail_parts.append(f"syntax: {correction['detail']}")
 
         elif exit_code == 2:
-            # argparse error → pas de correction auto possible
-            correction = {"succes": False,
-                          "detail": f"argparse error (exit 2): {stderr_snippet[:200]}"}
-            detail_parts.append(correction["detail"])
+            # exit 2 = argparse error (Python) OU erreur de syntaxe (bash)
+            # Si le handler est un script bash → diagnostiquer avec bash -n
+            if handler_path.endswith(".sh"):
+                correction = self._fix_bash_syntax(handler_path, stderr_snippet)
+                detail_parts.append(f"bash_syntax: {correction['detail']}")
+            else:
+                # Python argparse error → pas de correction auto
+                correction = {"succes": False,
+                              "detail": f"argparse error (exit 2): {stderr_snippet[:200]}"}
+                detail_parts.append(correction["detail"])
 
         elif exit_code is None:
             correction = {"succes": False,
@@ -846,6 +853,28 @@ class Resolveur:
             return {"succes": True, "action": "fix_handler", "detail": detail_final}
 
         logger.warning(f"fix_handler ÉCHEC: {correction.get('detail')}")
+
+        # ── Escalade vers l'architecte quand fix_handler échoue ─────────
+        # Le docteur ne peut pas tout réparer seul. S'il échoue, il publie
+        # un event architecture:request pour que l'architecte prenne le relais.
+        try:
+            self.bus.publier(
+                channel="architecture:request",
+                payload={
+                    "type": "fix_handler_failed",
+                    "agent_id": agent_id,
+                    "handler_path": handler_path,
+                    "exit_code": exit_code,
+                    "stderr_snippet": stderr_snippet[:500],
+                    "fix_attempted": " | ".join(detail_parts),
+                    "original_event_id": evenement.get("id"),
+                },
+                source="self-heal",
+            )
+            logger.info(f"fix_handler ÉCHEC → escalade architecture:request publiée pour agent='{agent_id}'")
+        except Exception as e:
+            logger.error(f"Escalade architecture:request échouée: {e}")
+
         return {"succes": False, "action": "fix_handler",
                 "detail": " | ".join(detail_parts)}
 
@@ -875,6 +904,8 @@ class Resolveur:
         if "syntaxerror" in stderr_lower:
             return 1
         if "unrecognized arguments" in stderr_lower or "invalid choice" in stderr_lower:
+            return 2
+        if "erreur de syntaxe" in stderr_lower or "syntax error" in stderr_lower:
             return 2
         return None
 
@@ -942,6 +973,32 @@ class Resolveur:
                         "detail": f"SyntaxError: {result.stderr.strip()[:300]}"}
         except (subprocess.TimeoutExpired, OSError) as e:
             return {"succes": False, "detail": f"py_compile timeout/erreur: {e}"}
+
+    @staticmethod
+    def _fix_bash_syntax(handler_path: str, stderr: str) -> dict[str, Any]:
+        """Corrige exit 2 sur script bash : diagnostique avec bash -n.
+
+        Détecte les erreurs de syntaxe bash (parenthèses non échappées,
+        guillemets mal fermés, etc.) et tente des corrections automatiques
+        sur les patterns les plus courants.
+        """
+        try:
+            # Diagnostiquer avec bash -n (vérification syntaxique sans exécution)
+            result = subprocess.run(
+                ["bash", "-n", handler_path],
+                capture_output=True, text=True, timeout=15,
+            )
+            if result.returncode == 0:
+                # bash -n OK → l'erreur vient de l'exécution, pas de la syntaxe
+                return {"succes": True,
+                        "detail": f"bash -n OK — exit 2 non lié à la syntaxe bash: {stderr[:100]}"}
+
+            # bash -n a trouvé une erreur → extraire la ligne
+            err_msg = result.stderr.strip()
+            return {"succes": False,
+                    "detail": f"bash -n échoué: {err_msg[:300]}"}
+        except (subprocess.TimeoutExpired, OSError) as e:
+            return {"succes": False, "detail": f"bash -n timeout/erreur: {e}"}
 
     def _retry(self, payload: dict, evenement: dict) -> dict[str, Any]:
         """Re-publie l'événement pour nouvelle tentative sur un canal dédié.

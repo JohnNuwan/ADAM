@@ -951,7 +951,7 @@ class AdamEvolution:
     def _process_healed_event(self, row: sqlite3.Row) -> None:
         """Traite un event adam:healed individuel."""
         event_id = row["id"]
-        raw_payload = row["source"]  # Le JSON est dans 'source' (format HealBus)
+        raw_payload = row["payload"]  # Le JSON est dans 'payload' (colonne payload)
 
         try:
             payload = json.loads(raw_payload) if raw_payload else {}
