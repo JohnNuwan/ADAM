@@ -1,0 +1,54 @@
+{
+  "challenge": {
+    "id": "hash-003",
+    "category": "crypto",
+    "data": "aaf4c61ddcc5e8a2dabede0f3b482cd9aea9434d",
+    "hint": "crack this sha1 hash"
+  },
+  "solution": {
+    "solved": false,
+    "challenge_id": "hash-003",
+    "category": "crypto",
+    "techniques_tried": [
+      "base64_decode",
+      "hash_identify",
+      "hash_crack",
+      "rsa_basic"
+    ],
+    "results": [
+      {
+        "success": true,
+        "decoded": "i��s�]u�9{ƶu��u�\u001fݾ<��}i��~\u001d",
+        "technique": "base64_decode",
+        "technique_name": "Base64 Decode"
+      },
+      {
+        "success": true,
+        "hash_type": "SHA1",
+        "hash": "aaf4c61ddcc5e8a2dabede0f3b482cd9aea9434d",
+        "technique": "hash_identify",
+        "technique_name": "Hash Identification"
+      },
+      {
+        "success": true,
+        "decoded": "hello",
+        "plaintext": "hello",
+        "technique": "hash_crack",
+        "algo": "sha1",
+        "method": "rainbow_table",
+        "technique_name": "Hash Cracking (Rainbow Table + Dictionary)"
+      },
+      {
+        "success": true,
+        "technique": "rsa_basic",
+        "n": "482",
+        "e": "9",
+        "c": "9434",
+        "note": "Vérifier si n est factorisable (factordb, small primes)",
+        "technique_name": "RSA Basic Analysis"
+      }
+    ]
+  },
+  "timestamp": "2026-07-24T04:56:49.650755+00:00",
+  "agent": "adam-ctf"
+}

@@ -1,0 +1,54 @@
+{
+  "challenge": {
+    "id": "hash-002",
+    "category": "crypto",
+    "data": "42f749ade7f9e195bf475f37a44cafcb",
+    "hint": "crack this md5 hash"
+  },
+  "solution": {
+    "solved": false,
+    "challenge_id": "hash-002",
+    "category": "crypto",
+    "techniques_tried": [
+      "base64_decode",
+      "hash_identify",
+      "hash_crack",
+      "rsa_basic"
+    ],
+    "results": [
+      {
+        "success": true,
+        "decoded": "�g��֝{��{_ym�;���k�\u001ci�\u001b",
+        "technique": "base64_decode",
+        "technique_name": "Base64 Decode"
+      },
+      {
+        "success": true,
+        "hash_type": "MD5",
+        "hash": "42f749ade7f9e195bf475f37a44cafcb",
+        "technique": "hash_identify",
+        "technique_name": "Hash Identification"
+      },
+      {
+        "success": true,
+        "decoded": "Password123",
+        "plaintext": "Password123",
+        "technique": "hash_crack",
+        "algo": "md5",
+        "method": "rainbow_table",
+        "technique_name": "Hash Cracking (Rainbow Table + Dictionary)"
+      },
+      {
+        "success": true,
+        "technique": "rsa_basic",
+        "n": "475",
+        "e": "37",
+        "c": "44",
+        "note": "Vérifier si n est factorisable (factordb, small primes)",
+        "technique_name": "RSA Basic Analysis"
+      }
+    ]
+  },
+  "timestamp": "2026-07-24T04:56:48.524650+00:00",
+  "agent": "adam-ctf"
+}
