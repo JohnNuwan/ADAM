@@ -531,7 +531,9 @@ def status_daemon():
     agents = bus.get_all_agents()
     print(f"\nAgents ({len(agents)}):")
     for a in agents:
-        print(f"  {a['agent_id']:20s} | {a['status']:10s} | last: {a.get('last_status', '-')} | hb: {a.get('heartbeat_at', '-')[:19]}")
+        hb = a.get('heartbeat_at')
+        hb_str = hb[:19] if hb else '-'
+        print(f"  {a['agent_id']:20s} | {a['status']:10s} | last: {a.get('last_status', '-')} | hb: {hb_str}")
 
     bus.close()
 
