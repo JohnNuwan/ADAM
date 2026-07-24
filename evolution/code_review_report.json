@@ -137,12 +137,108 @@
       "suggestion": ""
     },
     {
+      "type": "high_complexity",
+      "severity": "warning",
+      "file": "wordlists/rainbow_tool.py",
+      "line": 72,
+      "message": "Fonction 'identify_hash' complexité=11 (> 10) — considérer refactoriser",
+      "suggestion": ""
+    },
+    {
+      "type": "high_complexity",
+      "severity": "warning",
+      "file": "wordlists/rainbow_tool.py",
+      "line": 131,
+      "message": "Fonction 'crack_hash' complexité=15 (> 10) — considérer refactoriser",
+      "suggestion": ""
+    },
+    {
+      "type": "high_complexity",
+      "severity": "warning",
+      "file": "wordlists/rainbow_tool.py",
+      "line": 218,
+      "message": "Fonction 'crack_with_rules' complexité=11 (> 10) — considérer refactoriser",
+      "suggestion": ""
+    },
+    {
+      "type": "high_complexity",
+      "severity": "warning",
+      "file": "wordlists/rainbow_tool.py",
+      "line": 305,
+      "message": "Fonction 'main' complexité=14 (> 10) — considérer refactoriser",
+      "suggestion": ""
+    },
+    {
+      "type": "unused_import",
+      "severity": "info",
+      "file": "wordlists/rainbow_tool.py",
+      "line": 21,
+      "message": "Import 'sys' non utilisé — supprimer",
+      "suggestion": "Retirer: import sys"
+    },
+    {
+      "type": "unused_import",
+      "severity": "info",
+      "file": "wordlists/rainbow_tool.py",
+      "line": 24,
+      "message": "Import 'datetime' non utilisé — supprimer",
+      "suggestion": "Retirer: import datetime"
+    },
+    {
+      "type": "unused_import",
+      "severity": "info",
+      "file": "wordlists/rainbow_tool.py",
+      "line": 24,
+      "message": "Import 'timezone' non utilisé — supprimer",
+      "suggestion": "Retirer: import timezone"
+    },
+    {
       "type": "syntax_error",
       "severity": "critical",
       "file": "/home/aza/eva-adam-v2/scripts/bad_syntax.py",
       "line": 1,
       "message": "Erreur de syntaxe: unterminated string literal (detected at line 1)",
       "suggestion": ""
+    },
+    {
+      "type": "high_complexity",
+      "severity": "warning",
+      "file": "scripts/adam-ctf.py",
+      "line": 207,
+      "message": "Fonction '_crack_hash' complexité=11 (> 10) — considérer refactoriser",
+      "suggestion": ""
+    },
+    {
+      "type": "high_complexity",
+      "severity": "warning",
+      "file": "scripts/adam-ctf.py",
+      "line": 387,
+      "message": "Fonction '_stego_detect' complexité=15 (> 10) — considérer refactoriser",
+      "suggestion": ""
+    },
+    {
+      "type": "high_complexity",
+      "severity": "warning",
+      "file": "scripts/adam-ctf.py",
+      "line": 425,
+      "message": "Fonction '_detect_encoding' complexité=16 (> 10) — considérer refactoriser",
+      "suggestion": ""
+    },
+    {
+      "type": "high_complexity",
+      "severity": "critical",
+      "file": "scripts/adam-ctf.py",
+      "line": 476,
+      "message": "Fonction 'solve_challenge' complexité=21 (> 20) — refactoriser en sous-fonctions",
+      "suggestion": "Diviser en fonctions plus petites, extraire la logique"
+    },
+    {
+      "type": "dead_code",
+      "severity": "warning",
+      "file": "scripts/kali_bridge.py",
+      "line": 76,
+      "message": "Fonction privée '_exec_interactive' jamais appelée — dead code",
+      "suggestion": "Supprimer la fonction '_exec_interactive'"
     },
     {
       "type": "factorization",
@@ -181,7 +277,7 @@
       "severity": "info",
       "file": "state_isolation.py",
       "line": 120,
-      "message": "3 fonctions similaires (préfixe '__i'): __init__(state_isolation.py:120), __init__(adam-evolution.py:918), __init__(self_heal.py:408)",
+      "message": "4 fonctions similaires (préfixe '__i'): __init__(state_isolation.py:120), __init__(adam-evolution.py:918), __init__(self_heal.py:408), __init__(scripts/kali_bridge.py:37)",
       "suggestion": "Considérer une factory ou classe de base pour '__i...'"
     },
     {
@@ -194,17 +290,18 @@
     }
   ],
   "summary": {
-    "total": 24,
-    "critical": 1,
-    "warning": 11,
-    "info": 12,
+    "total": 36,
+    "critical": 2,
+    "warning": 19,
+    "info": 15,
     "by_type": {
-      "high_complexity": 11,
-      "unused_import": 6,
+      "high_complexity": 19,
+      "unused_import": 9,
       "syntax_error": 1,
+      "dead_code": 1,
       "factorization": 6
     }
   },
-  "files_scanned": 13,
-  "total_lines": 6822
+  "files_scanned": 16,
+  "total_lines": 8495
 }
