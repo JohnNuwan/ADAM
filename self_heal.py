@@ -1223,6 +1223,105 @@ class SelfHealLoop:
         self._cycles = 0
         self._dernier_heartbeat = 0.0
 
+    def _verifier_integrite_structurelle(self) -> None:
+        """Vérifications structurelles que le système d'exit codes ne peut pas détecter.
+
+        Détecte et corrige automatiquement :
+        - README.md manquant à la racine du repo
+        - Fichiers untracked git (auto-commit)
+        - Souscriptions orphelines (handler inexistant)
+        """
+        repo_dir = Path(os.environ.get("ADAM_V2_DIR", "/home/aza/eva-adam-v2"))
+
+        # ── Check 1 : README.md manquant ──
+        readme = repo_dir / "README.md"
+        if not readme.exists():
+            logger.warning("[STRUCTURE] README.md manquant à la racine du repo")
+            self.bus.publier(
+                "heal:required",
+                {
+                    "error_type": "missing_readme",
+                    "agent_id": "adam-scribe",
+                    "detail": "README.md absent de la racine du repo — voir scribe-write.sh",
+                },
+                source="self-heal",
+                priority=3,
+            )
+
+        # ── Check 2 : Fichiers untracked git ──
+        try:
+            result = subprocess.run(
+                ["git", "status", "--porcelain"],
+                capture_output=True, text=True, timeout=10,
+                cwd=str(repo_dir),
+            )
+            if result.returncode == 0 and result.stdout.strip():
+                untracked = [
+                    line[3:] for line in result.stdout.strip().split("\n")
+                    if line.startswith("?? ")
+                ]
+                if untracked:
+                    logger.warning(
+                        f"[STRUCTURE] {len(untracked)} fichier(s) untracked détecté(s) — "
+                        f"auto-commit en cours"
+                    )
+                    # Auto-add + auto-commit
+                    subprocess.run(
+                        ["git", "add", "-A"],
+                        cwd=str(repo_dir), capture_output=True, timeout=15,
+                    )
+                    ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                    commit = subprocess.run(
+                        ["git", "commit", "-m",
+                         f"Auto-commit self_heal: {len(untracked)} fichier(s) untracked ({ts})"],
+                        cwd=str(repo_dir), capture_output=True, text=True, timeout=15,
+                    )
+                    if commit.returncode == 0:
+                        logger.info(
+                            f"[STRUCTURE] Auto-commit réussi: {len(untracked)} fichier(s)"
+                        )
+                    else:
+                        logger.warning(
+                            f"[STRUCTURE] Auto-commit échoué: {commit.stderr.strip()}"
+                        )
+        except FileNotFoundError:
+            pass  # git pas installé
+        except Exception as e:
+            logger.debug(f"[STRUCTURE] Check git untracked échoué: {e}")
+
+        # ── Check 3 : Souscriptions avec handler inexistant ──
+        try:
+            subs = self.bus._connect().execute(
+                "SELECT agent_id, channel, handler FROM subscriptions WHERE enabled=1"
+            ).fetchall()
+            for agent_id, channel, handler in subs:
+                # Extraire le chemin du handler (peut être "bash ~/scripts/xxx.sh")
+                handler_path = handler.split()[-1] if " " in handler else handler
+                handler_path = os.path.expanduser(handler_path)
+                if handler_path.startswith("/"):
+                    full_path = handler_path
+                else:
+                    full_path = os.path.expanduser(handler_path)
+                if not os.path.exists(full_path):
+                    logger.warning(
+                        f"[STRUCTURE] Handler inexistant pour {agent_id}←{channel}: "
+                        f"{handler_path}"
+                    )
+                    self.bus.publier(
+                        "heal:required",
+                        {
+                            "error_type": "missing_handler",
+                            "agent_id": agent_id,
+                            "channel": channel,
+                            "handler": handler,
+                            "detail": f"Handler inexistant: {handler_path}",
+                        },
+                        source="self-heal",
+                        priority=2,
+                    )
+        except Exception as e:
+            logger.debug(f"[STRUCTURE] Check souscriptions échoué: {e}")
+
     def demarrer(self, once: bool = False) -> None:
         """Lance la boucle de guérison.
 
@@ -1242,6 +1341,9 @@ class SelfHealLoop:
             while self._running:
                 self._cycles += 1
                 logger.debug(f"--- Cycle #{self._cycles} ---")
+
+                # ── ÉTAPE 0 : VÉRIFICATIONS STRUCTURELLES ──
+                self._verifier_integrite_structurelle()
 
                 # ── ÉTAPE 1 : DÉTECTION ──
                 evenements = self.bus.get_erreurs_pendantes(limit=10)
