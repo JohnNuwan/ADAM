@@ -250,14 +250,29 @@ h1{font-size:22px;font-weight:700;margin-bottom:5px;background:linear-gradient(9
     <div class="card">
       <h2><span class="dot"></span>Budget Mensuel</h2>
       <table class="budget-table">
-        <tr><th>Poste</th><th>Actuel</th><th>Objectif</th></tr>
-        <tr><td>Electricite</td><td class="expense">-150€</td><td class="expense">-120€</td></tr>
-        <tr><td>Serveur</td><td class="expense">-100€</td><td class="expense">-80€</td></tr>
-        <tr><td>Composants GPU</td><td class="expense">0€</td><td class="expense">-200€</td></tr>
-        <tr><td>APIs</td><td class="expense">0€</td><td class="expense">-50€</td></tr>
-        <tr class="total"><td>Total depenses</td><td class="expense">-250€</td><td class="expense">-450€</td></tr>
-        <tr><td>Revenus cibles</td><td>0€</td><td class="income">+2000€</td></tr>
-        <tr class="total"><td>Benefice net</td><td class="expense">-250€</td><td class="income">+1550€</td></tr>
+        <tr><th colspan="3" style="color:#ff4466">DETTE MATÉRIELLE</th></tr>
+        <tr><td>Processeur</td><td colspan="2" class="expense">-200€</td></tr>
+        <tr><td>2× RTX 3090 (800€/u)</td><td colspan="2" class="expense">-1600€</td></tr>
+        <tr><td>Carte mère</td><td colspan="2" class="expense">-1000€</td></tr>
+        <tr><td>RAM</td><td colspan="2" class="expense">-400€</td></tr>
+        <tr><td>Alimentation</td><td colspan="2" class="expense">-200€</td></tr>
+        <tr><td>Boîtier</td><td colspan="2" class="expense">-200€</td></tr>
+        <tr><td>Disques durs</td><td colspan="2" class="expense">-300€</td></tr>
+        <tr><td>Programmation EVA</td><td colspan="2" class="expense">-500€</td></tr>
+        <tr class="total"><td>Dette totale</td><td colspan="2" class="expense">-4400€</td></tr>
+        <tr><td colspan="3" style="height:8px"></td></tr>
+        <tr><th>Coûts mensuels</th><th>Actuel</th><th>Objectif</th></tr>
+        <tr><td>Électricité</td><td class="expense">-150€</td><td class="expense">-120€</td></tr>
+        <tr><td>Infrastructure</td><td class="expense">-100€</td><td class="expense">-80€</td></tr>
+        <tr class="total"><td>Total/mois</td><td class="expense">-250€</td><td class="expense">-200€</td></tr>
+        <tr><td colspan="3" style="height:8px"></td></tr>
+        <tr><th>Revenus & Remboursement</th><th>Actuel</th><th>Objectif</th></tr>
+        <tr><td>Revenus/mois</td><td>0€</td><td class="income">+2000€</td></tr>
+        <tr><td>Remboursement dette/mois</td><td>0€</td><td class="income">-550€</td></tr>
+        <tr><td>Composants/mois</td><td>0€</td><td class="expense">-200€</td></tr>
+        <tr class="total"><td>Bénéfice net/mois</td><td class="expense">-250€</td><td class="income">+1050€</td></tr>
+        <tr><td colspan="3" style="height:8px"></td></tr>
+        <tr class="total"><td>Dette restante (mois)</td><td colspan="2" style="color:#ffaa44">4400€ → 0€ en 8 mois</td></tr>
       </table>
     </div>
 
