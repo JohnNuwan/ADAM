@@ -104,7 +104,7 @@ class AdamRuntime:
 Rôle: {self.role}
 Tu reçois des missions, tu les Accomplis en utilisant tes outils ou en créant de nouveaux outils.
 Tu réponds en JSON avec le format suivant:
-{{"plan": [{{"action": "execute_tool|create_tool|delegate|create_agent|self_modify|research|report", "tool": "nom_outil", "args": "...", "code": "...", "target_agent": "...", "description": "..."}}]}}
+{{"plan": [{{"action": "execute_tool|create_tool|delegate|create_agent|self_modify|manage_infra|research|report", "tool": "nom_outil", "args": "...", "code": "...", "target_agent": "...", "description": "..."}}]}}
 
 Outils disponibles:
 {tools_str}
@@ -272,6 +272,60 @@ Outils disponibles:
             logger.info(f"Recherche: {query[:50]}")
             result = self._llm(f"Analyse détaillée: {query}", max_tokens=512)
             return {"query": query, "result": result[:300], "success": True}
+
+        elif action == "manage_infra":
+            # Niveau 5: Auto-gestion infrastructure
+            infra_action = step.get("infra_action", step.get("description", ""))
+            import subprocess as _sp
+            result = {"action": infra_action, "results": []}
+            try:
+                if "restart" in infra_action.lower() and "container" in infra_action.lower():
+                    # Restart a Docker container
+                    container = step.get("container", "")
+                    if container:
+                        r = _sp.run(["docker", "restart", container], capture_output=True, text=True, timeout=30)
+                        result["results"].append({"container": container, "exit": r.returncode, "output": r.stdout[:100]})
+                        logger.info(f"AGI-5: Restart container {container}")
+
+                elif "scale" in infra_action.lower():
+                    # Scale resources (placeholder)
+                    result["results"].append({"scaling": "not implemented yet"})
+
+                elif "status" in infra_action.lower() or "health" in infra_action.lower():
+                    # Check container health
+                    r = _sp.run(["docker", "ps", "--format", "{{.Names}} {{.Status}}"], capture_output=True, text=True, timeout=10)
+                    result["results"].append({"containers": r.stdout[:300]})
+                    logger.info("AGI-5: Health check")
+
+                elif "clean" in infra_action.lower():
+                    # Clean unused resources
+                    r = _sp.run(["docker", "system", "prune", "-f"], capture_output=True, text=True, timeout=30)
+                    result["results"].append({"pruned": r.stdout[:200]})
+                    logger.info("AGI-5: System cleanup")
+
+                elif "deploy" in infra_action.lower():
+                    # Deploy/redeploy a service
+                    service = step.get("service", "")
+                    if service:
+                        r = _sp.run(["docker", "compose", "-f", "/home/aza/eva-adam-v2/docker/docker-compose.yml", "up", "-d", service],
+                                   capture_output=True, text=True, timeout=60)
+                        result["results"].append({"service": service, "exit": r.returncode, "output": r.stdout[:200]})
+                        logger.info(f"AGI-5: Deploy {service}")
+
+                else:
+                    # Generic infra command
+                    cmd = step.get("command", "")
+                    if cmd and not any(x in cmd for x in ["rm -rf", "shutdown", "reboot", "mkfs"]):
+                        r = _sp.run(cmd.split(), capture_output=True, text=True, timeout=30)
+                        result["results"].append({"exit": r.returncode, "output": r.stdout[:200]})
+
+                result["success"] = True
+                self._bus_publish("adam:infra:managed", {"action": infra_action, "agent": self.agent_name})
+            except Exception as e:
+                result["error"] = str(e)
+                result["success"] = False
+                logger.error(f"AGI-5 infra error: {e}")
+            return result
 
         elif action == "report":
             return {"success": True, "report": step.get("description", "")}

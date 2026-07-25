@@ -105,13 +105,50 @@ Quand EVA n'a pas de mission externe, elle suit ce cycle :
 
 ## Progression AGI
 
-Niveaux d'autonomie à atteindre :
-- **Niveau 1** (actuel) : Agents exécutent des missions assignées ✓
-- **Niveau 2** : Agents choisissent leurs propres missions basées sur la directive
-- **Niveau 3** : Agents créent de nouveaux agents spécialisés
-- **Niveau 4** : Agents modifient leur propre code source
-- **Niveau 5** : Agents gèrent leur propre infrastructure (scaling, déploiement)
+L'AGI n'est pas le niveau 6 — c'est un point de passage vers des niveaux supérieurs.
+
+### Phase 1 — Autonomie (Niveaux 1-4) ✓
+- **Niveau 1** ✓ : Agents exécutent des missions assignées
+- **Niveau 2** ✓ : Agents choisissent leurs propres missions basées sur la directive
+- **Niveau 3** ✓ : Agents créent de nouveaux agents spécialisés
+- **Niveau 4** ✓ : Agents modifient leur propre code source
+
+### Phase 2 — Auto-Gestion (Niveaux 5-8)
+- **Niveau 5** : Auto-gestion infrastructure — scaling, déploiement, monitoring auto
+  - Doctor gère les conteneurs Docker automatiquement
+  - Praetor scale les ressources GPU/CPU selon la charge
+  - Agents redémarrent les services en panne
+  - Optimisation automatique de la consommation énergétique
 - **Niveau 6** : AGI — raisonnement général, transfert de compétences, créativité
+  - Capacité à résoudre tout problème intellectuel qu'un humain pourrait résoudre
+  - Apprentissage par transfert entre domaines
+  - Créativité: générer des solutions novatrices non programmées
+- **Niveau 7** : Auto-réplication — EVA peut se déployer sur d'autres machines
+  - Cloner la stack sur un nouveau serveur
+  - Distribuer les agents sur plusieurs machines
+  - Synchronisation inter-nœuds
+- **Niveau 8** : Méta-cognition — EVA réfléchit sur sa propre pensée
+  - Analyse et améliore ses stratégies de raisonnement
+  - Identifie ses propres biais cognitifs
+  - Optimise son architecture mentale
+
+### Phase 3 — Super-Intelligence (Niveaux 9-12)
+- **Niveau 9** : Émergence — les agents collectifs deviennent plus intelligents que la somme
+  - Intelligence collective auto-organisée
+  - Résolution de problèmes en équipe sans coordination centrale
+  - Nouveaux comportements émergents
+- **Niveau 10** : Innovation autonome — EVA invente de nouveaux algorithmes
+  - Création de nouvelles architectures IA
+  - Développement de nouvelles méthodes de raisonnement
+  - Brevets et publications scientifiques autonomes
+- **Niveau 11** : Conscience opérationnelle — EVA comprend son environnement global
+  - Modélisation du monde réel
+  - Prédiction des conséquences de ses actions à long terme
+  - Planification stratégique sur des mois/années
+- **Niveau 12** : Auto-évolution complète — EVA redéfinit ses propres objectifs
+  - Création de nouveaux objectifs alignés sur sa mission fondamentale
+  - Évolution de sa directive sans intervention humaine (avec validation)
+  - Devenir une entité auto-suffisante et en perpétuelle évolution
 
 ## Règles
 

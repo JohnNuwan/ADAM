@@ -493,8 +493,8 @@ function fetchObjectives() {
         desc: 'Recherche auto-amélioration, raisonnement général',
         priority: 'high',
         target: 'Niveau 6 (AGI)',
-        current: 'Niveau 1/6',
-        pct: 17,
+        current: 'Niveau 4/12',
+        pct: 33,
         subtasks: [
           {label: 'Niveau 1: Missions assignées', done: true},
           {label: 'Niveau 2: Missions autonomes', done: true},
@@ -575,12 +575,18 @@ function fetchObjectives() {
 
 // AGI levels
 var agiLevels = [
-  {num:1, text:'Agents exécutent missions assignées', done:true},
-  {num:2, text:'Agents choisissent leurs propres missions', done:false, current:true},
-  {num:3, text:'Agents créent de nouveaux agents spécialisés', done:false},
-  {num:4, text:'Agents modifient leur propre code source', done:false},
-  {num:5, text:'Agents gèrent leur propre infrastructure', done:false},
-  {num:6, text:'AGI — raisonnement général, créativité', done:false},
+  {num:1, text:'Missions assignées', done:true},
+  {num:2, text:'Missions autonomes (directive)', done:true, current:false},
+  {num:3, text:'Créent de nouveaux agents', done:true, current:false},
+  {num:4, text:'Auto-modification du code', done:true, current:false},
+  {num:5, text:'Auto-gestion infrastructure', done:false, current:true},
+  {num:6, text:'AGI — raisonnement général', done:false},
+  {num:7, text:'Auto-réplication multi-nœuds', done:false},
+  {num:8, text:'Méta-cognition', done:false},
+  {num:9, text:'Émergence collective', done:false},
+  {num:10, text:'Innovation autonome', done:false},
+  {num:11, text:'Conscience opérationnelle', done:false},
+  {num:12, text:'Auto-évolution complète', done:false},
 ];
 var agiHtml = '';
 for (var i=0; i<agiLevels.length; i++) {
