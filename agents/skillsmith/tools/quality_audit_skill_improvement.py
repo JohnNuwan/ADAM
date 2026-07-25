@@ -1,1 +1,0 @@
-new_skill_generator

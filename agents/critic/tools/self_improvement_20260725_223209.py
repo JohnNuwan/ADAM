@@ -1,6 +1,6 @@
-# Auto-amélioration de adam-osint
+# Auto-amélioration de adam-critic
 # Demande: Ajouter un cache aux outils pour éviter les appels dupliqués
-# Date: 2026-07-25T22:27:29.305269
+# Date: 2026-07-25T22:32:09.679866
 CACHE = {}
 def cached_call(key, func, *args):
     if key not in CACHE:
