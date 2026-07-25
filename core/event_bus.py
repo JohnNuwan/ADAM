@@ -1,24 +1,45 @@
 #!/usr/bin/env python3
 """
-EVA ADAM v2 — Bus d'Événements (Event Bus)
-==========================================
+EVA ADAM v2 — Bus d'Événements (Event Bus) — V2.1 Go Bus
+=========================================================
 Levier 1 : Architecture Événementielle (Event-Driven)
 
 Bus d'événements basé sur SQLite (mode WAL) avec Pub/Sub.
 Remplace le mode planifié (Cron) par une architecture réactive.
 
-Usage :
+NOUVEAU (V2.1) : Méthodes publish_http() et query_http() qui utilisent
+le Go Event Bus (HTTP API sur localhost:8086) en plus de la classe SQLite
+existante. La classe SQLite (EventBus) reste pour la compatibilité descendante.
+
+Usage classique (SQLite — toujours supporté) :
     from event_bus import EventBus
     bus = EventBus()
     bus.publish("file:changed", {"path": "/home/aza/script.py", "event": "modify"})
     bus.subscribe("file:changed", callback_fn)
     bus.listen()  # Boucle d'écoute (daemon)
+
+Usage Go Bus (HTTP — recommandé pour les nouveaux composants) :
+    from event_bus import EventBus
+    bus = EventBus()
+    bus.publish_http("file:changed", {"path": "/home/aza/script.py"}, source="watcher")
+    events = bus.query_http(topic="adam:error", limit=10)
+
+Ou directement via la classe GoBusClient :
+    from event_bus import GoBusClient
+    client = GoBusClient()
+    client.publish("adam:heartbeat", {"status": "ok"}, source="adam-praetor")
+    events = client.query(topic="adam:error", limit=50)
+    stats = client.stats()
 """
 
 import sqlite3
 import json
 import threading
 import logging
+import os
+import urllib.request
+import urllib.error
+import urllib.parse
 from pathlib import Path
 from datetime import datetime, timezone
 from typing import Callable, Optional
@@ -26,8 +47,11 @@ from typing import Callable, Optional
 logger = logging.getLogger("eva.adam.eventbus")
 
 # --- Constantes ---
-ADAM_V2_DIR = Path.home() / "eva-adam-v2"
+ADAM_V2_DIR = Path(os.environ.get("ADAM_V2_DIR", str(Path.home() / "eva-adam-v2")))
 DB_PATH = ADAM_V2_DIR / "data" / "event_bus.db"
+
+# URL du Go Bus (HTTP API)
+GO_BUS_URL = os.environ.get("BUS_URL", "http://localhost:8086")
 
 # Canaux d'événements (convention namespace:action)
 CHANNELS = {
@@ -52,6 +76,8 @@ CHANNELS = {
     "adam:error": "Un ADAM a signalé une erreur",
     "adam:recovered": "Un ADAM s'est rétabli",
     "adam:heartbeat": "Battement de cœur d'un ADAM",
+    "adam:healed": "Self-heal a guéri un agent",
+    "adam:retry": "Re-tentative d'exécution d'un agent",
     "cron:missed": "Un cron job a manqué son exécution",
     "config:changed": "Configuration EVA modifiée",
     "skill:created": "Nouvelle compétence créée",
@@ -67,6 +93,7 @@ CHANNELS = {
     "security:scan": "Scan de sécurité demandé",
     "security:alert": "Alerte sécurité générale",
     "monitor:alert": "Alerte monitoring générale",
+    "heal:required": "Guérison requise par self-heal",
     "wiki:update": "Mise à jour wiki/documentation",
     "backup:requested": "Sauvegarde demandée",
     "backup:retry": "Re-tentative de sauvegarde",
@@ -93,7 +120,117 @@ CHANNELS = {
     "rag:query": "Requête RAG (question/réponse) effectuée",
 }
 
-# --- Schéma SQL ---
+
+# ═══════════════════════════════════════════════════════════════════════════
+# GoBusClient — Client HTTP pour le Go Event Bus (V2.1)
+# ═══════════════════════════════════════════════════════════════════════════
+
+class GoBusClient:
+    """Client HTTP pour le Go Event Bus.
+
+    Communique avec l'API HTTP du Go Bus sur localhost:8086.
+    Endpoints utilisés :
+      - POST /api/publish  → publier un événement
+      - GET  /api/query    → récupérer des événements
+      - GET  /api/stats    → statistiques du bus
+
+    Utilisation :
+        client = GoBusClient()
+        client.publish("adam:heartbeat", {"status": "ok"}, source="adam-praetor")
+        events = client.query(topic="adam:error", limit=50)
+        stats = client.stats()
+    """
+
+    def __init__(self, base_url: str = GO_BUS_URL, timeout: float = 5.0):
+        self.base_url = base_url.rstrip("/")
+        self.timeout = timeout
+
+    def _request(self, method: str, path: str, data: Optional[dict] = None) -> Optional[dict]:
+        """Exécute une requête HTTP vers le Go Bus."""
+        url = f"{self.base_url}{path}"
+        try:
+            if data is not None:
+                body = json.dumps(data, ensure_ascii=False).encode()
+                req = urllib.request.Request(
+                    url, data=body,
+                    headers={"Content-Type": "application/json"},
+                    method=method,
+                )
+            else:
+                req = urllib.request.Request(url, method=method)
+            with urllib.request.urlopen(req, timeout=self.timeout) as resp:
+                return json.loads(resp.read().decode())
+        except urllib.error.URLError as e:
+            logger.warning(f"Go Bus {method} {path} — connexion échouée: {e}")
+            return None
+        except Exception as e:
+            logger.error(f"Go Bus {method} {path} — erreur: {e}")
+            return None
+
+    def publish(self, topic: str, payload: dict, source: str = "system",
+                priority: int = 0) -> Optional[dict]:
+        """Publie un événement sur le Go Bus via POST /api/publish.
+
+        Args:
+            topic: Canal/topic cible (ex: "adam:heartbeat")
+            payload: Données de l'événement (sera sérialisé en JSON)
+            source: Source émettrice (ex: "adam-praetor")
+            priority: 0=normal, 1=urgent, 2=critique
+
+        Returns:
+            Réponse du Go Bus (dict avec l'ID de l'événement) ou None si échec.
+        """
+        return self._request("POST", "/api/publish", {
+            "topic": topic,
+            "source": source,
+            "payload": payload,
+            "priority": priority,
+        })
+
+    def query(self, topic: Optional[str] = None, limit: int = 50,
+              status: Optional[str] = None) -> list[dict]:
+        """Récupère des événements depuis le Go Bus via GET /api/query.
+
+        Args:
+            topic: Filtrer par topic (optionnel)
+            limit: Nombre max d'événements (défaut 50)
+            status: Filtrer par statut (pending, done, failed, etc.)
+
+        Returns:
+            Liste d'événements (dicts). Liste vide si erreur.
+        """
+        params = {"limit": str(limit)}
+        if topic:
+            params["topic"] = topic
+        if status:
+            params["status"] = status
+        query_string = urllib.parse.urlencode(params)
+        result = self._request("GET", f"/api/query?{query_string}")
+        if result and "events" in result:
+            return result["events"]
+        return []
+
+    def stats(self) -> dict:
+        """Récupère les statistiques du Go Bus via GET /api/stats.
+
+        Returns:
+            Dict avec les statistiques (total, pending, done, failed, etc.).
+            Dict vide si erreur.
+        """
+        result = self._request("GET", "/api/stats")
+        return result if isinstance(result, dict) else {}
+
+    def health(self) -> bool:
+        """Vérifie si le Go Bus est joignable.
+
+        Returns:
+            True si le Go Bus répond, False sinon.
+        """
+        result = self._request("GET", "/api/stats")
+        return result is not None
+
+
+# ─── Schéma SQL (SQLite — conservé pour compatibilité descendante) ─────────
 SCHEMA_SQL = """
 -- Table principale des événements
 CREATE TABLE IF NOT EXISTS events (
@@ -155,13 +292,20 @@ CREATE TABLE IF NOT EXISTS execution_log (
 
 
 class EventBus:
-    """Bus d'événements SQLite avec Pub/Sub."""
+    """Bus d'événements SQLite avec Pub/Sub.
+
+    Cette classe garde l'implémentation SQLite originale pour la compatibilité
+    descendante. Les nouveaux composants devraient utiliser publish_http() et
+    query_http() qui délèguent au Go Bus via HTTP.
+    """
 
     def __init__(self, db_path: Path = DB_PATH):
         self.db_path = db_path
         self.db_path.parent.mkdir(parents=True, exist_ok=True)
         self._local = threading.local()
         self._init_db()
+        # Client Go Bus pour les méthodes HTTP
+        self._go_bus = GoBusClient()
 
     def _get_conn(self) -> sqlite3.Connection:
         """Connexion thread-local avec WAL activé."""
@@ -181,7 +325,7 @@ class EventBus:
         conn.commit()
         logger.info(f"Event Bus initialisé: {self.db_path}")
 
-    # --- Publication ---
+    # ── Publication SQLite (originale, conservée) ──────────────────────
 
     def publish(
         self,
@@ -191,7 +335,7 @@ class EventBus:
         priority: int = 0,
     ) -> int:
         """
-        Publie un événement sur le bus.
+        Publie un événement sur le bus SQLite.
 
         Args:
             channel: Canal cible (ex: "file:changed")
@@ -217,7 +361,32 @@ class EventBus:
         logger.debug(f"Événement #{event_id} publié: {channel} depuis {source}")
         return event_id
 
-    # --- Souscription ---
+    # ── Publication HTTP (Go Bus — V2.1) ───────────────────────────────
+
+    def publish_http(
+        self,
+        topic: str,
+        payload: dict,
+        source: str = "system",
+        priority: int = 0,
+    ) -> Optional[dict]:
+        """Publie un événement sur le Go Bus via HTTP (POST /api/publish).
+
+        Cette méthode utilise le Go Event Bus au lieu de SQLite direct.
+        Recommandée pour les nouveaux composants.
+
+        Args:
+            topic: Canal/topic cible (ex: "adam:heartbeat")
+            payload: Données de l'événement (sera sérialisé en JSON)
+            source: Source émettrice (ex: "adam-praetor")
+            priority: 0=normal, 1=urgent, 2=critique
+
+        Returns:
+            Réponse du Go Bus (dict avec l'ID de l'événement) ou None si échec.
+        """
+        return self._go_bus.publish(topic, payload, source=source, priority=priority)
+
+    # ── Souscription (SQLite — conservée) ──────────────────────────────
 
     def subscribe(
         self,
@@ -331,7 +500,7 @@ class EventBus:
         )
         conn.commit()
 
-    # --- Gestion des agents ---
+    # ── Gestion des agents ─────────────────────────────────────────────
 
     def register_agent(
         self,
@@ -412,10 +581,49 @@ class EventBus:
         rows = conn.execute("SELECT * FROM agents ORDER BY agent_id").fetchall()
         return [dict(r) for r in rows]
 
-    # --- Statistiques ---
+    # ── Query HTTP (Go Bus — V2.1) ─────────────────────────────────────
+
+    def query_http(
+        self,
+        topic: Optional[str] = None,
+        limit: int = 50,
+        status: Optional[str] = None,
+    ) -> list[dict]:
+        """Récupère des événements depuis le Go Bus via HTTP (GET /api/query).
+
+        Cette méthode utilise le Go Event Bus au lieu de SQLite direct.
+        Recommandée pour les nouveaux composants.
+
+        Args:
+            topic: Filtrer par topic (optionnel)
+            limit: Nombre max d'événements (défaut 50)
+            status: Filtrer par statut (pending, done, failed, etc.)
+
+        Returns:
+            Liste d'événements (dicts). Liste vide si erreur.
+        """
+        return self._go_bus.query(topic=topic, limit=limit, status=status)
+
+    def stats_http(self) -> dict:
+        """Récupère les statistiques du Go Bus via HTTP (GET /api/stats).
+
+        Returns:
+            Dict avec les statistiques. Dict vide si erreur.
+        """
+        return self._go_bus.stats()
+
+    def bus_health(self) -> bool:
+        """Vérifie si le Go Bus est joignable.
+
+        Returns:
+            True si le Go Bus répond, False sinon.
+        """
+        return self._go_bus.health()
+
+    # ── Statistiques SQLite (conservées) ───────────────────────────────
 
     def get_stats(self) -> dict:
-        """Retourne des statistiques sur le bus d'événements."""
+        """Retourne des statistiques sur le bus d'événements (SQLite)."""
         conn = self._get_conn()
         total = conn.execute("SELECT COUNT(*) FROM events").fetchone()[0]
         pending = conn.execute("SELECT COUNT(*) FROM events WHERE status='pending'").fetchone()[0]
@@ -563,7 +771,7 @@ if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
 
     if len(sys.argv) < 2:
-        print("Usage: event_bus.py [init|stats|publish CHANNEL PAYLOAD|listen]")
+        print("Usage: event_bus.py [init|stats|publish CHANNEL PAYLOAD|bus-health|bus-stats|listen]")
         sys.exit(1)
 
     cmd = sys.argv[1]
@@ -589,7 +797,38 @@ if __name__ == "__main__":
         payload = json.loads(sys.argv[3])
         bus = EventBus()
         eid = bus.publish(channel, payload)
-        print(f"✓ Événement #{eid} publié sur {channel}")
+        print(f"✓ Événement #{eid} publié sur {channel} (SQLite)")
+
+    elif cmd == "publish-http":
+        if len(sys.argv) < 4:
+            print("Usage: event_bus.py publish-http TOPIC 'JSON_PAYLOAD' [SOURCE]")
+            sys.exit(1)
+        topic = sys.argv[2]
+        payload = json.loads(sys.argv[3])
+        source = sys.argv[4] if len(sys.argv) > 4 else "cli"
+        bus = EventBus()
+        result = bus.publish_http(topic, payload, source=source)
+        if result:
+            print(f"✓ Événement publié sur Go Bus: {topic} → {result}")
+        else:
+            print(f"✗ Échec publication Go Bus: {topic}")
+
+    elif cmd == "bus-health":
+        bus = EventBus()
+        ok = bus.bus_health()
+        print(f"Go Bus ({GO_BUS_URL}): {'✓ joignable' if ok else '✗ injoignable'}")
+
+    elif cmd == "bus-stats":
+        bus = EventBus()
+        stats = bus.stats_http()
+        print(json.dumps(stats, indent=2, ensure_ascii=False))
+
+    elif cmd == "query-http":
+        topic = sys.argv[2] if len(sys.argv) > 2 else None
+        limit = int(sys.argv[3]) if len(sys.argv) > 3 else 20
+        bus = EventBus()
+        events = bus.query_http(topic=topic, limit=limit)
+        print(json.dumps(events, indent=2, ensure_ascii=False))
 
     else:
         print(f"Commande inconnue: {cmd}")

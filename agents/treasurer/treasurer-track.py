@@ -28,16 +28,19 @@ import json
 import time
 import sqlite3
 import subprocess
+import urllib.request
 from pathlib import Path
 from datetime import datetime, timezone, timedelta
 
 ADAM_V2_DIR = Path(os.environ.get("ADAM_V2_DIR", os.path.expanduser("~/eva-adam-v2")))
-DB_PATH = ADAM_V2_DIR / "event_bus.db"
 LOG_DIR = ADAM_V2_DIR / "logs"
 LOG_FILE = LOG_DIR / "treasurer-handler.log"
 FINANCE_DB = ADAM_V2_DIR / "finance.db"
 REPORT_DIR = ADAM_V2_DIR / "reports"
 REVENUS_DIR = Path(os.path.expanduser("~/revenus-alternatifs"))
+
+GO_BUS_URL = "http://localhost:8086/api/publish"
+GO_BUS_QUERY_URL = "http://localhost:8086/api/query"
 
 LOG_DIR.mkdir(parents=True, exist_ok=True)
 REPORT_DIR.mkdir(parents=True, exist_ok=True)
@@ -64,8 +67,38 @@ def log(msg, level="INFO"):
         f.write(line + "\n")
 
 
-def get_db():
-    return sqlite3.connect(str(DB_PATH), timeout=5)
+def publish_event(channel, payload, priority=5):
+    """Publie un événement sur le Go Bus via HTTP."""
+    try:
+        body = json.dumps({
+            "topic": channel,
+            "source": "adam-treasurer",
+            "priority": priority,
+            "payload": json.loads(payload) if isinstance(payload, str) else payload,
+        }).encode()
+        req = urllib.request.Request(
+            GO_BUS_URL, data=body,
+            headers={"Content-Type": "application/json"},
+            method="POST",
+        )
+        resp = urllib.request.urlopen(req, timeout=5)
+        data = json.loads(resp.read().decode())
+        return data.get("id", "")
+    except Exception as e:
+        log(f"Échec publication Go Bus ({channel}): {e}", "ERROR")
+        return ""
+
+
+def query_events(topic, limit=500):
+    """Récupère l'historique des événements depuis le Go Bus."""
+    try:
+        url = f"{GO_BUS_QUERY_URL}?topic={topic}&limit={limit}"
+        req = urllib.request.Request(url, method="GET")
+        with urllib.request.urlopen(req, timeout=5) as resp:
+            return json.loads(resp.read().decode())
+    except Exception as e:
+        log(f"Échec query Go Bus ({topic}): {e}", "ERROR")
+        return []
 
 
 def init_finance_db():
@@ -117,24 +150,21 @@ def init_finance_db():
 
 
 def estimate_token_cost():
-    """Estime le coût en tokens depuis les events traités aujourd'hui."""
-    conn = get_db()
+    """Estime le coût en tokens depuis les events traités aujourd'hui (via Go Bus)."""
     today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
-
-    # Compter les events traités aujourd'hui
-    row = conn.execute(
-        "SELECT COUNT(*) FROM events WHERE created_at >= ? AND status IN ('done','skipped')",
-        (today,)
-    ).fetchone()
-    events_today = row[0] if row else 0
-
-    # Estimer les tokens depuis la taille réelle des payloads
-    rows = conn.execute(
-        "SELECT payload FROM events WHERE created_at >= ? AND status IN ('done','skipped') LIMIT 500",
-        (today,)
-    ).fetchall()
-    total_payload_bytes = sum(len(r[0]) for r in rows)
-    conn.close()
+    
+    # Récupérer les événements depuis le Go Bus
+    msgs = query_events("adam:*", limit=500)
+    
+    # Filtrer les events d'aujourd'hui
+    events_today = 0
+    total_payload_bytes = 0
+    for msg in msgs:
+        ts = msg.get("timestamp", "")
+        if ts and ts.startswith(today):
+            events_today += 1
+            payload = msg.get("payload", {})
+            total_payload_bytes += len(json.dumps(payload))
 
     # Estimation: payload bytes / 4 ≈ tokens input; output ≈ 1/4 du input
     tokens_in = max(events_today * 1500, total_payload_bytes // 4)
@@ -257,19 +287,6 @@ def check_budget_alerts():
             log(f"ALERT: Budget {cat} dépassé: ${cat_cost:.2f} / ${limit:.2f}", "WARN")
 
     conn.close()
-
-
-def publish_event(channel, payload, priority=5):
-    conn = get_db()
-    now = datetime.now(timezone.utc).isoformat()
-    conn.execute(
-        "INSERT INTO events (channel, source, payload, status, priority, created_at) VALUES (?, 'adam-treasurer', ?, 'pending', ?, ?)",
-        (channel, payload, priority, now)
-    )
-    conn.commit()
-    eid = conn.execute("SELECT last_insert_rowid()").fetchone()[0]
-    conn.close()
-    return eid
 
 
 def run_cycle(force_report=False):

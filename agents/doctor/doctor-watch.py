@@ -10,6 +10,7 @@ import json
 import time
 import socket
 import subprocess
+import urllib.request
 from datetime import datetime, timezone
 
 CHANNEL = os.environ.get("ADAM_EVENT_CHANNEL", "unknown")
@@ -20,6 +21,8 @@ ADAM_V2_DIR = os.environ.get("ADAM_V2_DIR", "/home/aza/eva-adam-v2")
 LOG_DIR = os.path.join(ADAM_V2_DIR, "logs")
 LOG_FILE = os.path.join(LOG_DIR, "doctor-handler.log")
 os.makedirs(LOG_DIR, exist_ok=True)
+
+GO_BUS_URL = "http://localhost:8086/api/publish"
 
 # Services connus et comment les vérifier
 KNOWN_SERVICES = {
@@ -40,6 +43,49 @@ def log(msg: str):
     with open(LOG_FILE, "a") as f:
         f.write(f"[{ts}] [doctor] {msg}\n")
     print(msg)
+
+
+def publish_event(topic: str, payload: dict, source: str = "adam-doctor", priority: int = 5):
+    """Publie un événement sur le Go Bus via HTTP."""
+    try:
+        body = json.dumps({
+            "topic": topic,
+            "source": source,
+            "priority": priority,
+            "payload": payload,
+        }).encode()
+        req = urllib.request.Request(
+            GO_BUS_URL, data=body,
+            headers={"Content-Type": "application/json"},
+            method="POST",
+        )
+        urllib.request.urlopen(req, timeout=5)
+    except Exception as e:
+        log(f"⚠ Échec publication Go Bus ({topic}): {e}")
+
+
+def query_agents():
+    """Récupère la liste des agents depuis le Go Bus (query history sur adam:heartbeat)."""
+    try:
+        url = "http://localhost:8086/api/query?topic=adam:heartbeat&limit=500"
+        req = urllib.request.Request(url, method="GET")
+        with urllib.request.urlopen(req, timeout=5) as resp:
+            msgs = json.loads(resp.read().decode())
+        # msgs est une liste de Message avec payload contenant agent/status/timestamp
+        agents = {}
+        for msg in msgs:
+            p = msg.get("payload", {})
+            aid = p.get("agent", "")
+            if aid:
+                agents[aid] = {
+                    "agent_id": aid,
+                    "status": p.get("status", "unknown"),
+                    "heartbeat_at": msg.get("timestamp", ""),
+                }
+        return list(agents.values())
+    except Exception as e:
+        log(f"⚠ Échec query agents Go Bus: {e}")
+        return []
 
 
 def check_process(pattern: str) -> bool:
@@ -177,24 +223,11 @@ def main():
         pass
 
     # ──────────────────────────────────────────
-    # Surveillance des heartbeats agents
+    # Surveillance des heartbeats agents — via Go Bus query
     # ──────────────────────────────────────────
-    publish_path = os.path.join(ADAM_V2_DIR, "publish.py")
     log("Vérification heartbeats agents...")
     try:
-        import sqlite3 as _sqlite3
-        db_path = os.path.join(ADAM_V2_DIR, "event_bus.db")
-        conn = _sqlite3.connect(db_path)
-        conn.row_factory = _sqlite3.Row
-        cur = conn.cursor()
-
-        # Récupérer tous les agents avec leur dernier heartbeat
-        cur.execute("""
-            SELECT agent_id, status, heartbeat_at
-            FROM agents
-            ORDER BY agent_id
-        """)
-        agents = cur.fetchall()
+        agents = query_agents()
 
         # Seuil: 5 minutes pour les agents proactifs (qui battent régulièrement)
         # Seuil: 30 minutes pour les agents réactifs (adam-cicd, adam-backup, adam-docs)
@@ -203,9 +236,9 @@ def main():
         dead_agents = []
         stale_agents = []
 
-        for row in agents:
-            aid = row["agent_id"]
-            hb = row["heartbeat_at"]
+        for agent in agents:
+            aid = agent["agent_id"]
+            hb = agent.get("heartbeat_at", "")
             threshold_min = 30 if aid in REACTIVE_AGENTS else 5
             label = "réactif" if aid in REACTIVE_AGENTS else "proactif"
 
@@ -229,57 +262,32 @@ def main():
             else:
                 log(f"  ✓ {aid} — heartbeat il y a {elapsed_min:.0f}min (seuil {label}: {threshold_min}min)")
 
-        conn.close()
-
         # Publier des alertes pour les agents stale
         if stale_agents or dead_agents:
             stale_names = [a[0] for a in stale_agents] + dead_agents
-            alert_payload = json.dumps({
+            alert_payload = {
                 "type": "agent_stale",
                 "agents": stale_names,
                 "dead": dead_agents,
                 "stale": [a[0] for a in stale_agents],
                 "message": f"{len(stale_names)} agent(s) sans heartbeat récent",
                 "checked_by": "adam-doctor"
-            })
+            }
             try:
-                subprocess.run(
-                    ["python3", publish_path, "monitor:alert",
-                     alert_payload,
-                     "--source", "adam-doctor"],
-                    capture_output=True, text=True, timeout=10
-                )
+                publish_event("monitor:alert", alert_payload, priority=8)
                 log(f"→ published monitor:alert pour {len(stale_names)} agent(s) stale: {', '.join(stale_names)}")
 
                 # Publier aussi sur adam:error pour que self_heal corrige les agents stale
-                for agent_name, stale_minutes in stale_agents:
-                    # Trouver le handler_path depuis la config de l'agent
-                    handler_path = ""
-                    try:
-                        agent_row = conn.execute(
-                            "SELECT config FROM agents WHERE agent_id = ?",
-                            (agent_name,)
-                        ).fetchone()
-                        if agent_row and agent_row[0]:
-                            cfg = json.loads(agent_row[0])
-                            handler_path = cfg.get("handler", "")
-                    except Exception:
-                        pass
-
-                    error_payload = json.dumps({
+                for agent_name, stale_minutes, _, _ in stale_agents:
+                    error_payload = {
                         "agent_id": agent_name,
                         "error_type": "agent_stale",
                         "stale_minutes": int(stale_minutes),
-                        "handler_path": handler_path,
+                        "handler_path": "",
                         "message": f"{agent_name} sans heartbeat depuis {int(stale_minutes)}min"
-                    })
+                    }
                     try:
-                        subprocess.run(
-                            ["python3", publish_path, "adam:error",
-                             error_payload,
-                             "--source", "adam-doctor"],
-                            capture_output=True, text=True, timeout=10
-                        )
+                        publish_event("adam:error", error_payload, priority=8)
                         log(f"  → published adam:error pour {agent_name} (stale {int(stale_minutes)}min)")
                     except Exception as e:
                         log(f"  ⚠ Échec publication adam:error pour {agent_name}: {e}")
@@ -298,12 +306,10 @@ def main():
     # Follow-up event — chaîne entre agents
     # ──────────────────────────────────────────
     try:
-        subprocess.run(
-            ["python3", publish_path, "dashboard:down",
-             json.dumps({"service": service_name or "unknown", "checked_by": "adam-doctor"}),
-             "--source", "adam-doctor"],
-            capture_output=True, text=True, timeout=10
-        )
+        publish_event("dashboard:down", {
+            "service": service_name or "unknown",
+            "checked_by": "adam-doctor"
+        })
         log("→ published dashboard:down for adam-viz-checker")
     except Exception as e:
         log(f"⚠ Échec publication follow-up: {e}")

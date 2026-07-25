@@ -1,14 +1,18 @@
 #!/usr/bin/env python3
 """
 Adaptateur v2 — Enveloppe les scripts ADAM v1 dans le bus d'événements v2.
+(V2.1 — utilise le Go Bus via publish_http())
 
 Chaque script v1 est exécuté tel quel (sans modification). L'adaptateur:
-  1. Enregistre un heartbeat avant exécution (adam:heartbeat)
+  1. Enregistre un heartbeat avant exécution (adam:heartbeat) via Go Bus
   2. Exécute le script v1 original via subprocess
   3. Capture stdout/stderr/exit_code/durée
-  4. Publie le résultat sur les canaux appropriés (selon config agent)
+  4. Publie le résultat sur les canaux appropriés via Go Bus HTTP
   5. Met à jour AgentState (record_run, set_state, record_health)
   6. Publie adam:error en cas d'échec, adam:recovered sinon
+
+Migration V2.1: bus.publish_http() → bus.publish_http() (Go Bus HTTP API)
+L'ancienne méthode SQLite bus.publish_http() reste disponible en fallback.
 
 Usage:
   python3 v2_adapter.py <agent_id> [--script-args ...]
@@ -32,8 +36,11 @@ from pathlib import Path
 V2_DIR = Path(__file__).parent
 sys.path.insert(0, str(V2_DIR))
 
-from event_bus import EventBus, CHANNELS
+from event_bus import EventBus, CHANNELS, GoBusClient, GO_BUS_URL
 from state_isolation import AgentState
+
+# Client Go Bus pour publication HTTP (V2.1)
+_go_bus = GoBusClient()
 
 # ─── Configuration des 8 agents ADAM ──────────────────────────────────
 # Chaque entrée mappe un agent_id v2 vers:
@@ -179,8 +186,8 @@ def parse_stdout_alerts(agent_id: str, stdout: str, bus: EventBus):
                     "raw_line": line.strip(),
                     "timestamp": datetime.now(timezone.utc).isoformat(),
                 }
-                bus.publish(channel, payload, source=agent_id, priority=1)
-                log(f"Alerte parsée → {channel}: {payload['alert']}", "WARN")
+                bus.publish_http(channel, payload, source=agent_id, priority=1)
+                log(f"Alerte parsée → {channel}: {payload['alert']} (via Go Bus)", "WARN")
 
 
 def run_agent(
@@ -218,7 +225,7 @@ def run_agent(
         "script": script_path,
         "timestamp": datetime.now(timezone.utc).isoformat(),
     }
-    bus.publish("adam:heartbeat", hb_payload, source=agent_id, priority=0)
+    bus.publish_http("adam:heartbeat", hb_payload, source=agent_id, priority=0)
     state.record_health("starting")
 
     log(f"Démarrage agent {agent_id} → {script_path} {' '.join(args)}")
@@ -251,7 +258,7 @@ def run_agent(
             "error": f"Script introuvable: {script_path}",
             "timestamp": datetime.now(timezone.utc).isoformat(),
         }
-        bus.publish("adam:error", err_payload, source=agent_id, priority=2)
+        bus.publish_http("adam:error", err_payload, source=agent_id, priority=2)
         return {"agent_id": agent_id, "exit_code": -1, "error": "Script introuvable"}
 
     events_published = 1  # heartbeat déjà publié
@@ -281,7 +288,7 @@ def run_agent(
             "duration": duration,
             "timestamp": datetime.now(timezone.utc).isoformat(),
         }
-        bus.publish("adam:error", err_payload, source=agent_id, priority=2)
+        bus.publish_http("adam:error", err_payload, source=agent_id, priority=2)
         events_published += 1
         return {
             "agent_id": agent_id,
@@ -307,13 +314,13 @@ def run_agent(
                 "stdout_tail": stdout[-500:] if stdout else "",
                 "timestamp": datetime.now(timezone.utc).isoformat(),
             }
-            bus.publish(channel, payload, source=agent_id, priority=0)
+            bus.publish_http(channel, payload, source=agent_id, priority=0)
             events_published += 1
 
         # Publier adam:recovered si l'état précédent était error
         prev_status = state.get_state("last_run_status")
         if prev_status == "error":
-            bus.publish("adam:recovered", {
+            bus.publish_http("adam:recovered", {
                 "agent": agent_id,
                 "previous_status": prev_status,
                 "timestamp": datetime.now(timezone.utc).isoformat(),
@@ -322,7 +329,7 @@ def run_agent(
 
         state.set_state("last_run_status", "success")
         state.record_health("healthy")
-        log(f"✅ {agent_id} terminé en {duration:.1f}s — {events_published} événements publiés")
+        log(f"✅ {agent_id} terminé en {duration:.1f}s — {events_published} événements publiés (Go Bus)")
 
     else:
         # Échec
@@ -335,7 +342,7 @@ def run_agent(
                 "stderr_tail": stderr[-500:] if stderr else "",
                 "timestamp": datetime.now(timezone.utc).isoformat(),
             }
-            bus.publish(channel, payload, source=agent_id, priority=1)
+            bus.publish_http(channel, payload, source=agent_id, priority=1)
             events_published += 1
 
         # Publier adam:error
@@ -347,7 +354,7 @@ def run_agent(
             "duration": round(duration, 2),
             "timestamp": datetime.now(timezone.utc).isoformat(),
         }
-        bus.publish("adam:error", err_payload, source=agent_id, priority=2)
+        bus.publish_http("adam:error", err_payload, source=agent_id, priority=2)
         events_published += 1
 
         state.set_state("last_run_status", "error")
@@ -392,7 +399,12 @@ def list_agents():
 
 def test_all_agents():
     """Test dry-run de tous les agents — vérifie que les scripts existent."""
-    print("\n🧪 Test dry-run des 8 agents ADAM v2\n")
+    print("\n🧪 Test dry-run des 8 agents ADAM v2 (Go Bus)\n")
+    # Vérifier que le Go Bus est joignable
+    if not _go_bus.health():
+        print("⚠️  Go Bus injoignable sur {GO_BUS_URL} — fallback SQLite actif")
+    else:
+        print(f"✓ Go Bus joignable sur {GO_BUS_URL}")
     results = []
     bus = EventBus()
     for agent_id in AGENTS_CONFIG:

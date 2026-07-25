@@ -1,8 +1,19 @@
 #!/usr/bin/env python3
+# ═══════════════════════════════════════════════════════════════════════════
+# ⚠️  DEPRECATED — Ce daemon SQLite est conservé pour compatibilité descendante.
+#     Le Go Event Bus (port 8086) remplace ce daemon pour la gestion des
+#     événements. Les nouveaux composants doivent utiliser GoBusClient ou
+#     EventBus.publish_http() / EventBus.query_http() depuis event_bus.py.
+#     Voir: http://localhost:8086/api/stats
+# ═══════════════════════════════════════════════════════════════════════════
 """
-EVA ADAM v2 — Daemon d'Orchestration (Event Daemon)
-=====================================================
+EVA ADAM v2 — Daemon d'Orchestration (Event Daemon)  [DEPRECATED]
+===================================================================
 Levier 1 : Architecture Événementielle
+
+⚠️  DEPRECATED — Utiliser le Go Bus (http://localhost:8086) à la place.
+    Ce daemon SQLite reste fonctionnel mais ne devrait plus être utilisé
+    pour de nouveaux déploiements.
 
 Daemon principal qui écoute le bus d'événements SQLite, récupère les
 événements en attente, et déclenche les handlers des agents ADAM abonnés.

@@ -17,7 +17,7 @@ import os
 import json
 import hashlib
 import argparse
-import subprocess
+import urllib.request
 from datetime import datetime, timezone, timedelta
 
 # ─── Config ───
@@ -27,7 +27,7 @@ CALENDAR_DIR = os.path.join(SOCIAL_DIR, "calendar")
 ANALYTICS_DIR = os.path.join(SOCIAL_DIR, "analytics")
 LOG_DIR = os.path.expanduser("~/eva-adam-v2/logs")
 LOG_FILE = os.path.join(LOG_DIR, "social-handler.log")
-EVENT_BUS = os.path.expanduser("~/eva-adam-v2/publish.py")
+GO_BUS_URL = "http://localhost:8086/api/publish"
 
 # Personnas / Avatars IA
 PERSONAS = [
@@ -104,14 +104,22 @@ def log(level, msg):
         print(line)
 
 def publish(channel, payload):
-    """Publie un event sur le bus."""
+    """Publie un event sur le Go Bus HTTP API."""
     try:
         payload_str = json.dumps(payload) if isinstance(payload, dict) else str(payload)
-        result = subprocess.run(
-            [sys.executable, EVENT_BUS, channel, payload_str],
-            capture_output=True, text=True, timeout=15
+        body = json.dumps({
+            "topic": channel,
+            "source": "social",
+            "payload": payload_str,
+            "priority": 1,
+        }).encode()
+        req = urllib.request.Request(
+            GO_BUS_URL,
+            data=body,
+            headers={"Content-Type": "application/json"},
         )
-        log("INFO", f"Published on {channel}: {result.stdout.strip()}")
+        resp = urllib.request.urlopen(req, timeout=5)
+        log("INFO", f"Published on {channel}: HTTP {resp.status}")
         return True
     except Exception as e:
         log("ERROR", f"Publish failed on {channel}: {e}")

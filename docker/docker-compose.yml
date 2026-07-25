@@ -1,4 +1,4 @@
-# ADAM Docker Compose Stack
+# ADAM Docker Stack
 services:
   postgres:
     image: pgvector/pgvector:pg17
@@ -10,50 +10,7 @@ services:
       POSTGRES_DB: adam
       POSTGRES_USER: adam
       POSTGRES_PASSWORD: adam_secret_2026
-    
-  adam-viz:
-    build:
-      context: ./agents/viz
-      dockerfile: Dockerfile
-    container_name: adam-viz
-    restart: unless-stopped
-    ports:
-      - "8084:8084"
-    environment:
-      BUS_URL: http://go-bus:8086
-    depends_on:
-      - go-bus
-
-
-  graphify:
-    image: python:3.12-slim
-    container_name: adam-graphify
-    restart: unless-stopped
-    ports:
-      - "8090:8090"
-    command: bash -c "pip install flask psycopg2-binary && python /app/graphify_server.py"
-    environment:
-      PG_DSN: postgres://adam:adam_secret_2026@postgres:5432/adam?sslmode=disable
     volumes:
-      - ./graphify_server.py:/app/graphify_server.py
-    depends_on:
-      postgres:
-        condition: service_healthy
-
-  adam-chat:
-    build:
-      context: ./agents/chat
-      dockerfile: Dockerfile
-    container_name: adam-chat
-    restart: unless-stopped
-    ports:
-      - "8085:8085"
-    environment:
-      BUS_URL: http://go-bus:8086
-    depends_on:
-      - go-bus
-
-volumes:
       - pgdata:/var/lib/postgresql/data
       - ./postgres/init.sql:/docker-entrypoint-initdb.d/01-init.sql
     healthcheck:
@@ -77,7 +34,6 @@ volumes:
       postgres:
         condition: service_healthy
 
-
   adam-viz:
     build:
       context: ./agents/viz
@@ -90,22 +46,6 @@ volumes:
       BUS_URL: http://go-bus:8086
     depends_on:
       - go-bus
-
-
-  graphify:
-    image: python:3.12-slim
-    container_name: adam-graphify
-    restart: unless-stopped
-    ports:
-      - "8090:8090"
-    command: bash -c "pip install flask psycopg2-binary && python /app/graphify_server.py"
-    environment:
-      PG_DSN: postgres://adam:adam_secret_2026@postgres:5432/adam?sslmode=disable
-    volumes:
-      - ./graphify_server.py:/app/graphify_server.py
-    depends_on:
-      postgres:
-        condition: service_healthy
 
   adam-chat:
     build:
@@ -120,12 +60,25 @@ volumes:
     depends_on:
       - go-bus
 
+  graphify:
+    image: python:3.12-slim
+    container_name: adam-graphify
+    restart: unless-stopped
+    ports:
+      - "8090:8090"
+    command: >
+      bash -c "
+      pip install -q flask psycopg2-binary &&
+      python /app/graphify_server.py
+      "
+    environment:
+      PG_DSN: postgres://adam:adam_secret_2026@postgres:5432/adam?sslmode=disable
+    volumes:
+      - ./graphify_server.py:/app/graphify_server.py
+    depends_on:
+      postgres:
+        condition: service_healthy
+
 volumes:
   pgdata:
-
-# networks handled by default docker compose
-networks:
-  default:
-    name: adam-network
-    driver: bridge
 

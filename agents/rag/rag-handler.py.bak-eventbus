@@ -14,30 +14,19 @@ import urllib.error
 from datetime import datetime, timezone
 
 RAG_URL = os.environ.get("RAG_URL", "http://localhost:8083")
-GO_BUS_URL = os.environ.get("GO_BUS_URL", "http://localhost:8086/api/publish")
 ADAM_V2_DIR = os.environ.get("ADAM_V2_DIR", os.path.expanduser("~/eva-adam-v2"))
 sys.path.insert(0, ADAM_V2_DIR)
 
 def heartbeat(agent_id="eva-rag", status="ok", error=None):
-    """Publie un heartbeat sur le Go Bus via HTTP API."""
+    """Publie un heartbeat sur le bus d'événements."""
     try:
-        payload = {
-            "agent_id": agent_id,
-            "status": status,
-            "last_error": error,
-            "heartbeat_at": datetime.now(timezone.utc).isoformat(),
-        }
-        body = json.dumps({
-            "topic": "adam:heartbeat",
-            "source": agent_id,
-            "payload": payload,
-        }).encode("utf-8")
-        req = urllib.request.Request(
-            GO_BUS_URL,
-            data=body,
-            headers={"Content-Type": "application/json"},
+        from event_bus import EventBus
+        bus = EventBus(db_path=os.path.join(ADAM_V2_DIR, "event_bus.db"))
+        bus.update_agent_status(
+            agent_id, status,
+            last_error=error,
+            heartbeat_at=datetime.now(timezone.utc).isoformat(),
         )
-        urllib.request.urlopen(req, timeout=5)
     except Exception as e:
         print(f"⚠️ Impossible d'envoyer le heartbeat: {e}", file=sys.stderr)
 

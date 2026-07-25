@@ -23,7 +23,6 @@ import re
 import time
 import hashlib
 import argparse
-import subprocess
 import urllib.parse
 import urllib.request
 import urllib.error
@@ -38,7 +37,7 @@ OPPORTUNITIES_DIR = RESEARCH_DIR / "opportunities"
 SEEN_FILE = RESEARCH_DIR / "seen_findings.json"
 LOG_DIR = Path(os.path.expanduser("~/eva-adam-v2/logs"))
 LOG_FILE = LOG_DIR / "researcher-handler.log"
-EVENT_BUS = os.path.expanduser("~/eva-adam-v2/publish.py")
+GO_BUS_URL = "http://localhost:8086/api/publish"
 
 for d in [FINDINGS_DIR, OPPORTUNITIES_DIR, LOG_DIR]:
     d.mkdir(parents=True, exist_ok=True)
@@ -99,12 +98,21 @@ def log(level, msg):
 
 
 def publish(channel, payload):
+    """Publie un event sur le Go Bus HTTP API."""
     try:
         payload_str = json.dumps(payload) if isinstance(payload, dict) else str(payload)
-        result = subprocess.run(
-            [sys.executable, EVENT_BUS, channel, payload_str],
-            capture_output=True, text=True, timeout=15
+        body = json.dumps({
+            "topic": channel,
+            "source": "researcher",
+            "payload": payload_str,
+            "priority": 1,
+        }).encode()
+        req = urllib.request.Request(
+            GO_BUS_URL,
+            data=body,
+            headers={"Content-Type": "application/json"},
         )
+        urllib.request.urlopen(req, timeout=5)
         return True
     except Exception as e:
         log("ERROR", f"Publish failed on {channel}: {e}")

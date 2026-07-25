@@ -38,23 +38,23 @@ except Exception:
 ' 2>/dev/null || echo "$default"
 }
 
-# Publier un événement dans le bus
+# Publier un événement sur le Go Bus
 publish() {
     local ch="$1" pl="$2"
-    ADAM_CH="$ch" ADAM_PL="$pl" python3 -c '
-import json, sqlite3, os
-from datetime import datetime, timezone
-db = os.environ.get("ADAM_V2_DIR", "/home/aza/eva-adam-v2") + "/event_bus.db"
-conn = sqlite3.connect(db, timeout=5)
-now = datetime.now(timezone.utc).isoformat()
-conn.execute(
-    "INSERT INTO events (channel, source, payload, status, priority, created_at) "
-    "VALUES (?, ?, ?, \"pending\", 5, ?)",
-    (os.environ["ADAM_CH"], "adam-skillsmith", os.environ["ADAM_PL"], now)
-)
-conn.commit()
-conn.close()
-' 2>/dev/null
+    local body
+    body=$(ADAM_CH="$ch" ADAM_PL="$pl" python3 -c '
+import json, os
+msg = {
+    "topic": os.environ["ADAM_CH"],
+    "source": "adam-skillsmith",
+    "priority": 5,
+    "payload": json.loads(os.environ["ADAM_PL"])
+}
+print(json.dumps(msg))
+' 2>/dev/null)
+    curl -s -X POST http://localhost:8086/api/publish \
+        -H 'Content-Type: application/json' \
+        -d "$body" 2>/dev/null
 }
 
 log "INFO" "Channel=$CHANNEL Source=$SOURCE"

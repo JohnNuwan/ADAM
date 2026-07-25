@@ -24,7 +24,6 @@ import argparse
 import json
 import os
 import subprocess
-import urllib.request
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -35,7 +34,7 @@ LOG_DIR.mkdir(parents=True, exist_ok=True)
 LOG_FILE = LOG_DIR / "red-challenge.log"
 REPORT_DIR = Path("/home/aza/eva-adam-v2/reports/red-team")
 REPORT_DIR.mkdir(parents=True, exist_ok=True)
-GO_BUS_URL = "http://localhost:8086/api/publish"
+EVENT_DB = Path("/home/aza/eva-adam-v2/event_bus.db")
 
 # Cible connue : Nothing Phone 2
 TARGET_SERIAL = "2f109ecc"
@@ -1066,23 +1065,19 @@ def phase_report(recon: dict, fingerprint: dict, enum: dict, escalation: dict) -
 # ─── Publication d'event ───
 
 def publish_event(channel: str, payload: dict):
-    """Publie un event sur le Go Bus via HTTP API."""
-    import urllib.request
+    """Publie un event sur l'event bus."""
     try:
-        body = json.dumps({
-            "topic": channel,
-            "source": "adam-red",
-            "payload": payload,
-        }).encode("utf-8")
-        req = urllib.request.Request(
-            GO_BUS_URL,
-            data=body,
-            headers={"Content-Type": "application/json"},
+        import sqlite3
+        db = sqlite3.connect(str(EVENT_DB))
+        db.execute(
+            "INSERT INTO events (channel, source, payload, created_at) VALUES (?, ?, ?, ?)",
+            (channel, "adam-red", json.dumps(payload), datetime.now(timezone.utc).isoformat())
         )
-        urllib.request.urlopen(req, timeout=5)
-        log(f"Event publié sur canal '{channel}' (Go Bus)")
+        db.commit()
+        db.close()
+        log(f"Event publié sur canal '{channel}'")
     except Exception as e:
-        log(f"Erreur publication Go Bus : {e}", "ERROR")
+        log(f"Erreur publication event : {e}", "ERROR")
 
 # ─── Main ───
 

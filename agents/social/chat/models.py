@@ -2,6 +2,10 @@
 # -*- coding: utf-8 -*-
 """
 ADAM-CHAT — Modèles de base de données et chiffrement AES-256-GCM
+
+Migration Go Bus: les événements chat (message_sent, user_joined, etc.) sont
+publiés sur le Go Bus (http://localhost:8086/api/publish) en plus d'être
+stockés dans la DB locale chat.db.
 """
 
 import os
@@ -9,12 +13,38 @@ import json
 import base64
 import hashlib
 import sqlite3
+import urllib.request
 from datetime import datetime, timedelta, timezone
 from typing import Optional
 
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from cryptography.hazmat.primitives import hashes
+
+# ─── Go Bus ───────────────────────────────────────────────────────
+
+GO_BUS_URL = "http://localhost:8086/api/publish"
+
+
+def publish_to_bus(topic: str, payload: dict, source: str = "adam-chat", priority: int = 5):
+    """Publie un événement sur le Go Bus via HTTP."""
+    try:
+        body = json.dumps({
+            "topic": topic,
+            "source": source,
+            "priority": priority,
+            "payload": payload,
+        }).encode()
+        req = urllib.request.Request(
+            GO_BUS_URL, data=body,
+            headers={"Content-Type": "application/json"},
+            method="POST",
+        )
+        urllib.request.urlopen(req, timeout=5)
+    except Exception:
+        # Le bus est best-effort — on ne bloque jamais le chat
+        pass
+
 
 # ─── Chiffrement AES-256-GCM ───────────────────────────────────────
 
@@ -151,6 +181,12 @@ def init_db():
     conn.commit()
     conn.close()
 
+    # Notifier le Go Bus que le chat est initialisé
+    publish_to_bus("chat:initialized", {
+        "db_path": DB_PATH,
+        "timestamp": now_iso(),
+    })
+
 
 # ─── Helpers ───────────────────────────────────────────────────────
 
@@ -175,13 +211,24 @@ def seed_default_channels():
                 "INSERT INTO channels (name, description, created_by, is_private) VALUES (?, ?, 1, ?)",
                 (name, desc, private)
             )
+            # Publier la création du canal sur le Go Bus
+            publish_to_bus("chat:channel_created", {
+                "name": name,
+                "description": desc,
+                "is_private": private,
+            })
         # Ajouter tous les users existants aux nouveaux canaux
-        for ch in conn.execute("SELECT id FROM channels").fetchall():
-            for u in conn.execute("SELECT id FROM users").fetchall():
+        for ch in conn.execute("SELECT id, name FROM channels").fetchall():
+            for u in conn.execute("SELECT id, username FROM users").fetchall():
                 conn.execute(
                     "INSERT OR IGNORE INTO channel_members (channel_id, user_id, role) VALUES (?, ?, ?)",
                     (ch['id'], u['id'], 'admin' if u['id'] == 1 else 'member')
                 )
+                publish_to_bus("chat:user_joined", {
+                    "channel": ch['name'],
+                    "username": u['username'],
+                    "role": 'admin' if u['id'] == 1 else 'member',
+                })
         conn.commit()
     conn.close()
 
@@ -198,11 +245,18 @@ def seed_admin():
             ("admin", pw_hash, "Administrateur")
         )
         # Ajouter admin à tous les canaux
-        for ch in conn.execute("SELECT id FROM channels").fetchall():
+        for ch in conn.execute("SELECT id, name FROM channels").fetchall():
             conn.execute(
                 "INSERT OR IGNORE INTO channel_members (channel_id, user_id, role) VALUES (?, ?, ?)",
                 (ch['id'], 1, 'admin')
             )
         conn.commit()
         print("[✓] Compte admin créé : admin / admin123")
+
+        # Publier l'événement sur le Go Bus
+        publish_to_bus("chat:user_registered", {
+            "username": "admin",
+            "display_name": "Administrateur",
+            "is_admin": True,
+        })
     conn.close()

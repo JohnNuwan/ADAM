@@ -15,7 +15,6 @@ if [ -z "$PAYLOAD" ]; then PAYLOAD='{}'; fi
 SOURCE="${ADAM_EVENT_SOURCE:-unknown}"
 LOGFILE="${ADAM_V2_DIR:-/home/aza/eva-adam-v2}/logs/scribe-handler.log"
 ADAM_V2_DIR="${ADAM_V2_DIR:-/home/aza/eva-adam-v2}"
-DB_PATH="${ADAM_V2_DIR}/event_bus.db"
 DOCS_DIR="${ADAM_V2_DIR}/docs"
 TIMESTAMP=$(date -Iseconds)
 
@@ -48,20 +47,20 @@ publish_event() {
     local ch="$1"
     local pl="$2"
     local prio="${3:-5}"
-    ADAM_CH="$ch" ADAM_PL="$pl" ADAM_PRIO="$prio" python3 -c '
-import json, sqlite3, os
-from datetime import datetime, timezone
-db = os.environ.get("ADAM_V2_DIR", "/home/aza/eva-adam-v2") + "/event_bus.db"
-conn = sqlite3.connect(db, timeout=5)
-now = datetime.now(timezone.utc).isoformat()
-conn.execute(
-    "INSERT INTO events (channel, source, payload, status, priority, created_at) "
-    "VALUES (?, ?, ?, \"pending\", ?, ?)",
-    (os.environ["ADAM_CH"], "adam-scribe", os.environ["ADAM_PL"], int(os.environ["ADAM_PRIO"]), now)
-)
-conn.commit()
-conn.close()
-' 2>/dev/null
+    local body
+    body=$(ADAM_CH="$ch" ADAM_PL="$pl" ADAM_PRIO="$prio" python3 -c '
+import json, os
+msg = {
+    "topic": os.environ["ADAM_CH"],
+    "source": "adam-scribe",
+    "priority": int(os.environ["ADAM_PRIO"]),
+    "payload": json.loads(os.environ["ADAM_PL"])
+}
+print(json.dumps(msg))
+' 2>/dev/null)
+    curl -s -X POST http://localhost:8086/api/publish \
+        -H 'Content-Type: application/json' \
+        -d "$body" 2>/dev/null
 }
 
 log "INFO" "Processing event: source=${SOURCE} payload=${PAYLOAD}"

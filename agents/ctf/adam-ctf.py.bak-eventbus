@@ -28,14 +28,13 @@ import re
 import subprocess
 import time
 import base64
-import urllib.request
 from datetime import datetime, timezone
 from pathlib import Path
 
 # ─── Configuration ───
 AGENT_ID = "adam-ctf"
 DISPLAY_NAME = "ADAM-CTF — Entraînement CTF & Apprentissage"
-GO_BUS_URL = "http://localhost:8086/api/publish"
+EVENT_DB = Path("/home/aza/eva-adam-v2/event_bus.db")
 LOG_DIR = Path("/home/aza/eva-adam-v2/logs")
 LOG_DIR.mkdir(parents=True, exist_ok=True)
 LOG_FILE = LOG_DIR / "ctf.log"
@@ -66,24 +65,20 @@ def log(msg: str, level: str = "INFO"):
     with open(LOG_FILE, "a") as f:
         f.write(line + "\n")
 
+def db_conn():
+    import sqlite3
+    return sqlite3.connect(str(EVENT_DB))
+
 def publish(channel: str, payload: dict, priority: int = 3):
-    """Publie un event sur le Go Bus via HTTP API."""
-    import urllib.request
-    try:
-        body = json.dumps({
-            "topic": channel,
-            "source": AGENT_ID,
-            "payload": payload,
-            "priority": priority,
-        }).encode("utf-8")
-        req = urllib.request.Request(
-            GO_BUS_URL,
-            data=body,
-            headers={"Content-Type": "application/json"},
-        )
-        urllib.request.urlopen(req, timeout=5)
-    except Exception as e:
-        log(f"Erreur publication Go Bus ({channel}): {e}", "WARN")
+    """Publie un event dans le bus."""
+    conn = db_conn()
+    now = datetime.now(timezone.utc).isoformat()
+    conn.execute(
+        "INSERT INTO events (channel, source, payload, priority, created_at, status) VALUES (?,?,?,?,?,?)",
+        (channel, AGENT_ID, json.dumps(payload, ensure_ascii=False), priority, now, "pending"),
+    )
+    conn.commit()
+    conn.close()
 
 def heartbeat():
     """Heartbeat pour le moniteur."""

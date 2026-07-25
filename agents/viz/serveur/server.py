@@ -1,43 +1,48 @@
 #!/usr/bin/env python3
-"""Adam-Viz V3 — Dashboard temps réel ADAM v2.
+"""Adam-Viz V4 — Dashboard ADAM via Go Bus API (HTTP).
 
-Lit directement event_bus.db pour afficher :
-- Les 11 agents et leur statut réel (idle/running/error)
-- Le flux d'événements en temps réel (WebSocket)
-- Les métriques du bus (events/min, taux de succès, latence)
-- Les handlers et leurs logs récents
+Version locale (non-Docker) — utilise le Go Event Bus (port 8086) comme
+source de données au lieu de SQLite direct. Adaptée depuis la version
+docker/agents/viz/server.py.
+
+Garde les fonctionnalités spécifiques au host :
+  - Rapports OSINT (listing + download + trigger)
+  - Handler logs par agent
+  - Métriques système locales (GPU, RAM, disque)
+
+Plus de dépendance SQLite directe — tout passe par l'API HTTP du Go Bus.
 """
 
 import json
 import os
 import sys
 import time
-import sqlite3
 import threading
 import subprocess
+import urllib.request
+import urllib.error
+import urllib.parse
 from pathlib import Path
 from datetime import datetime, timezone, timedelta
-from collections import deque, defaultdict
-from flask import Flask, render_template, jsonify
+from collections import deque
+from flask import Flask, render_template, jsonify, request, send_file
 from flask_sock import Sock
 
 app = Flask(__name__)
 sock = Sock(app)
 
-# ============================================================
-# CONFIG
-# ============================================================
+# ── Config ─────────────────────────────────────────────────────────────────
+BUS_URL = os.environ.get("BUS_URL", "http://localhost:8086")
 ADAM_V2_DIR = Path(os.environ.get("ADAM_V2_DIR", os.path.expanduser("~/eva-adam-v2")))
-DB_PATH = ADAM_V2_DIR / "event_bus.db"
 LOG_DIR = ADAM_V2_DIR / "logs"
-HANDLER_LOG_DIR = LOG_DIR  # handler logs like praetor-handler.log, etc.
+OSINT_REPORT_DIR = ADAM_V2_DIR / "osint_reports"
 
-# Les 11 agents réels d'ADAM v2
+# Les 11 agents ADAM v2
 AGENTS_META = {
     "adam-praetor":    {"emoji": "🛡️", "color": "#ff2244", "role": "Surveillance système"},
     "adam-sentinel":   {"emoji": "📡", "color": "#00ddff", "role": "Veille technologique"},
     "adam-critic":     {"emoji": "🔍", "color": "#ffdd00", "role": "Audit qualité"},
-    "adam-cicd":       {"emoji": "🚀", "color": "#ffffff", "color2": "#aaa", "role": "CI/CD + git"},
+    "adam-cicd":       {"emoji": "🚀", "color": "#ffffff", "role": "CI/CD + git"},
     "adam-backup":     {"emoji": "💾", "color": "#2244aa", "role": "Sauvegarde"},
     "adam-deploy":     {"emoji": "📦", "color": "#00ff88", "role": "Déploiement"},
     "adam-monitor":    {"emoji": "📊", "color": "#ff8800", "role": "Monitoring hardware"},
@@ -47,215 +52,159 @@ AGENTS_META = {
     "adam-viz-checker":{"emoji": "👁️", "color": "#88ffaa", "role": "Vérification dashboards"},
 }
 
-# Mapping canal → handler log file
+# Mapping agent → handler log file
 HANDLER_LOGS = {
     "adam-praetor":    "praetor-handler.log",
     "adam-blue":       "blue-handler.log",
     "adam-cicd":       "cicd-handler.log",
     "adam-critic":     "critic-handler.log",
-    "adam-monitor":   "monitor-handler.log",
-    "adam-deploy":    "deploy-handler.log",
-    "adam-backup":    "backup-handler.log",
-    "adam-sentinel":  "sentinel-handler.log",
-    "adam-doctor":    "doctor-handler.log",
+    "adam-monitor":    "monitor-handler.log",
+    "adam-deploy":     "deploy-handler.log",
+    "adam-backup":     "backup-handler.log",
+    "adam-sentinel":   "sentinel-handler.log",
+    "adam-doctor":     "doctor-handler.log",
     "adam-viz-checker":"viz-checker.log",
-    "adam-red":       "red-handler.log",
+    "adam-red":        "red-handler.log",
 }
 
-# ============================================================
-# ÉTAT GLOBAL
-# ============================================================
+# ── État global ─────────────────────────────────────────────────────────────
 ws_clients = set()
-event_buffer = deque(maxlen=100)  # 100 derniers events pour le feed temps réel
-agent_states = {}  # cache des états d'agents
-stats = {
-    "total_events": 0,
-    "total_done": 0,
-    "total_failed": 0,
-    "events_per_minute": 0,
-    "avg_latency_ms": 0,
-    "uptime_seconds": 0,
-}
 start_time = time.time()
-last_events_count = 0
-last_check_time = time.time()
+event_buffer = deque(maxlen=100)  # cache des derniers events pour le feed temps réel
 
-# ============================================================
-# LECTURE DB
-# ============================================================
-def db_conn():
-    """Connexion SQLite avec timeout WAL."""
-    conn = sqlite3.connect(str(DB_PATH), timeout=3)
-    conn.row_factory = sqlite3.Row
-    return conn
-
-def get_agents_from_db():
-    """Lit les 11 agents et leur état depuis event_bus.db."""
-    agents = []
+# ── Go Bus HTTP Client ─────────────────────────────────────────────────────
+def bus_get(path):
+    """GET sur le Go Bus, retourne le JSON décodé ou None."""
     try:
-        conn = db_conn()
-        rows = conn.execute("SELECT * FROM agents ORDER BY agent_id").fetchall()
-        for row in rows:
-            aid = row["agent_id"]
-            meta = AGENTS_META.get(aid, {"emoji": "🤖", "color": "#888", "role": "Inconnu"})
-            
-            # Subscriptions de cet agent
-            subs = conn.execute(
-                "SELECT channel, handler, enabled FROM subscriptions WHERE agent_id=? AND enabled=1",
-                (aid,)
-            ).fetchall()
-            channels = [s["channel"] for s in subs]
-            
-            # Dernière exécution
-            last_exec = conn.execute(
-                "SELECT * FROM execution_log WHERE agent_id=? ORDER BY id DESC LIMIT 1",
-                (aid,)
-            ).fetchone()
-            
-            # Compter les exécutions
-            exec_count = conn.execute(
-                "SELECT COUNT(*), SUM(success) FROM execution_log WHERE agent_id=?",
-                (aid,)
-            ).fetchone()
-            total_runs = exec_count[0] or 0
-            successful_runs = exec_count[1] or 0
-            
-            # Statut
-            status = row["status"] or "idle"
-            last_status = row["last_status"] or ""
-            last_error = row["last_error"] or ""
-            heartbeat = row["heartbeat_at"] or ""
-            
-            # Déterminer si stale (heartbeat > 10min)
-            is_stale = False
-            if heartbeat:
-                try:
-                    hb_dt = datetime.fromisoformat(heartbeat.replace("Z", "+00:00"))
-                    age = (datetime.now(timezone.utc) - hb_dt).total_seconds()
-                    is_stale = age > 600
-                except Exception:
-                    pass
-            
+        req = urllib.request.Request(f"{BUS_URL}{path}")
+        with urllib.request.urlopen(req, timeout=5) as resp:
+            return json.loads(resp.read().decode())
+    except Exception as e:
+        print(f"[BUS GET ERROR] {path}: {e}", file=sys.stderr)
+        return None
+
+def bus_publish(topic, source, payload, priority=0):
+    """POST un événement sur le Go Bus via /api/publish."""
+    data = json.dumps({
+        "topic": topic,
+        "source": source,
+        "payload": payload,
+        "priority": priority,
+    }).encode()
+    try:
+        req = urllib.request.Request(
+            f"{BUS_URL}/api/publish",
+            data=data,
+            headers={"Content-Type": "application/json"},
+            method="POST",
+        )
+        with urllib.request.urlopen(req, timeout=5) as resp:
+            return json.loads(resp.read().decode())
+    except Exception as e:
+        print(f"[BUS PUBLISH ERROR] {e}", file=sys.stderr)
+        return None
+
+def get_bus_events(topic=None, limit=50):
+    """Récupère les événements depuis le Go Bus (/api/query)."""
+    q = f"/api/query?limit={limit}"
+    if topic:
+        q += f"&topic={urllib.parse.quote(topic)}"
+    data = bus_get(q)
+    if data and "events" in data:
+        return data["events"]
+    return []
+
+def get_bus_stats():
+    """Statistiques globales du Go Bus (/api/stats)."""
+    data = bus_get("/api/stats")
+    if isinstance(data, dict):
+        return data
+    return {}
+
+# ── Agents / Events depuis le bus ──────────────────────────────────────────
+def get_agents():
+    """Construit la liste des agents à partir des events récents du bus."""
+    events = get_bus_events(limit=200)
+    agents = []
+    seen = set()
+    # Pré-remplir avec tous les agents connus (même si pas d'event récent)
+    for aid, meta in AGENTS_META.items():
+        if aid not in seen:
+            seen.add(aid)
             agents.append({
                 "id": aid,
-                "display_name": row["display_name"],
+                "display_name": aid.replace("adam-", "").title(),
                 "emoji": meta["emoji"],
                 "color": meta["color"],
                 "role": meta["role"],
-                "status": status,
-                "last_status": last_status,
-                "last_error": last_error,
-                "heartbeat_at": heartbeat,
-                "is_stale": is_stale,
-                "channels": channels,
-                "total_runs": total_runs,
-                "successful_runs": successful_runs,
-                "last_run_at": row["last_run_at"] or "",
-                "pid": row["pid"],
-                "config": json.loads(row["config"] or "{}"),
+                "status": "idle",
+                "last_status": "",
+                "last_error": "",
+                "last_run_at": "",
+                "heartbeat_at": "",
+                "is_stale": True,
+                "channels": [],
+                "total_runs": 0,
+                "successful_runs": 0,
             })
-        conn.close()
-    except Exception as e:
-        print(f"[ERROR] get_agents_from_db: {e}", file=sys.stderr)
+    # Enrichir avec les events récents
+    for e in events:
+        source = e.get("source", "unknown")
+        if source in seen and source in AGENTS_META:
+            # Mettre à jour l'agent existant
+            for a in agents:
+                if a["id"] == source:
+                    a["status"] = "running" if e.get("status") == "done" else "idle"
+                    a["last_status"] = e.get("status", "")
+                    a["last_run_at"] = e.get("created_at", "")
+                    a["heartbeat_at"] = e.get("created_at", "")
+                    a["is_stale"] = False
+                    a["total_runs"] += 1
+                    if e.get("status") == "done":
+                        a["successful_runs"] += 1
+                    ch = e.get("topic", "")
+                    if ch and ch not in a["channels"]:
+                        a["channels"].append(ch)
+                    break
+        elif source not in seen:
+            seen.add(source)
+            meta = AGENTS_META.get(source, {"emoji": "🤖", "color": "#888", "role": "Inconnu"})
+            agents.append({
+                "id": source,
+                "display_name": source.replace("adam-", "").title(),
+                "emoji": meta["emoji"],
+                "color": meta["color"],
+                "role": meta["role"],
+                "status": "running" if e.get("status") == "done" else "idle",
+                "last_status": e.get("status", ""),
+                "last_error": e.get("error", ""),
+                "last_run_at": e.get("created_at", ""),
+                "heartbeat_at": e.get("created_at", ""),
+                "is_stale": False,
+                "channels": [e.get("topic", "")],
+                "total_runs": 1,
+                "successful_runs": 1 if e.get("status") == "done" else 0,
+            })
     return agents
 
 def get_recent_events(limit=50):
-    """Récupère les derniers events du bus."""
-    events = []
-    try:
-        conn = db_conn()
-        rows = conn.execute(
-            "SELECT id, channel, source, status, created_at, processed_at, priority "
-            "FROM events ORDER BY id DESC LIMIT ?",
-            (limit,)
-        ).fetchall()
-        for r in rows:
-            latency_ms = None
-            if r["processed_at"] and r["created_at"]:
-                try:
-                    created = datetime.fromisoformat(r["created_at"].replace("Z", "+00:00"))
-                    processed = datetime.fromisoformat(r["processed_at"].replace("Z", "+00:00"))
-                    latency_ms = int((processed - created).total_seconds() * 1000)
-                except Exception:
-                    pass
-            events.append({
-                "id": r["id"],
-                "channel": r["channel"],
-                "source": r["source"],
-                "status": r["status"],
-                "created_at": r["created_at"],
-                "processed_at": r["processed_at"],
-                "priority": r["priority"],
-                "latency_ms": latency_ms,
-            })
-        conn.close()
-    except Exception as e:
-        print(f"[ERROR] get_recent_events: {e}", file=sys.stderr)
-    return events
+    """Récupère les derniers events du Go Bus."""
+    events = get_bus_events(limit=limit)
+    result = []
+    for e in events:
+        result.append({
+            "id": e.get("id", ""),
+            "channel": e.get("topic", ""),
+            "source": e.get("source", ""),
+            "status": e.get("status", "done"),
+            "created_at": e.get("created_at", ""),
+            "processed_at": e.get("created_at", ""),
+            "priority": e.get("priority", 0),
+            "latency_ms": e.get("latency_ms"),
+        })
+    return result
 
-def get_bus_stats():
-    """Statistiques globales du bus."""
-    try:
-        conn = db_conn()
-        
-        # Compteurs par statut
-        status_counts = {}
-        for row in conn.execute("SELECT status, COUNT(*) FROM events GROUP BY status"):
-            status_counts[row[0]] = row[1]
-        
-        # Events par canal (top 10)
-        channel_counts = {}
-        for row in conn.execute("SELECT channel, COUNT(*) FROM events GROUP BY channel ORDER BY COUNT(*) DESC LIMIT 10"):
-            channel_counts[row[0]] = row[1]
-        
-        # Latence moyenne (derniers 100 events traités)
-        latency_rows = conn.execute(
-            "SELECT created_at, processed_at FROM events "
-            "WHERE status='done' AND processed_at IS NOT NULL "
-            "ORDER BY id DESC LIMIT 100"
-        ).fetchall()
-        latencies = []
-        for r in latency_rows:
-            try:
-                created = datetime.fromisoformat(r["created_at"].replace("Z", "+00:00"))
-                processed = datetime.fromisoformat(r["processed_at"].replace("Z", "+00:00"))
-                latencies.append((processed - created).total_seconds() * 1000)
-            except Exception:
-                pass
-        avg_latency = sum(latencies) / len(latencies) if latencies else 0
-        
-        # Events de la dernière minute
-        one_min_ago = (datetime.now(timezone.utc) - timedelta(minutes=1)).isoformat()
-        recent_count = conn.execute(
-            "SELECT COUNT(*) FROM events WHERE created_at > ?", (one_min_ago,)
-        ).fetchone()[0]
-        
-        # Events par agent (top handlers)
-        agent_counts = {}
-        for row in conn.execute(
-            "SELECT agent_id, COUNT(*) FROM execution_log GROUP BY agent_id ORDER BY COUNT(*) DESC"
-        ):
-            agent_counts[row[0]] = row[1]
-        
-        conn.close()
-        
-        return {
-            "total": sum(status_counts.values()),
-            "pending": status_counts.get("pending", 0),
-            "processing": status_counts.get("processing", 0),
-            "done": status_counts.get("done", 0),
-            "failed": status_counts.get("failed", 0),
-            "skipped": status_counts.get("skipped", 0),
-            "events_per_minute": recent_count,
-            "avg_latency_ms": round(avg_latency, 1),
-            "channels": channel_counts,
-            "agent_runs": agent_counts,
-        }
-    except Exception as e:
-        print(f"[ERROR] get_bus_stats: {e}", file=sys.stderr)
-        return {}
-
-def get_handler_logs(agent_id, lines=20):
+def get_handler_logs(agent_id, lines=50):
     """Lit les dernières lignes du log d'un handler."""
     log_file = HANDLER_LOGS.get(agent_id)
     if not log_file:
@@ -271,12 +220,10 @@ def get_handler_logs(agent_id, lines=20):
         return []
 
 def get_daemon_status():
-    """Vérifie si les daemons tournent."""
+    """Vérifie si les daemons tournent (via ps aux)."""
     daemons = {}
     try:
-        result = subprocess.run(
-            ["ps", "aux"], capture_output=True, text=True, timeout=5
-        )
+        result = subprocess.run(["ps", "aux"], capture_output=True, text=True, timeout=5)
         ps_output = result.stdout
         daemons["event_daemon"] = "event_daemon.py" in ps_output
         daemons["file_watcher"] = "file_watcher.py" in ps_output
@@ -286,13 +233,13 @@ def get_daemon_status():
     return daemons
 
 def get_system_metrics():
-    """Métriques système rapides."""
+    """Métriques système rapides (CPU load, RAM, disk, GPU)."""
     metrics = {}
     try:
-        # CPU
+        # CPU load
         with open("/proc/loadavg") as f:
             metrics["load_avg"] = f.read().split()[:3]
-        
+
         # RAM
         with open("/proc/meminfo") as f:
             meminfo = {}
@@ -305,7 +252,7 @@ def get_system_metrics():
         metrics["ram_total_gb"] = round(total / 1024 / 1024, 1)
         metrics["ram_used_gb"] = round((total - avail) / 1024 / 1024, 1)
         metrics["ram_pct"] = round((1 - avail / total) * 100, 1) if total > 0 else 0
-        
+
         # Disk
         result = subprocess.run(["df", "/"], capture_output=True, text=True, timeout=5)
         lines = result.stdout.strip().split("\n")
@@ -314,13 +261,14 @@ def get_system_metrics():
             metrics["disk_pct"] = int(parts[4].replace("%", ""))
             metrics["disk_used"] = parts[2]
             metrics["disk_total"] = parts[1]
-        
-        # GPU
+
+        # GPU (nvidia-smi)
         try:
             result = subprocess.run(
-                ["nvidia-smi", "--query-gpu=index,name,temperature.gpu,utilization.gpu,memory.used,memory.total",
+                ["nvidia-smi",
+                 "--query-gpu=index,name,temperature.gpu,utilization.gpu,memory.used,memory.total",
                  "--format=csv,noheader,nounits"],
-                capture_output=True, text=True, timeout=5
+                capture_output=True, text=True, timeout=5,
             )
             gpus = []
             for line in result.stdout.strip().split("\n"):
@@ -342,11 +290,9 @@ def get_system_metrics():
         pass
     return metrics
 
-
-# ============================================================
-# BROADCAST WEBSOCKET
-# ============================================================
+# ── WebSocket broadcast ────────────────────────────────────────────────────
 def broadcast(data):
+    """Diffuse un message à tous les clients WebSocket connectés."""
     msg = json.dumps(data)
     dead = set()
     for client in list(ws_clients):
@@ -356,29 +302,15 @@ def broadcast(data):
             dead.add(client)
     ws_clients.difference_update(dead)
 
-
 def monitoring_loop():
-    """Boucle principale : lit le bus toutes les 2s, broadcast les updates."""
+    """Boucle principale : poll le Go Bus toutes les 2s, broadcast les updates."""
     tick = 0
     while True:
         try:
-            agents = get_agents_from_db()
+            agents = get_agents()
             events = get_recent_events(20)
             bus_stats = get_bus_stats()
             daemons = get_daemon_status()
-            
-            # Calculer les events/nouveau depuis le dernier tick
-            global last_events_count, last_check_time
-            now = time.time()
-            total_events = bus_stats.get("total", 0)
-            time_delta = now - last_check_time
-            if time_delta > 0:
-                events_delta = total_events - last_events_count
-                events_per_min = (events_delta / time_delta) * 60
-                bus_stats["events_per_minute"] = round(events_per_min, 1)
-            last_events_count = total_events
-            last_check_time = now
-            
             data = {
                 "type": "update",
                 "tick": tick,
@@ -387,19 +319,15 @@ def monitoring_loop():
                 "events": events,
                 "bus_stats": bus_stats,
                 "daemons": daemons,
-                "uptime_seconds": int(now - start_time),
+                "uptime_seconds": int(time.time() - start_time),
             }
             broadcast(data)
             tick += 1
         except Exception as e:
             print(f"[ERROR] monitoring_loop: {e}", file=sys.stderr)
-        
         time.sleep(2)
 
-
-# ============================================================
-# API ENDPOINTS
-# ============================================================
+# ── Routes ─────────────────────────────────────────────────────────────────
 @app.route("/hive")
 def hive_page():
     """Vue 3D The Hive — visualisation temps réel des Adams."""
@@ -409,10 +337,9 @@ def hive_page():
 def health():
     return jsonify({
         "status": "ok",
-        "service": "adam-viz-v3",
+        "service": "adam-viz-v4",
+        "bus_url": BUS_URL,
         "agents": len(AGENTS_META),
-        "db": str(DB_PATH),
-        "db_exists": DB_PATH.exists(),
         "clients_ws": len(ws_clients),
     })
 
@@ -422,37 +349,7 @@ def index():
 
 @app.route("/api/agents")
 def api_agents():
-    return jsonify({"agents": get_agents_from_db()})
-
-@app.route("/api/chains")
-def api_chains():
-    """Retourne les chaînes inter-agent récentes (events non-heartbeat avec follow-up)."""
-    import sqlite3 as sq3
-    chains = []
-    try:
-        conn = sq3.connect(str(DB_PATH))
-        conn.row_factory = sq3.Row
-        # Events récents non-heartbeat, triés par timestamp
-        rows = conn.execute("""
-            SELECT id, channel, source, status, created_at, payload
-            FROM events
-            WHERE channel NOT LIKE '%heartbeat%'
-            ORDER BY id DESC
-            LIMIT 60
-        """).fetchall()
-        for r in rows:
-            chains.append({
-                "id": r["id"],
-                "channel": r["channel"],
-                "source": r["source"],
-                "status": r["status"],
-                "time": r["created_at"][11:19] if r["created_at"] else "",
-                "payload": r["payload"][:200] if r["payload"] else "",
-            })
-        conn.close()
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-    return jsonify({"chains": chains})
+    return jsonify({"agents": get_agents()})
 
 @app.route("/api/events")
 def api_events():
@@ -462,24 +359,37 @@ def api_events():
 def api_stats():
     return jsonify(get_bus_stats())
 
-@app.route("/api/daemons")
-def api_daemons():
-    return jsonify(get_daemon_status())
-
 @app.route("/api/system")
 def api_system():
     return jsonify(get_system_metrics())
+
+@app.route("/api/daemons")
+def api_daemons():
+    return jsonify(get_daemon_status())
 
 @app.route("/api/handler-logs/<agent_id>")
 def api_handler_logs(agent_id):
     return jsonify({"agent_id": agent_id, "logs": get_handler_logs(agent_id, 50)})
 
+@app.route("/api/chains")
+def api_chains():
+    """Retourne les chaînes inter-agent récentes (events non-heartbeat)."""
+    events = get_bus_events(limit=60)
+    chains = []
+    for e in events:
+        topic = e.get("topic", "")
+        if "heartbeat" not in topic:
+            chains.append({
+                "id": e.get("id", ""),
+                "channel": topic,
+                "source": e.get("source", ""),
+                "status": e.get("status", "done"),
+                "time": str(e.get("created_at", ""))[11:19],
+                "payload": json.dumps(e.get("payload", {}))[:200],
+            })
+    return jsonify({"chains": chains})
 
-# ============================================================
-# OSINT REPORTS — Téléchargement
-# ============================================================
-OSINT_REPORT_DIR = ADAM_V2_DIR / "osint_reports"
-
+# ── OSINT REPORTS ──────────────────────────────────────────────────────────
 @app.route("/api/osint/reports")
 def api_osint_reports():
     """Liste tous les rapports OSINT disponibles (récursif, par date)."""
@@ -503,7 +413,6 @@ def api_osint_reports():
 @app.route("/api/osint/download/<path:filename>")
 def api_osint_download(filename):
     """Télécharge un rapport OSINT (supporte les sous-dossiers par date)."""
-    from flask import send_file
     safe_name = os.path.normpath(filename)
     if safe_name.startswith("..") or safe_name.startswith("/"):
         return jsonify({"error": "Invalid path"}), 400
@@ -515,30 +424,27 @@ def api_osint_download(filename):
 
 @app.route("/api/osint/trigger", methods=["POST"])
 def api_osint_trigger():
-    """Déclenche une recherche OSINT en publiant un event."""
-    from flask import request
+    """Déclenche une recherche OSINT en publiant un event sur le Go Bus."""
     data = request.get_json() or {}
     target = data.get("target", "").strip()
     if not target:
         return jsonify({"error": "Missing 'target' parameter"}), 400
-    try:
-        from event_bus import EventBus
-        bus = EventBus()
-        eid = bus.publish("osint:alert", {"target": target, "msg": f"OSINT scan triggered from dashboard"})
-        return jsonify({"status": "published", "event_id": eid, "target": target})
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+    result = bus_publish(
+        topic="osint:alert",
+        source="adam-viz",
+        payload={"target": target, "msg": "OSINT scan triggered from dashboard"},
+        priority=1,
+    )
+    if result:
+        return jsonify({"status": "published", "result": result, "target": target})
+    return jsonify({"error": "Failed to publish to Go Bus"}), 500
 
-
-# ============================================================
-# WEBSOCKET
-# ============================================================
+# ── WebSocket ──────────────────────────────────────────────────────────────
 @sock.route("/ws")
 def handle_ws(conn):
     ws_clients.add(conn)
     try:
-        # Envoyer l'état initial immédiatement
-        agents = get_agents_from_db()
+        agents = get_agents()
         events = get_recent_events(20)
         bus_stats = get_bus_stats()
         daemons = get_daemon_status()
@@ -551,7 +457,6 @@ def handle_ws(conn):
             "timestamp": datetime.now(timezone.utc).isoformat(),
         }
         conn.send(json.dumps(initial))
-        
         while True:
             msg = conn.receive()
             if msg is None:
@@ -561,22 +466,18 @@ def handle_ws(conn):
     finally:
         ws_clients.discard(conn)
 
-
-# ============================================================
-# LANCEMENT
-# ============================================================
+# ── Lancement ──────────────────────────────────────────────────────────────
 if __name__ == "__main__":
-    # Thread de monitoring
     t = threading.Thread(target=monitoring_loop, daemon=True)
     t.start()
-    
+
     print("╔═══════════════════════════════════════════════╗")
-    print("║  🐝  Adam-Viz V3  —  Hive Dashboard Temps Réel ║")
+    print("║  🐝  Adam-Viz V4  —  Go Bus API Dashboard    ║")
     print("╠═══════════════════════════════════════════════╣")
-    print(f"║  DB: {DB_PATH}")
+    print(f"║  Bus: {BUS_URL}")
     print(f"║  http://0.0.0.0:8084                          ║")
-    print(f"║  11 agents · WebSocket · event_bus.db         ║")
+    print("║  11 agents · Go Bus HTTP · WebSocket          ║")
     print("║  /api/agents /api/events /api/stats /api/system║")
     print("╚═══════════════════════════════════════════════╝")
-    
+
     app.run(host="0.0.0.0", port=8084, debug=False, threaded=True)
