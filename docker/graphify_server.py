@@ -163,7 +163,7 @@ def api_stats_full():
             Path("/home/aza/eva-adam-v2"),
         ]
         # Also count from EVA_CORE if accessible
-        eva_core_skills = Path("/home/aza/EVA_CORE/skills")
+        eva_core_skills = Path("/data/skills")
         if eva_core_skills.exists():
             skills_count = len(list(eva_core_skills.rglob("SKILL.md")))
         
