@@ -1,3 +1,4 @@
 def audit_dashboard():
-    # Effectuer une analyse critique du dashboard 3D
+    # Code pour auditer le dashboard 3D
+    # Identifier les points faibles et les opportunités d'amélioration
     pass

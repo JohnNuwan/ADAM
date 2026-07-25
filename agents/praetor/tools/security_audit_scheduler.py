@@ -1,3 +1,3 @@
-def create_security_audit_scheduler():
+def schedule_security_audits():
     # Code pour programmer des audits de sécurité réguliers
     pass

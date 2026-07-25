@@ -1,1 +1,1 @@
-new_skill_generator.generate_new_skill(domain_analysis_results)
+new_skill_generator

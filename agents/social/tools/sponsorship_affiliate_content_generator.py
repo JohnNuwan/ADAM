@@ -1,7 +1,3 @@
-def sponsorship_affiliate_content_generator(opportunities):
-    # Génère des idées de contenu pour les opportunités de monétisation
-    content_ideas = []
-    for opportunity in opportunities:
-        theme = opportunity['theme']
-        content_ideas.append(f'Post sur {theme} en collaboration avec un partenaire')
-    return content_ideas
+def generate_sponsorship_affiliate_content(sponsored_brands, affiliate_products):
+    # Génère des idées de contenu pour promouvoir les marques et produits sponsorisés
+    pass

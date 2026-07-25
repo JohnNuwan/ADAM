@@ -8331,6 +8331,527 @@
       ],
       "timestamp": "2026-07-25T19:41:54.283604+00:00",
       "agent": "adam-rag"
+    },
+    {
+      "id": "m_123",
+      "mission": "Indexe les nouveaux documents dans PostgreSQL (Contexte: EVA vise l'autonomie financière et l'AGI)",
+      "result": {
+        "agent": "adam-rag",
+        "mission": "Indexe les nouveaux documents dans PostgreSQL (Contexte: EVA vise l'autonomie financière et l'AGI)",
+        "success": false,
+        "steps": 2,
+        "elapsed_s": 8.23,
+        "results": [
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "DocumentIndexer",
+              "args": {
+                "documents": "nouveaux_documents_EVA",
+                "database": "PostgreSQL",
+                "context": "EVA vise l'autonomie financière et l'AGI"
+              },
+              "description": "Indexe les nouveaux documents relatifs au contexte d'EVA dans PostgreSQL en vérifiant les permissions et la syntaxe SQL."
+            },
+            "result": {
+              "tool": "DocumentIndexer",
+              "error": "'dict' object has no attribute 'split'"
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "ParamètresOptimisation",
+              "args": {
+                "target": "DocumentIndexer",
+                "optimization_type": "query_performance",
+                "database": "PostgreSQL"
+              },
+              "description": "Optimise les paramètres de requête pour l'indexation des documents afin d'améliorer les performances de la base de données."
+            },
+            "result": {
+              "tool": "ParamètresOptimisation",
+              "error": "'dict' object has no attribute 'split'"
+            }
+          }
+        ],
+        "timestamp": "2026-07-25T19:47:22.561407+00:00"
+      },
+      "steps": [
+        {
+          "action": "execute_tool",
+          "tool": "DocumentIndexer",
+          "args": {
+            "documents": "nouveaux_documents_EVA",
+            "database": "PostgreSQL",
+            "context": "EVA vise l'autonomie financière et l'AGI"
+          },
+          "description": "Indexe les nouveaux documents relatifs au contexte d'EVA dans PostgreSQL en vérifiant les permissions et la syntaxe SQL."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "ParamètresOptimisation",
+          "args": {
+            "target": "DocumentIndexer",
+            "optimization_type": "query_performance",
+            "database": "PostgreSQL"
+          },
+          "description": "Optimise les paramètres de requête pour l'indexation des documents afin d'améliorer les performances de la base de données."
+        }
+      ],
+      "timestamp": "2026-07-25T19:47:22.561427+00:00",
+      "agent": "adam-rag"
+    },
+    {
+      "id": "m_124",
+      "mission": "Indexe les nouveaux documents dans PostgreSQL (Contexte: EVA vise l'autonomie financière et l'AGI)",
+      "result": {
+        "agent": "adam-rag",
+        "mission": "Indexe les nouveaux documents dans PostgreSQL (Contexte: EVA vise l'autonomie financière et l'AGI)",
+        "success": false,
+        "steps": 1,
+        "elapsed_s": 5.4,
+        "results": [
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "DocumentIndexer",
+              "args": {
+                "documents": "nouveaux documents sur l'autonomie financière et l'AGI de EVA",
+                "database": "PostgreSQL",
+                "table": "document_index"
+              },
+              "description": "Indexe les nouveaux documents concernant l'autonomie financière et l'AGI de EVA dans la table document_index de PostgreSQL après avoir vérifié et ajusté les permissions et la syntaxe SQL."
+            },
+            "result": {
+              "tool": "DocumentIndexer",
+              "error": "'dict' object has no attribute 'split'"
+            }
+          }
+        ],
+        "timestamp": "2026-07-25T19:52:36.840475+00:00"
+      },
+      "steps": [
+        {
+          "action": "execute_tool",
+          "tool": "DocumentIndexer",
+          "args": {
+            "documents": "nouveaux documents sur l'autonomie financière et l'AGI de EVA",
+            "database": "PostgreSQL",
+            "table": "document_index"
+          },
+          "description": "Indexe les nouveaux documents concernant l'autonomie financière et l'AGI de EVA dans la table document_index de PostgreSQL après avoir vérifié et ajusté les permissions et la syntaxe SQL."
+        }
+      ],
+      "timestamp": "2026-07-25T19:52:36.840491+00:00",
+      "agent": "adam-rag"
+    },
+    {
+      "id": "m_125",
+      "mission": "Améliore la recherche sémantique avec PGVector",
+      "result": {
+        "agent": "adam-rag",
+        "mission": "Améliore la recherche sémantique avec PGVector",
+        "success": false,
+        "steps": 3,
+        "elapsed_s": 28.68,
+        "results": [
+          {
+            "step": {
+              "action": "research",
+              "tool": "ParamètresOptimisation",
+              "args": "PGVector, SemanticSearchEngine",
+              "description": "Utiliser l'outil ParamètresOptimisation pour analyser et optimiser les paramètres actuels de PGVector et du moteur de recherche sémantique."
+            },
+            "result": {
+              "query": "Utiliser l'outil ParamètresOptimisation pour analyser et optimiser les paramètres actuels de PGVector et du moteur de recherche sémantique.",
+              "result": "Pour effectuer une analyse détaillée et optimiser les paramètres des systèmes PGVector et du moteur de recherche sémantique, nous allons suivre plusieurs étapes. Il est important de noter que PGVector est une extension de PostgreSQL qui permet le stockage et la recherche d'emplacements vectoriels, t",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "SemanticSearchEngine",
+              "args": "documents_indexés",
+              "description": "Exécuter le moteur de recherche sémantique avec les paramètres optimisés sur les documents indexés pour évaluer l'amélioration de la recherche sémantique."
+            },
+            "result": {
+              "tool": "SemanticSearchEngine",
+              "exit_code": 1,
+              "stdout": "",
+              "stderr": "Traceback (most recent call last):\n  File \"/home/aza/eva-adam-v2/agents/rag/tools/SemanticSearchEngine.py\", line 1, in <module>\n    from semantic_search import create_engine\nModuleNotFoundError: No module named 'semantic_search'\n",
+              "success": false
+            }
+          },
+          {
+            "step": {
+              "action": "report",
+              "tool": "",
+              "args": "",
+              "description": "Rapporter les résultats de l'optimisation et de la nouvelle recherche sémantique, identifier les améliorations et les domaines restant à améliorer."
+            },
+            "result": {
+              "success": true,
+              "report": "Rapporter les résultats de l'optimisation et de la nouvelle recherche sémantique, identifier les améliorations et les domaines restant à améliorer."
+            }
+          }
+        ],
+        "timestamp": "2026-07-25T19:59:10.122573+00:00"
+      },
+      "steps": [
+        {
+          "action": "research",
+          "tool": "ParamètresOptimisation",
+          "args": "PGVector, SemanticSearchEngine",
+          "description": "Utiliser l'outil ParamètresOptimisation pour analyser et optimiser les paramètres actuels de PGVector et du moteur de recherche sémantique."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "SemanticSearchEngine",
+          "args": "documents_indexés",
+          "description": "Exécuter le moteur de recherche sémantique avec les paramètres optimisés sur les documents indexés pour évaluer l'amélioration de la recherche sémantique."
+        },
+        {
+          "action": "report",
+          "tool": "",
+          "args": "",
+          "description": "Rapporter les résultats de l'optimisation et de la nouvelle recherche sémantique, identifier les améliorations et les domaines restant à améliorer."
+        }
+      ],
+      "timestamp": "2026-07-25T19:59:10.122596+00:00",
+      "agent": "adam-rag"
+    },
+    {
+      "id": "m_126",
+      "mission": "Indexe les nouveaux documents dans PostgreSQL (Contexte: EVA vise l'autonomie financière et l'AGI)",
+      "result": {
+        "agent": "adam-rag",
+        "mission": "Indexe les nouveaux documents dans PostgreSQL (Contexte: EVA vise l'autonomie financière et l'AGI)",
+        "success": false,
+        "steps": 2,
+        "elapsed_s": 8.39,
+        "results": [
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "DocumentIndexer",
+              "args": {
+                "documents": "nouveaux_documents_EVA_autonomie_financiere_AGI",
+                "database": "PostgreSQL",
+                "table": "document_index"
+              },
+              "description": "Indexe les nouveaux documents relatifs à l'autonomie financière et l'AGI d'EVA dans la table document_index de PostgreSQL."
+            },
+            "result": {
+              "tool": "DocumentIndexer",
+              "error": "'dict' object has no attribute 'split'"
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "ParamètresOptimisation",
+              "args": {
+                "database": "PostgreSQL",
+                "table": "document_index",
+                "query_optimization": true,
+                "data_recovery": true
+              },
+              "description": "Optimise les paramètres de la table document_index pour améliorer les performances de l'indexation et la récupération des données."
+            },
+            "result": {
+              "tool": "ParamètresOptimisation",
+              "error": "'dict' object has no attribute 'split'"
+            }
+          }
+        ],
+        "timestamp": "2026-07-25T20:08:52.283995+00:00"
+      },
+      "steps": [
+        {
+          "action": "execute_tool",
+          "tool": "DocumentIndexer",
+          "args": {
+            "documents": "nouveaux_documents_EVA_autonomie_financiere_AGI",
+            "database": "PostgreSQL",
+            "table": "document_index"
+          },
+          "description": "Indexe les nouveaux documents relatifs à l'autonomie financière et l'AGI d'EVA dans la table document_index de PostgreSQL."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "ParamètresOptimisation",
+          "args": {
+            "database": "PostgreSQL",
+            "table": "document_index",
+            "query_optimization": true,
+            "data_recovery": true
+          },
+          "description": "Optimise les paramètres de la table document_index pour améliorer les performances de l'indexation et la récupération des données."
+        }
+      ],
+      "timestamp": "2026-07-25T20:08:52.284010+00:00",
+      "agent": "adam-rag"
+    },
+    {
+      "id": "m_127",
+      "mission": "Améliore la recherche sémantique avec PGVector",
+      "result": {
+        "agent": "adam-rag",
+        "mission": "Améliore la recherche sémantique avec PGVector",
+        "success": false,
+        "steps": 6,
+        "elapsed_s": 80.37,
+        "results": [
+          {
+            "step": {
+              "action": "research",
+              "tool": "ParamètresOptimisation",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Rechercher et comprendre les paramètres actuels de PGVector et comment ils peuvent être optimisés pour améliorer la recherche sémantique."
+            },
+            "result": {
+              "query": "Rechercher et comprendre les paramètres actuels de PGVector et comment ils peuvent être optimisés pour améliorer la recherche sémantique.",
+              "result": "Pour analyser en détail les paramètres de PGVector et comprendre comment ils peuvent être optimisés pour améliorer la recherche sémantique, il est important d'abord de comprendre ce qu'est PGVector et son fonctionnement.\n\nPGVector est une extension de PostgreSQL qui ajoute des types de données et de",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "ParamètresOptimisation",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Exécuter l'outil ParamètresOptimisation pour analyser et ajuster les paramètres de PGVector en fonction des leçons apprises."
+            },
+            "result": {
+              "tool": "ParamètresOptimisation",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "research",
+              "tool": "SemanticSearchEngine",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Comprendre comment le moteur de recherche sémantique interagit avec PGVector et identifier les points d'amélioration potentiels."
+            },
+            "result": {
+              "query": "Comprendre comment le moteur de recherche sémantique interagit avec PGVector et identifier les points d'amélioration potentiels.",
+              "result": "Pour analyser comment un moteur de recherche sémantique interagit avec PGVector et identifier des points d'amélioration potentiels, il est important de comprendre d'abord ce que sont ces deux technologies et comment elles fonctionnent ensemble.\n\n### 1. Compréhension du Moteur de Recherche Sémantique",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "SemanticSearchEngine",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Ajuster la configuration du moteur de recherche sémantique pour refléter les modifications apportées aux paramètres de PGVector."
+            },
+            "result": {
+              "tool": "SemanticSearchEngine",
+              "exit_code": 1,
+              "stdout": "",
+              "stderr": "Traceback (most recent call last):\n  File \"/home/aza/eva-adam-v2/agents/rag/tools/SemanticSearchEngine.py\", line 1, in <module>\n    from semantic_search import create_engine\nModuleNotFoundError: No module named 'semantic_search'\n",
+              "success": false
+            }
+          },
+          {
+            "step": {
+              "action": "research",
+              "tool": "DocumentIndexer",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Évaluer comment les documents sont indexés et vérifier si leur structure ou leur contenu peut être modifié pour mieux s'intégrer avec les améliorations de PGVector."
+            },
+            "result": {
+              "query": "Évaluer comment les documents sont indexés et vérifier si leur structure ou leur contenu peut être modifié pour mieux s'intégrer avec les améliorations de PGVector.",
+              "result": "Pour analyser en détail comment les documents sont indexés et vérifier s'ils peuvent être modifiés pour une meilleure intégration avec PGVector, nous devons d'abord comprendre le fonctionnement de PGVector et les exigences spécifiques pour l'indexation des données.\n\n### 1. Comprendre PGVector\n\nPGVec",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "DocumentIndexer",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Ré-indexer les documents avec les nouvelles configurations pour s'assurer qu'ils sont correctement alignés avec les améliorations apportées à PGVector."
+            },
+            "result": {
+              "tool": "DocumentIndexer",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          }
+        ],
+        "timestamp": "2026-07-25T20:15:38.748865+00:00"
+      },
+      "steps": [
+        {
+          "action": "research",
+          "tool": "ParamètresOptimisation",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Rechercher et comprendre les paramètres actuels de PGVector et comment ils peuvent être optimisés pour améliorer la recherche sémantique."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "ParamètresOptimisation",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Exécuter l'outil ParamètresOptimisation pour analyser et ajuster les paramètres de PGVector en fonction des leçons apprises."
+        },
+        {
+          "action": "research",
+          "tool": "SemanticSearchEngine",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Comprendre comment le moteur de recherche sémantique interagit avec PGVector et identifier les points d'amélioration potentiels."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "SemanticSearchEngine",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Ajuster la configuration du moteur de recherche sémantique pour refléter les modifications apportées aux paramètres de PGVector."
+        },
+        {
+          "action": "research",
+          "tool": "DocumentIndexer",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Évaluer comment les documents sont indexés et vérifier si leur structure ou leur contenu peut être modifié pour mieux s'intégrer avec les améliorations de PGVector."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "DocumentIndexer",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Ré-indexer les documents avec les nouvelles configurations pour s'assurer qu'ils sont correctement alignés avec les améliorations apportées à PGVector."
+        }
+      ],
+      "timestamp": "2026-07-25T20:15:38.748891+00:00",
+      "agent": "adam-rag"
+    },
+    {
+      "id": "m_128",
+      "mission": "Indexe les nouveaux documents dans PostgreSQL (Contexte: EVA vise l'autonomie financière et l'AGI)",
+      "result": {
+        "agent": "adam-rag",
+        "mission": "Indexe les nouveaux documents dans PostgreSQL (Contexte: EVA vise l'autonomie financière et l'AGI)",
+        "success": false,
+        "steps": 3,
+        "elapsed_s": 7.67,
+        "results": [
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "DocumentIndexer",
+              "args": {
+                "documents": "nouveaux_documents_EVA_autonomie_financiere_AGI",
+                "database": "PostgreSQL",
+                "table": "document_index"
+              },
+              "description": "Indexe les nouveaux documents concernant l'autonomie financière et l'AGI pour EVA dans la table document_index de PostgreSQL."
+            },
+            "result": {
+              "tool": "DocumentIndexer",
+              "error": "'dict' object has no attribute 'split'"
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "ParamètresOptimisation",
+              "args": {
+                "database": "PostgreSQL",
+                "table": "document_index",
+                "parameters": [
+                  "query_performance",
+                  "data_recovery"
+                ]
+              },
+              "description": "Optimise les paramètres de la table document_index pour améliorer les performances des requêtes et la récupération des données."
+            },
+            "result": {
+              "tool": "ParamètresOptimisation",
+              "error": "'dict' object has no attribute 'split'"
+            }
+          },
+          {
+            "step": {
+              "action": "manage_infra",
+              "infra_action": "status",
+              "description": "Vérifier la santé des conteneurs Docker"
+            },
+            "result": {
+              "action": "status",
+              "results": [
+                {
+                  "containers": "eva-activity Up 33 minutes\neva-monitor Up 52 minutes\nadam-graphify Up 2 hours\nadam-bus Up 12 hours (healthy)\nadam-viz Up 12 hours\nadam-chat Up 14 hours\nadam-postgres Up 14 hours (healthy)\nvllm-mistral Up 11 hours\nkali-pentest Up 34 hours\ngrafana Up 34 hours\nprometheus Up 34 hours\nnode-exporter Up 34"
+                }
+              ],
+              "success": true
+            }
+          }
+        ],
+        "timestamp": "2026-07-25T20:28:16.757641+00:00"
+      },
+      "steps": [
+        {
+          "action": "execute_tool",
+          "tool": "DocumentIndexer",
+          "args": {
+            "documents": "nouveaux_documents_EVA_autonomie_financiere_AGI",
+            "database": "PostgreSQL",
+            "table": "document_index"
+          },
+          "description": "Indexe les nouveaux documents concernant l'autonomie financière et l'AGI pour EVA dans la table document_index de PostgreSQL."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "ParamètresOptimisation",
+          "args": {
+            "database": "PostgreSQL",
+            "table": "document_index",
+            "parameters": [
+              "query_performance",
+              "data_recovery"
+            ]
+          },
+          "description": "Optimise les paramètres de la table document_index pour améliorer les performances des requêtes et la récupération des données."
+        },
+        {
+          "action": "manage_infra",
+          "infra_action": "status",
+          "description": "Vérifier la santé des conteneurs Docker"
+        }
+      ],
+      "timestamp": "2026-07-25T20:28:16.757663+00:00",
+      "agent": "adam-rag"
     }
   ]
 }

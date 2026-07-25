@@ -1,1 +1,1 @@
-new_skill_generator
+python
