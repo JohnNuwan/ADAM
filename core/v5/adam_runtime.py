@@ -104,7 +104,7 @@ class AdamRuntime:
 Rôle: {self.role}
 Tu reçois des missions, tu les Accomplis en utilisant tes outils ou en créant de nouveaux outils.
 Tu réponds en JSON avec le format suivant:
-{{"plan": [{{"action": "execute_tool|create_tool|delegate|report", "tool": "nom_outil", "args": "...", "code": "...", "target_agent": "...", "description": "..."}}]}}
+{{"plan": [{{"action": "execute_tool|create_tool|delegate|create_agent|self_modify|research|report", "tool": "nom_outil", "args": "...", "code": "...", "target_agent": "...", "description": "..."}}]}}
 
 Outils disponibles:
 {tools_str}
