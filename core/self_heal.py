@@ -1272,7 +1272,7 @@ class SelfHealLoop:
                             now_sec = int(time.time())
                             if now_sec - last_sec < 3600 and len(untracked) < 10:
                                 logger.info(f"[STRUCTURE] Debounce auto-commit: {len(untracked)} fichier(s) mais dernier commit < 1h. Reporte.")
-                                continue
+                                return
                     except Exception:
                         pass
                     logger.warning(
