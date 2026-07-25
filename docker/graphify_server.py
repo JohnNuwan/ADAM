@@ -1,13 +1,17 @@
 #!/usr/bin/env python3
-"""Graphify 3D V6 - Network Flow Hub: EVA brain, agents, skills, services + animated packet flows"""
-from flask import Flask, jsonify
+"""Graphify V7 - Complete Dashboard: 3D Network Hub + Missions + Agent Thoughts + EVA Chat"""
+from flask import Flask, jsonify, request
 import psycopg2, json, os, urllib.request, time, threading
+from datetime import datetime
 
 app = Flask(__name__)
 PG_DSN = os.environ.get("PG_DSN", "postgres://adam:***@postgres:5432/adam")
 BUS_URL = os.environ.get("BUS_URL", "http://go-bus:8086")
+VLLM_URL = os.environ.get("VLLM_URL", "http://192.168.1.5:8000")
 
 nodes_cache = {"nodes": [], "edges": [], "ts": 0}
+missions_queue = {"pending": [], "active": [], "done": []}
+agent_thoughts = []
 lock = threading.Lock()
 
 def refresh_graph():
@@ -34,17 +38,76 @@ def refresh_graph():
             print(f"[ERR] {e}", flush=True)
         time.sleep(15)
 
+def poll_events():
+    """Poll for new events to track agent activity"""
+    while True:
+        try:
+            req = urllib.request.Request(f"{BUS_URL}/api/query?limit=20")
+            with urllib.request.urlopen(req, timeout=3) as resp:
+                data = json.loads(resp.read().decode())
+                pkts = data if isinstance(data, list) else data.get("events", [])
+                with lock:
+                    # Track thoughts from LLM interactions
+                    for p in pkts:
+                        src = p.get("source", "")
+                        if src and "adam" in src.lower():
+                            payload = p.get("payload", {})
+                            if isinstance(payload, dict):
+                                thought = payload.get("thought", payload.get("action", ""))
+                                if thought and len(thought) > 5:
+                                    agent_thoughts.append({
+                                        "agent": src,
+                                        "thought": thought,
+                                        "timestamp": p.get("timestamp", ""),
+                                        "topic": p.get("topic", "")
+                                    })
+                    # Keep last 50
+                    if len(agent_thoughts) > 50:
+                        agent_thoughts[:] = agent_thoughts[-50:]
+        except Exception:
+            pass
+        time.sleep(5)
+
 threading.Thread(target=refresh_graph, daemon=True).start()
+threading.Thread(target=poll_events, daemon=True).start()
 
 @app.route("/api/graph")
 def get_graph():
     with lock:
         return jsonify(nodes_cache)
 
+@app.route("/api/packets")
+def get_packets():
+    try:
+        req = urllib.request.Request(f"{BUS_URL}/api/query?limit=20")
+        with urllib.request.urlopen(req, timeout=3) as resp:
+            data = json.loads(resp.read().decode())
+            pkts = data if isinstance(data, list) else data.get("events", [])
+            return jsonify({"packets": pkts})
+    except Exception as e:
+        return jsonify({"packets": [], "error": str(e)})
+
+@app.route("/api/missions")
+def get_missions():
+    try:
+        req = urllib.request.Request(f"{BUS_URL}/api/query?limit=20&topic=adam:mission")
+        with urllib.request.urlopen(req, timeout=3) as resp:
+            data = json.loads(resp.read().decode())
+            missions = data if isinstance(data, list) else data.get("events", [])
+            # Enrich with status
+            for m in missions:
+                m["status"] = m.get("payload", {}).get("status", "pending")
+            return jsonify({"missions": missions})
+    except Exception as e:
+        return jsonify({"missions": [], "error": str(e)})
+
+@app.route("/api/thoughts")
+def get_thoughts():
+    with lock:
+        return jsonify({"thoughts": agent_thoughts[-20:]})
 
 @app.route("/api/tools")
 def get_tools():
-    """Liste les outils/scripts de chaque agent"""
     import os
     from pathlib import Path
     base = Path(os.environ.get("ADAM_V2_DIR", "/home/aza/eva-adam-v2"))
@@ -61,54 +124,77 @@ def get_tools():
                     tools = [f.name for f in sorted(tdir.iterdir()) if f.is_file()]
                 if scripts or tools:
                     tools_data[name] = {"scripts": scripts[:15], "tools": tools[:15]}
-        return jsonify({"tools": tools_data})
-    return jsonify({"tools": {}})
+    return jsonify({"tools": tools_data})
 
-@app.route("/api/packets")
-def get_packets():
-    try:
-        req = urllib.request.Request(f"{BUS_URL}/api/query?limit=20&topic=adam:packet")
-        with urllib.request.urlopen(req, timeout=3) as resp:
-            data = json.loads(resp.read().decode())
-            if isinstance(data, list):
-                return jsonify({"packets": data})
-            return jsonify({"packets": data.get("events", [])})
-    except Exception as e:
-        return jsonify({"packets": [], "error": str(e)})
+@app.route("/api/eva/chat", methods=["POST"])
+def eva_chat():
+    """Chat with EVA using Qwen LLM"""
+    msg = request.json.get("message", "")
+    if not msg:
+        return jsonify({"error": "no message"})
+    
+    # Build context about current system state
+    with lock:
+        nodes = nodes_cache.get("nodes", [])
+        agents = [n for n in nodes if n.get("label") == "Agent"]
+        active_agents = len(agent_thoughts[-5:])
+    
+    system = f"""Tu es EVA, l'assistant orchestrateur du système ADAM.
+Tu contrôles {len(agents)} agents autonomes qui tournent en local sur TheHive.
+Tu peux: soumettre des objectifs, lancer des missions, vérifier l'état des agents, recommander des actions.
+Réponds en français, de manière concise et utile."""
 
-@app.route("/api/flows")
-def get_flows():
-    """Return recent packet flow data for animation"""
+    payload = json.dumps({
+        "model": "Qwen2.5-32B-Instruct-AWQ",
+        "messages": [
+            {"role": "system", "content": system},
+            {"role": "user", "content": msg}
+        ],
+        "max_tokens": 512,
+        "temperature": 0.7
+    }).encode()
+    
     try:
-        req = urllib.request.Request(f"{BUS_URL}/api/query?limit=30&topic=adam:packet")
-        with urllib.request.urlopen(req, timeout=3) as resp:
+        req = urllib.request.Request(f"{VLLM_URL}/v1/chat/completions",
+                                     data=payload, headers={"Content-Type": "application/json"})
+        with urllib.request.urlopen(req, timeout=60) as resp:
             data = json.loads(resp.read().decode())
-            pkts = data if isinstance(data, list) else data.get("events", [])
-            flows = []
-            for p in pkts:
-                flows.append({
-                    "source": p.get("source", ""),
-                    "topic": p.get("topic", ""),
-                    "timestamp": p.get("timestamp", ""),
-                    "status": p.get("status", "done"),
-                    "action": p.get("payload", {}).get("action", p.get("payload", {}).get("status", "")),
-                })
-            return jsonify({"flows": flows})
+            response = data["choices"][0]["message"]["content"]
+            return jsonify({"response": response, "model": "Qwen2.5-32B"})
     except Exception as e:
-        return jsonify({"flows": [], "error": str(e)})
+        return jsonify({"response": f"Erreur LLM: {e}", "model": "error"})
+
+@app.route("/api/eva/objective", methods=["POST"])
+def submit_objective():
+    """Submit an objective to EVA Mission Engine"""
+    objective = request.json.get("objective", "")
+    if not objective:
+        return jsonify({"error": "no objective"})
+    
+    # Publish to Go Bus
+    payload = json.dumps({"topic": "eva:objective", "source": "dashboard",
+                          "payload": {"objective": objective}, "priority": 2}).encode()
+    try:
+        req = urllib.request.Request(f"{BUS_URL}/api/publish", data=payload,
+                                     headers={"Content-Type": "application/json"})
+        urllib.request.urlopen(req, timeout=5)
+        return jsonify({"status": "submitted", "objective": objective})
+    except Exception as e:
+        return jsonify({"status": "error", "error": str(e)})
 
 HTML = r"""<!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ADAM Network Flow Hub</title>
+<title>ADAM Dashboard — EVA</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:#050510;color:#e0e8f0;font-family:'SF Pro Display','Segoe UI',sans-serif;overflow:hidden}
-#app{width:100vw;height:100vh}
+body{background:#050510;color:#e0e8f0;font-family:'SF Pro Display','Segoe UI',system-ui,sans-serif;overflow:hidden}
+#app{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:48px 1fr 1fr;width:100vw;height:100vh;gap:1px;background:rgba(68,102,136,0.1)}
 
-#topbar{position:fixed;top:0;left:0;right:0;height:44px;background:linear-gradient(180deg,rgba(5,5,16,0.95),rgba(5,5,16,0.3));display:flex;align-items:center;justify-content:space-between;padding:0 24px;z-index:100;backdrop-filter:blur(10px);border-bottom:1px solid rgba(68,102,136,0.1)}
+/* Top Bar */
+#topbar{grid-column:1/3;display:flex;align-items:center;justify-content:space-between;padding:0 20px;background:linear-gradient(180deg,rgba(5,5,16,0.98),rgba(5,5,16,0.9));backdrop-filter:blur(10px);z-index:100}
 #topbar .logo{display:flex;align-items:center;gap:10px}
 #topbar .logo .dot{width:8px;height:8px;border-radius:50%;background:#00aaff;box-shadow:0 0 12px #00aaff;animation:pulse 2s infinite}
 #topbar .logo span{font-size:13px;font-weight:600;letter-spacing:0.5px}
@@ -116,82 +202,124 @@ body{background:#050510;color:#e0e8f0;font-family:'SF Pro Display','Segoe UI',sa
 #topbar .stats .val{color:#e8e8f0;font-weight:600}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
 
-#info-panel{position:fixed;top:60px;left:20px;z-index:50;background:rgba(5,5,16,0.93);padding:14px 18px;border-radius:12px;border:1px solid rgba(68,102,136,0.2);max-width:280px;pointer-events:none;opacity:0;transition:all 0.3s;transform:translateY(-5px);backdrop-filter:blur(5px)}
-#info-panel.visible{opacity:1;transform:translateY(0)}
-#info-panel h3{margin:0 0 2px;font-size:15px;font-weight:600}
-#info-panel .tag{display:inline-block;font-size:9px;padding:2px 8px;border-radius:10px;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px;font-weight:600}
-#info-panel .props{font-size:11px;line-height:1.6;color:#88aacc}
-#info-panel .props .k{color:#5577aa;font-size:10px}
+/* Panels */
+.panel{background:rgba(5,5,16,0.92);overflow:hidden;display:flex;flex-direction:column;position:relative}
+.panel h3{font-size:10px;color:#5577aa;text-transform:uppercase;letter-spacing:0.5px;padding:10px 14px;border-bottom:1px solid rgba(68,102,136,0.1);display:flex;align-items:center;gap:6px}
+.panel h3 .live{width:5px;height:5px;border-radius:50%;background:#ff4466;animation:pulse 1s infinite}
+.panel-content{flex:1;overflow-y:auto;padding:10px}
+.panel-content::-webkit-scrollbar{width:3px}
+.panel-content::-webkit-scrollbar-thumb{background:rgba(68,102,136,0.3);border-radius:2px}
 
-#flow-panel{position:fixed;top:60px;right:20px;z-index:50;background:rgba(5,5,16,0.93);padding:12px;border-radius:10px;border:1px solid rgba(68,102,136,0.12);width:280px;max-height:60vh;overflow-y:auto;backdrop-filter:blur(5px)}
-#flow-panel::-webkit-scrollbar{width:3px}
-#flow-panel::-webkit-scrollbar-thumb{background:rgba(68,102,136,0.3);border-radius:2px}
-#flow-panel h4{font-size:10px;color:#5577aa;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px;display:flex;align-items:center;gap:6px}
-#flow-panel .live-dot{width:5px;height:5px;border-radius:50%;background:#ff4466;animation:pulse 1s infinite}
+/* 3D Hub */
+#hub3d{position:relative}
+#hub3d canvas{display:block}
 
-.flow-row{display:flex;align-items:center;gap:6px;padding:4px 0;border-bottom:1px solid rgba(68,102,136,0.06);font-size:10px;font-family:'SF Mono',Menlo,monospace;color:#88aacc}
-.flow-row .src{color:#00ff88;font-weight:600;min-width:65px}
-.flow-row .dst{color:#aaccff;min-width:65px}
-.flow-row .action{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#6688aa}
-.flow-row .st{font-size:8px;padding:1px 4px;border-radius:3px;font-weight:600}
-.flow-row .arrow{color:#446688;font-size:8px}
+/* Agent Panel */
+.agent-card{background:rgba(10,15,25,0.6);border-radius:8px;padding:10px;margin-bottom:8px;border-left:3px solid #00ff88}
+.agent-card.inactive{border-left-color:#446688}
+.agent-card .name{font-size:12px;font-weight:600;color:#00ff88;margin-bottom:4px}
+.agent-card .role{font-size:10px;color:#6688aa;margin-bottom:6px}
+.agent-card .thought{font-size:10px;color:#88aacc;font-style:italic;line-height:1.4;padding:6px;background:rgba(68,102,136,0.08);border-radius:4px;margin-top:6px}
+.agent-card .thought .time{font-size:9px;color:#446688;margin-right:6px}
 
-#legend{position:fixed;bottom:20px;left:20px;z-index:50;background:rgba(5,5,16,0.92);padding:10px 14px;border-radius:10px;border:1px solid rgba(68,102,136,0.12)}
-#legend h4{font-size:10px;color:#5577aa;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px}
-#legend .item{display:flex;align-items:center;gap:8px;font-size:11px;padding:2px 0;color:#aabbcc}
-#legend .dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;box-shadow:0 0 6px currentColor}
-#legend .count{color:#446688;font-size:9px;margin-left:auto}
+/* Mission Panel */
+.mission-card{background:rgba(10,15,25,0.6);border-radius:8px;padding:10px;margin-bottom:8px;border-left:3px solid #00aaff}
+.mission-card.running{border-left-color:#00ff88}
+.mission-card.done{border-left-color:#446688}
+.mission-card .objective{font-size:11px;font-weight:500;color:#e8e8f0;margin-bottom:4px}
+.mission-card .agent{font-size:10px;color:#00aaff}
+.mission-card .status{font-size:9px;padding:2px 8px;border-radius:8px;display:inline-block;margin-top:4px;font-weight:600}
+.mission-card .status.pending{background:#ffaa4422;color:#ffaa44}
+.mission-card .status.running{background:#00ff8822;color:#00ff88}
+.mission-card .status.done{background:#44668822;color:#446688}
 
+/* Chat Panel */
+#chat-messages{display:flex;flex-direction:column;gap:8px;padding:10px}
+.chat-msg{background:rgba(10,15,25,0.6);border-radius:8px;padding:10px;max-width:85%;font-size:11px;line-height:1.5}
+.chat-msg.user{align-self:flex-end;background:rgba(0,170,255,0.15);border-left:3px solid #00aaff}
+.chat-msg.eva{align-self:flex-start;background:rgba(0,255,136,0.08);border-left:3px solid #00ff88}
+.chat-msg .time{font-size:9px;color:#446688;margin-bottom:4px}
+#chat-input{display:flex;gap:8px;padding:10px;border-top:1px solid rgba(68,102,136,0.1)}
+#chat-input input{flex:1;background:rgba(10,15,25,0.6);border:1px solid rgba(68,102,136,0.2);border-radius:6px;padding:8px 12px;color:#e8e8f0;font-size:11px;outline:none}
+#chat-input input:focus{border-color:#00aaff}
+#chat-input button{background:#00aaff;border:none;border-radius:6px;padding:8px 16px;color:#fff;font-size:11px;font-weight:600;cursor:pointer}
+#chat-input button:hover{background:#0088cc}
+
+/* Node labels */
 .node-label{position:absolute;font-size:10px;font-weight:500;text-shadow:0 0 4px #000,0 0 8px #000;background:rgba(5,5,16,0.8);padding:2px 6px;border-radius:4px;pointer-events:none;white-space:nowrap;z-index:5;transform:translate(-50%,-50%)}
+
+/* Responsive */
+@media (max-width:1200px){
+  #app{grid-template-columns:1fr;grid-template-rows:48px 300px 300px 300px 300px}
+  #topbar{grid-column:1/2}
+}
 </style>
 </head>
 <body>
-<div id="app"></div>
-<div id="topbar">
-  <div class="logo"><div class="dot"></div><span>ADAM Network Flow Hub</span></div>
-  <div class="stats" id="stats-bar"></div>
+<div id="app">
+  <div id="topbar">
+    <div class="logo"><div class="dot"></div><span>ADAM Dashboard</span></div>
+    <div class="stats" id="stats-bar"></div>
+  </div>
+
+  <!-- 3D Hub -->
+  <div class="panel" id="hub3d">
+    <h3>Network Flow Hub <span class="live"></span></h3>
+    <div class="panel-content" id="hub-content">
+      <canvas id="hub-canvas"></canvas>
+    </div>
+  </div>
+
+  <!-- Agents Panel -->
+  <div class="panel">
+    <h3>Agents Actifs <span class="live"></span></h3>
+    <div class="panel-content" id="agents-content">
+      <div class="agent-card"><div class="name">Chargement...</div></div>
+    </div>
+  </div>
+
+  <!-- Missions Panel -->
+  <div class="panel">
+    <h3>Missions <span class="live"></span></h3>
+    <div class="panel-content" id="missions-content">
+      <div class="mission-card"><div class="objective">Chargement...</div></div>
+    </div>
+  </div>
+
+  <!-- EVA Chat Panel -->
+  <div class="panel">
+    <h3>EVA Chat <span class="live"></span></h3>
+    <div class="panel-content" id="chat-content">
+      <div id="chat-messages"></div>
+    </div>
+    <div id="chat-input">
+      <input type="text" id="chat-msg" placeholder="Parle à EVA..." onkeypress="if(event.key==='Enter')sendChat()">
+      <button onclick="sendChat()">Envoyer</button>
+    </div>
+  </div>
 </div>
-<div id="info-panel">
-  <h3 id="info-name">-</h3>
-  <div class="tag" id="info-tag"></div>
-  <div class="props" id="info-props"></div>
-  <div id="agent-tools" style="margin-top:8px;padding-top:8px;border-top:1px solid rgba(68,102,136,0.15);display:none"></div>
-</div>
-<div id="flow-panel"><h4><span class="live-dot"></span>Flux temps reel</h4></div>
-<div id="legend"><h4>Legende</h4><div id="legend-items"></div></div>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 <script>
 var scene, camera, renderer, controls;
 var nodes = {};
-var edges = [];
 var flowParticles = [];
-var raycaster, pointer;
-var selected = null;
 var animTime = 0;
-var maxFlows = 20;
-
-var NODE_COLORS = {
-  'EVA':         {color: 0x00aaff, clr: '#00aaff', size: 1.2, labelSize: '16px', emissive: 0x0066ff},
-  'Agent':       {color: 0x00ff88, clr: '#00ff88', size: 0.45, labelSize: '11px', emissive: 0x00cc55},
-  'SkillDomain': {color: 0x4488ff, clr: '#4488ff', size: 0.15, labelSize: '8px', emissive: 0x2244aa},
-  'Service':     {color: 0xff8844, clr: '#ff8844', size: 0.35, labelSize: '10px', emissive: 0xcc6622}
-};
-
-var AGENT_NAMES = {};
 
 function init() {
   scene = new THREE.Scene();
   scene.background = new THREE.Color(0x050510);
   scene.fog = new THREE.FogExp2(0x050510, 0.008);
 
-  camera = new THREE.PerspectiveCamera(55, window.innerWidth/window.innerHeight, 0.1, 500);
+  var container = document.getElementById('hub-content');
+  var w = container.clientWidth, h = container.clientHeight;
+  camera = new THREE.PerspectiveCamera(55, w/h, 0.1, 500);
   camera.position.set(0, 12, 18);
 
-  renderer = new THREE.WebGLRenderer({antialias: true});
-  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer = new THREE.WebGLRenderer({antialias: true, canvas: document.getElementById('hub-canvas')});
+  renderer.setSize(w, h);
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-  document.getElementById('app').appendChild(renderer.domElement);
 
   controls = new THREE.OrbitControls(camera, renderer.domElement);
   controls.enableDamping = true;
@@ -213,7 +341,7 @@ function init() {
   dl2.position.set(-10, -5, -10);
   scene.add(dl2);
 
-  // Stars background
+  // Stars
   var sg = new THREE.BufferGeometry();
   var sp = new Float32Array(4000);
   for (var i = 0; i < 4000; i++) {
@@ -230,28 +358,32 @@ function init() {
   renderer.domElement.addEventListener('click', onClick);
   window.addEventListener('resize', onResize);
   loadGraph();
+  loadAll();
 }
 
 function loadGraph() {
-  Promise.all([
-    fetch('/api/graph').then(function(r) { return r.json(); }),
-    fetch('/api/flows').then(function(r) { return r.json(); })
-  ]).then(function(responses) {
-    buildHub(responses[0], responses[1].flows || []);
+  fetch('/api/graph').then(function(r) { return r.json(); }).then(function(data) {
+    buildHub(data);
     animate();
   });
 }
 
-function buildHub(graphData, flows) {
-  // Clear old nodes
-  while(scene.children.length > 6) scene.remove(scene.children[scene.children.length - 1]);
+var NODE_COLORS = {
+  'EVA':         {color: 0x00aaff, clr: '#00aaff', size: 1.2, emissive: 0x0066ff},
+  'Agent':       {color: 0x00ff88, clr: '#00ff88', size: 0.45, emissive: 0x00cc55},
+  'SkillDomain': {color: 0x4488ff, clr: '#4488ff', size: 0.15, emissive: 0x2244aa},
+  'Service':     {color: 0xff8844, clr: '#ff8844', size: 0.35, emissive: 0xcc6622}
+};
+
+function buildHub(graphData) {
+  // Clear old (keep lights and stars)
+  while(scene.children.length > 5) scene.remove(scene.children[scene.children.length - 1]);
 
   var graphNodes = graphData.nodes;
   var graphEdges = graphData.edges;
-  var legendItems = {};
   var nodePositions = {};
 
-  // Separate nodes by type
+  // Separate by type
   var eva = [], agents = [], skills = [], services = [];
   for (var i = 0; i < graphNodes.length; i++) {
     var n = graphNodes[i];
@@ -261,67 +393,45 @@ function buildHub(graphData, flows) {
     else if (n.label === 'Service') services.push(n);
   }
 
-  // Layout: EVA at center, agents in a ring, services in inner ring, skills around their agents
-  // EVA
+  // EVA center
   var evaNode = eva[0] || {id:'eva', name:'EVA', label:'EVA', properties:{}};
-  var evaPos = new THREE.Vector3(0, 0, 0);
-  nodePositions['eva'] = evaPos;
+  nodePositions['eva'] = new THREE.Vector3(0, 0, 0);
 
-  // Services: inner ring
+  // Services inner ring
   var svcRadius = 2.5;
   for (var i = 0; i < services.length; i++) {
     var angle = (2 * Math.PI * i) / services.length;
-    nodePositions[services[i].id] = new THREE.Vector3(
-      Math.cos(angle) * svcRadius,
-      Math.sin(angle) * svcRadius * 0.3,
-      Math.sin(angle) * svcRadius
-    );
+    nodePositions[services[i].id] = new THREE.Vector3(Math.cos(angle) * svcRadius, Math.sin(angle) * svcRadius * 0.3, Math.sin(angle) * svcRadius);
   }
 
-  // Agents: main ring
+  // Agents main ring
   var agentRadius = 5.5;
   for (var i = 0; i < agents.length; i++) {
     var angle = (2 * Math.PI * i) / agents.length - Math.PI / 2;
-    nodePositions[agents[i].id] = new THREE.Vector3(
-      Math.cos(angle) * agentRadius,
-      Math.sin(angle * 2) * 0.8,
-      Math.sin(angle) * agentRadius
-    );
-    AGENT_NAMES[agents[i].id] = agents[i].name;
+    nodePositions[agents[i].id] = new THREE.Vector3(Math.cos(angle) * agentRadius, Math.sin(angle * 2) * 0.8, Math.sin(angle) * agentRadius);
   }
 
-  // Skills: distributed around their parent agents
-  // Find which skills connect to which agents via edges
+  // Skills via Fibonacci around parent agents
   var skillParents = {};
   for (var i = 0; i < graphEdges.length; i++) {
     var e = graphEdges[i];
-    if (e.relation === 'has_skill') {
-      skillParents[e.target] = e.source;
-    }
+    if (e.relation === 'has_skill') { skillParents[e.target] = e.source; }
   }
-
-  // Count skills per agent for distribution
-  var skillCountPerAgent = {};
+  var skillCount = {};
+  for (var sid in skillParents) { var pid = skillParents[sid]; if (!skillCount[pid]) skillCount[pid] = 0; skillCount[pid]++; }
+  var skillIdx = {};
   for (var sid in skillParents) {
     var pid = skillParents[sid];
-    if (!skillCountPerAgent[pid]) skillCountPerAgent[pid] = 0;
-    skillCountPerAgent[pid]++;
-  }
-
-  var skillIndex = {};
-  for (var sid in skillParents) {
-    var pid = skillParents[sid];
-    if (!skillIndex[pid]) skillIndex[pid] = 0;
+    if (!skillIdx[pid]) skillIdx[pid] = 0;
     var basePos = nodePositions[pid] || new THREE.Vector3(Math.random()*3, 0, Math.random()*3);
-    var count = skillCountPerAgent[pid] || 10;
-    var idx = skillIndex[pid]++;
-    var angle = (2 * Math.PI * idx) / Math.min(count, 20) + Math.random() * 0.2;
-    var dist = 0.8 + Math.random() * 0.5;
-    nodePositions[sid] = new THREE.Vector3(
-      basePos.x + Math.cos(angle) * dist,
-      basePos.y + Math.sin(angle) * dist * 0.5,
-      basePos.z + Math.sin(angle) * dist
-    );
+    var total = skillCount[pid] || 10;
+    var idx = skillIdx[pid]++;
+    var ga = Math.PI * (3 - Math.sqrt(5));
+    var y = 1 - (idx / (total - 1 || 1)) * 2;
+    var rad = Math.sqrt(1 - y * y);
+    var theta = ga * idx;
+    var dist = 0.7 + (y * 0.3 + 0.5) * 0.4;
+    nodePositions[sid] = new THREE.Vector3(basePos.x + Math.cos(theta) * rad * dist, basePos.y + y * dist * 0.5, basePos.z + Math.sin(theta) * rad * dist);
   }
 
   // Build nodes
@@ -331,19 +441,8 @@ function buildHub(graphData, flows) {
     var pos = nodePositions[n.id] || new THREE.Vector3(Math.random()*5-2.5, Math.random()*5-2.5, Math.random()*5-2.5);
     var cfg = NODE_COLORS[n.label] || NODE_COLORS['SkillDomain'];
     var size = cfg.size;
-
-    // Make EVA bigger
-    if (n.label === 'EVA') size = cfg.size;
-    else if (n.label === 'Agent') size = cfg.size;
-    else if (n.label === 'Service') size = cfg.size;
-
     var geom = new THREE.SphereGeometry(size, n.label === 'EVA' ? 48 : 20, n.label === 'EVA' ? 48 : 20);
-    var mat = new THREE.MeshPhongMaterial({
-      color: cfg.color,
-      emissive: cfg.emissive || cfg.color,
-      emissiveIntensity: n.label === 'EVA' ? 0.6 : (n.label === 'Agent' ? 0.25 : 0.15),
-      shininess: 60
-    });
+    var mat = new THREE.MeshPhongMaterial({color: cfg.color, emissive: cfg.emissive || cfg.color, emissiveIntensity: n.label === 'EVA' ? 0.6 : (n.label === 'Agent' ? 0.25 : 0.15), shininess: 60});
     var mesh = new THREE.Mesh(geom, mat);
     mesh.position.copy(pos);
     mesh.userData = {id: n.id, name: n.name, label: n.label, props: n.properties};
@@ -353,45 +452,24 @@ function buildHub(graphData, flows) {
     // Glow for EVA
     if (n.label === 'EVA') {
       for (var ci = 0; ci < 3; ci++) {
-        var glow = new THREE.Mesh(
-          new THREE.SphereGeometry(size * (1.2 + ci * 0.25), 32, 32),
-          new THREE.MeshBasicMaterial({color: 0x00aaff, transparent: true, opacity: 0.06 - ci * 0.015, side: THREE.BackSide})
-        );
+        var glow = new THREE.Mesh(new THREE.SphereGeometry(size * (1.2 + ci * 0.25), 32, 32), new THREE.MeshBasicMaterial({color: 0x00aaff, transparent: true, opacity: 0.06 - ci * 0.015, side: THREE.BackSide}));
         glow.position.copy(pos);
         scene.add(glow);
       }
     }
 
-    // Glow for agents
-    if (n.label === 'Agent') {
-      var aglow = new THREE.Mesh(
-        new THREE.SphereGeometry(size * 1.5, 16, 16),
-        new THREE.MeshBasicMaterial({color: cfg.color, transparent: true, opacity: 0.06})
-      );
-      aglow.position.copy(pos);
-      mesh.userData.glow = aglow;
-      scene.add(aglow);
-    }
-
     // Label
     var l = document.createElement('div');
     l.className = 'node-label';
-    l.textContent = n.label === 'SkillDomain' ? n.name.substring(0, 12) : n.name;
+    l.textContent = n.label === 'SkillDomain' ? n.name.substring(0, 10) : n.name;
     l.style.color = cfg.clr;
-    l.style.fontSize = n.label === 'EVA' ? '16px' : (n.label === 'Agent' ? '11px' : (n.label === 'Service' ? '10px' : '8px'));
+    l.style.fontSize = n.label === 'EVA' ? '14px' : (n.label === 'Agent' ? '10px' : (n.label === 'Service' ? '9px' : '7px'));
     l.style.fontWeight = n.label === 'EVA' ? '700' : '500';
     document.body.appendChild(l);
     mesh.userData.labelEl = l;
-
-    // Legend
-    if (!legendItems[n.label]) {
-      legendItems[n.label] = {clr: cfg.clr, count: 0};
-    }
-    legendItems[n.label].count++;
   }
 
-  // Build edges (with animation paths)
-  edges = [];
+  // Edges
   for (var i = 0; i < graphEdges.length; i++) {
     var e = graphEdges[i];
     if (nodes[e.source] && nodes[e.target]) {
@@ -403,124 +481,21 @@ function buildHub(graphData, flows) {
         var curve = new THREE.QuadraticBezierCurve3(s, mid, t);
         var pts = curve.getPoints(20);
         var opacity = Math.min(0.2, 0.4 - dist * 0.02);
-        var line = new THREE.Line(
-          new THREE.BufferGeometry().setFromPoints(pts),
-          new THREE.LineBasicMaterial({color: 0x446688, transparent: true, opacity: opacity})
-        );
-        scene.add(line);
-        edges.push({source: e.source, target: e.target, curve: curve, dist: dist});
+        scene.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), new THREE.LineBasicMaterial({color: 0x446688, transparent: true, opacity: opacity})));
       }
     }
   }
 
-  // Build flow particles from recent events
-  buildFlows(flows);
+  // Hub rings
+  var hubRing = new THREE.Line(new THREE.BufferGeometry().setFromPoints(function() {
+    var pts = [];
+    for (var i = 0; i < 64; i++) { var a = (i / 64) * Math.PI * 2; pts.push(new THREE.Vector3(Math.cos(a) * 2.2, Math.sin(a) * 2.2 * 0.3, Math.sin(a) * 2.2)); }
+    return pts;
+  }()), new THREE.LineBasicMaterial({color: 0x334466, transparent: true, opacity: 0.08}));
+  scene.add(hubRing);
 
-  // Legend
-  var leg = document.getElementById('legend-items');
-  leg.innerHTML = '';
-  var items = [
-    {clr: '#00aaff', label: 'EVA (Cerveau)', count: eva.length},
-    {clr: '#00ff88', label: 'Agents', count: agents.length},
-    {clr: '#4488ff', label: 'Skills', count: skills.length},
-    {clr: '#ff8844', label: 'Services', count: services.length}
-  ];
-  for (var i = 0; i < items.length; i++) {
-    var d = document.createElement('div');
-    d.className = 'item';
-    d.innerHTML = '<span class="dot" style="background:' + items[i].clr + ';color:' + items[i].clr + '"></span>' + items[i].label + '<span class="count">' + items[i].count + '</span>';
-    leg.appendChild(d);
-  }
-
-  // Stats bar
-  var sb = document.getElementById('stats-bar');
-  sb.innerHTML = '<div>Noeuds: <span class="val">' + graphNodes.length + '</span></div>' +
-                 '<div>Aretes: <span class="val">' + edges.length + '</span></div>' +
-                 '<div>Flux: <span class="val">' + flows.length + '</span></div>';
-
-  console.log('Hub built: ' + graphNodes.length + ' nodes, ' + edges.length + ' edges');
-}
-
-function buildFlows(flows) {
-  // Remove old particles
-  flowParticles.forEach(function(p) { scene.remove(p); });
-  flowParticles = [];
-
-  var count = Math.min(flows.length, maxFlows);
-  for (var i = 0; i < count; i++) {
-    var f = flows[i];
-    var srcNode = null, dstNode = null;
-
-    // Find source and destination nodes
-    var srcName = f.source || '';
-    if (srcName.includes('adam-') || srcName === 'system') {
-      // Try to find by name substring
-      for (var key in nodes) {
-        var n = nodes[key];
-        if (n.userData.name && n.userData.name.toLowerCase().includes(srcName.replace('adam-', ''))) {
-          srcNode = n;
-          break;
-        }
-      }
-    }
-
-    // Destination: try to match topic
-    var topic = f.topic || '';
-    if (topic.includes('packet') || topic.includes('mission')) {
-      // Pick EVA as destination
-      dstNode = nodes['eva'] || nodes[Object.keys(nodes).find(k => nodes[k].userData.label === 'EVA')];
-    } else if (topic.includes('knowledge') || topic.includes('heartbeat')) {
-      dstNode = nodes['eva'] || nodes[Object.keys(nodes).find(k => nodes[k].userData.label === 'EVA')];
-    }
-
-    if (!srcNode) {
-      // Fallback: use first agent found
-      srcNode = nodes[Object.keys(nodes).find(function(k) { return nodes[k].userData.label === 'Agent'; })];
-    }
-    if (!dstNode) srcNode = null;
-
-    if (srcNode && dstNode && srcNode !== dstNode) {
-      var s = srcNode.position.clone();
-      var t = dstNode.position.clone();
-      var mid = new THREE.Vector3().addVectors(s, t).multiplyScalar(0.5);
-      var size = 0.04 + Math.random() * 0.04;
-      var geom = new THREE.SphereGeometry(size, 8, 8);
-      var mat = new THREE.MeshBasicMaterial({
-        color: f.status === 'timeout' ? 0xff4466 : (f.status === 'failed' ? 0xff6644 : 0x00ff88),
-        transparent: true,
-        opacity: 0.6 + Math.random() * 0.2
-      });
-      var particle = new THREE.Mesh(geom, mat);
-      scene.add(particle);
-      flowParticles.push({
-        mesh: particle,
-        curve: new THREE.QuadraticBezierCurve3(s, mid, t),
-        progress: i / count,
-        speed: 0.005 + Math.random() * 0.008,
-        glow: new THREE.Mesh(
-          new THREE.SphereGeometry(size * 3, 8, 8),
-          new THREE.MeshBasicMaterial({color: 0x00ff88, transparent: true, opacity: 0.02})
-        )
-      });
-      scene.add(flowParticles[flowParticles.length - 1].glow);
-    }
-  }
-
-  // Add flow to panel
-  var panel = document.getElementById('flow-panel');
-  panel.innerHTML = '<h4><span class="live-dot"></span>Flux temps reel</h4>';
-  for (var i = 0; i < count; i++) {
-    var f = flows[i];
-    var div = document.createElement('div');
-    div.className = 'flow-row';
-    var src = (f.source || '').split('/')[0].substring(0, 12);
-    var dst = (f.topic || '').split(':').pop() || 'hub';
-    var act = (f.action || f.status || '').substring(0, 15);
-    var st = f.status || 'done';
-    var stClr = st === 'done' ? '#00ff88' : (st === 'timeout' ? '#ff4466' : '#ffaa44');
-    div.innerHTML = '<span class="src">' + src + '</span><span class="arrow">→</span><span class="dst">' + dst + '</span><span class="action">' + act + '</span><span class="st" style="background:' + stClr + '22;color:' + stClr + '">' + st + '</span>';
-    panel.appendChild(div);
-  }
+  // Stats
+  document.getElementById('stats-bar').innerHTML = '<div>Agents: <span class="val">' + agents.length + '</span></div><div>Skills: <span class="val">' + skills.length + '</span></div><div>Services: <span class="val">' + services.length + '</span></div>';
 }
 
 function updateLabels() {
@@ -530,43 +505,14 @@ function updateLabels() {
       var pos = mesh.position.clone();
       pos.project(camera);
       if (pos.z < 1) {
-        var x = (pos.x * 0.5 + 0.5) * window.innerWidth;
-        var y = (-pos.y * 0.5 + 0.5) * window.innerHeight;
-        mesh.userData.labelEl.style.left = x + 'px';
-        mesh.userData.labelEl.style.top = y + 'px';
+        mesh.userData.labelEl.style.left = ((pos.x * 0.5 + 0.5) * renderer.domElement.clientWidth) + 'px';
+        mesh.userData.labelEl.style.top = ((-pos.y * 0.5 + 0.5) * renderer.domElement.clientHeight) + 'px';
         var dist = camera.position.distanceTo(mesh.position);
-        if (mesh.userData.label === 'SkillDomain' && dist > 20) {
-          mesh.userData.labelEl.style.display = 'none';
-        } else if (dist > 35) {
-          mesh.userData.labelEl.style.display = 'none';
-        } else {
-          mesh.userData.labelEl.style.display = 'block';
-        }
-      } else {
-        mesh.userData.labelEl.style.display = 'none';
-      }
+        if (mesh.userData.label === 'SkillDomain' && dist > 20) { mesh.userData.labelEl.style.display = 'none'; }
+        else if (dist > 35) { mesh.userData.labelEl.style.display = 'none'; }
+        else { mesh.userData.labelEl.style.display = 'block'; }
+      } else { mesh.userData.labelEl.style.display = 'none'; }
     }
-  }
-}
-
-function animateFlows() {
-  animTime += 0.02;
-  for (var i = 0; i < flowParticles.length; i++) {
-    var p = flowParticles[i];
-    p.progress += p.speed;
-    if (p.progress > 1) p.progress = 0;
-
-    var pt = p.curve.getPoint(p.progress);
-    p.mesh.position.copy(pt);
-    p.glow.position.copy(pt);
-
-    // Pulse glow
-    p.glow.material.opacity = 0.01 + 0.03 * Math.sin(Date.now() * 0.003 + i);
-  }
-
-  // Pulse EVA
-  if (nodes['eva']) {
-    nodes['eva'].material.emissiveIntensity = 0.5 + 0.3 * Math.sin(Date.now() * 0.002);
   }
 }
 
@@ -575,57 +521,178 @@ function onClick(event) {
   pointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
   pointer.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
   raycaster.setFromCamera(pointer, camera);
-  var hits = raycaster.intersectObjects(scene.children.filter(function(c) {
-    return c.isMesh && c.geometry && c.geometry.type === 'SphereGeometry' && c.userData.name;
-  }));
+  var hits = raycaster.intersectObjects(scene.children.filter(function(c) { return c.isMesh && c.userData.name; }));
   if (hits.length > 0 && hits[0].object.userData.name) {
     var o = hits[0].object;
-    document.getElementById('info-name').textContent = o.userData.name;
+    var info = document.getElementById('info-name');
+    if (info) info.textContent = o.userData.name;
     var tag = document.getElementById('info-tag');
-    tag.textContent = o.userData.label;
-    var cfg = NODE_COLORS[o.userData.label] || NODE_COLORS['SkillDomain'];
-    tag.style.background = cfg.clr + '22';
-    tag.style.color = cfg.clr;
-    var p = o.userData.props || {};
-    var html = '';
-    for (var k in p) { html += '<div><span class="k">' + k + '</span> ' + p[k] + '</div>'; }
-    document.getElementById('info-props').innerHTML = html || 'Aucune propriete';
-    document.getElementById('info-panel').classList.add('visible');
+    if (tag) tag.textContent = o.userData.label;
+    var props = document.getElementById('info-props');
+    if (props) {
+      var html = '';
+      for (var k in (o.userData.props || {})) { html += '<div><span class="k">' + k + '</span> ' + o.userData.props[k] + '</div>'; }
+      props.innerHTML = html || 'Aucune propriete';
+    }
+    var panel = document.getElementById('info-panel');
+    if (panel) panel.classList.add('visible');
     if (selected) selected.material.emissiveIntensity = 0.2;
     selected = o;
     selected.material.emissiveIntensity = 0.8;
   } else {
-    document.getElementById('info-panel').classList.remove('visible');
+    var panel = document.getElementById('info-panel');
+    if (panel) panel.classList.remove('visible');
     if (selected) { selected.material.emissiveIntensity = 0.2; selected = null; }
   }
 }
 
 function onResize() {
-  camera.aspect = window.innerWidth / window.innerHeight;
+  var container = document.getElementById('hub-content');
+  if (!container) return;
+  var w = container.clientWidth, h = container.clientHeight;
+  camera.aspect = w / h;
   camera.updateProjectionMatrix();
-  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setSize(w, h);
 }
 
 function animate() {
   requestAnimationFrame(animate);
+  animTime += 0.02;
   controls.update();
-  animateFlows();
   updateLabels();
   renderer.render(scene, camera);
 }
 
-function refreshFlows() {
-  fetch('/api/flows').then(function(r) { return r.json(); }).then(function(d) {
-    if (d.flows && d.flows.length) {
-      buildFlows(d.flows);
+function loadAll() {
+  fetchAgents();
+  fetchMissions();
+  fetchPackets();
+  setInterval(fetchAgents, 5000);
+  setInterval(fetchMissions, 5000);
+  setInterval(fetchPackets, 3000);
+}
+
+function fetchAgents() {
+  fetch('/api/thoughts').then(function(r) { return r.json(); }).then(function(d) {
+    var container = document.getElementById('agents-content');
+    container.innerHTML = '';
+    var thoughts = d.thoughts || [];
+    var byAgent = {};
+    for (var i = 0; i < thoughts.length; i++) {
+      var t = thoughts[i];
+      if (!byAgent[t.agent]) byAgent[t.agent] = [];
+      byAgent[t.agent].push(t);
+    }
+    for (var agent in byAgent) {
+      var card = document.createElement('div');
+      card.className = 'agent-card';
+      var last = byAgent[agent][byAgent[agent].length - 1];
+      card.innerHTML = '<div class="name">' + agent + '</div><div class="role">Dernière activité</div>' +
+                       '<div class="thought"><span class="time">' + (last.timestamp || '').slice(11, 19) + '</span>' + (last.thought || '').substring(0, 80) + '</div>';
+      container.appendChild(card);
+    }
+    if (Object.keys(byAgent).length === 0) {
+      container.innerHTML = '<div class="agent-card inactive"><div class="name">Aucun agent actif</div></div>';
     }
   }).catch(function(e) {});
 }
 
-setInterval(function() { loadGraph(); }, 30000);
-setInterval(refreshFlows, 3000);
+function fetchMissions() {
+  fetch('/api/missions').then(function(r) { return r.json(); }).then(function(d) {
+    var container = document.getElementById('missions-content');
+    container.innerHTML = '';
+    var missions = d.missions || [];
+    for (var i = 0; i < Math.min(missions.length, 10); i++) {
+      var m = missions[i];
+      var card = document.createElement('div');
+      card.className = 'mission-card ' + (m.status || 'pending');
+      var payload = m.payload || {};
+      card.innerHTML = '<div class="objective">' + (payload.mission || payload.objective || m.topic).substring(0, 60) + '</div>' +
+                       '<div class="agent">' + m.source + '</div>' +
+                       '<div class="status ' + (m.status || 'pending') + '">' + (m.status || 'pending') + '</div>';
+      container.appendChild(card);
+    }
+    if (missions.length === 0) {
+      container.innerHTML = '<div class="mission-card"><div class="objective">Aucune mission</div></div>';
+    }
+  }).catch(function(e) {});
+}
+
+function fetchPackets() {
+  fetch('/api/packets').then(function(r) { return r.json(); }).then(function(d) {
+    var c = document.getElementById('packet-stream');
+    if (!c) return;
+    var packets = d.packets || [];
+    c.innerHTML = '<h4><span class="live"></span>Flux temps reel</h4>';
+    for (var i = 0; i < Math.min(packets.length, 8); i++) {
+      var p = packets[i];
+      var div = document.createElement('div');
+      div.className = 'pkt';
+      var t = (p.timestamp || '').slice(11, 19) || '--:--:--';
+      var st = p.status || 'done';
+      var stClr = st === 'done' ? '#00ff88' : (st === 'failed' ? '#ff4466' : '#ffaa44');
+      div.innerHTML = '<span class="t">' + t + '</span><span class="s">' + p.source + '</span><span class="top">' + p.topic + '</span><span class="st" style="background:' + stClr + '22;color:' + stClr + '">' + st + '</span>';
+      c.appendChild(div);
+    }
+  }).catch(function(e) {});
+}
+
+function sendChat() {
+  var input = document.getElementById('chat-msg');
+  var msg = input.value.trim();
+  if (!msg) return;
+  input.value = '';
+  
+  // Add user message
+  var container = document.getElementById('chat-messages');
+  var userDiv = document.createElement('div');
+  userDiv.className = 'chat-msg user';
+  userDiv.innerHTML = '<div class="time">' + new Date().toLocaleTimeString() + '</div>' + msg;
+  container.appendChild(userDiv);
+  container.scrollTop = container.scrollHeight;
+  
+  // Send to EVA
+  fetch('/api/eva/chat', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({message: msg})
+  }).then(function(r) { return r.json(); }).then(function(d) {
+    var evaDiv = document.createElement('div');
+    evaDiv.className = 'chat-msg eva';
+    evaDiv.innerHTML = '<div class="time">EVA (' + (d.model || 'Qwen') + ')</div>' + (d.response || 'Pas de réponse');
+    container.appendChild(evaDiv);
+    container.scrollTop = container.scrollHeight;
+  }).catch(function(e) {
+    var errDiv = document.createElement('div');
+    errDiv.className = 'chat-msg eva';
+    errDiv.innerHTML = '<div class="time">Erreur</div>Impossible de joindre EVA: ' + e;
+    container.appendChild(errDiv);
+    container.scrollTop = container.scrollHeight;
+  });
+}
+
+function submitObjective(obj) {
+  fetch('/api/eva/objective', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({objective: obj})
+  }).then(function(r) { return r.json(); }).then(function(d) {
+    addChatMessage('Objectif soumis: ' + obj);
+  });
+}
+
+function addChatMessage(text) {
+  var container = document.getElementById('chat-messages');
+  var div = document.createElement('div');
+  div.className = 'chat-msg eva';
+  div.innerHTML = '<div class="time">Système</div>' + text;
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+}
+
+// Start
 init();
-refreshFlows();
+setInterval(loadGraph, 30000);
 </script>
 </body>
 </html>"""
