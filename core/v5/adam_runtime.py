@@ -13,6 +13,8 @@ Chaque Adam est un agent IA qui:
 8. Reporte le résultat sur Go Bus
 """
 import os
+import logging
+logger = logging.getLogger(__name__)
 import sys
 import json
 import time
