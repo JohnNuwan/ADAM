@@ -37,6 +37,8 @@ import signal
 import sqlite3
 import sys
 import time
+import urllib.request
+import urllib.error
 from collections import deque
 from datetime import datetime, timezone
 from pathlib import Path
@@ -46,6 +48,7 @@ from typing import Any
 
 ADAM_V2_DIR = Path(os.environ.get("ADAM_V2_DIR", Path.home() / "eva-adam-v2"))
 DB_PATH = ADAM_V2_DIR / "event_bus.db"
+GO_BUS_URL = os.environ.get("GO_BUS_URL", "http://localhost:8086/api/publish")
 
 # Fichiers Praetor
 PRAETOR_DIR = Path.home() / ".praetor"
@@ -466,7 +469,13 @@ def selection_naturelle(
 
 
 class EvolutionBus:
-    """Wrapper d'accès au bus d'events pour adam-evolution."""
+    """Wrapper d'accès au bus d'events pour adam-evolution.
+
+    Publication privilégiée via Go Bus HTTP, avec fallback SQLite.
+    Récupération des events via SQLite (le Go Bus persiste aussi en PG,
+    mais le curseur last_id et la table events locale restent la source
+    pour le traitement différé).
+    """
 
     def __init__(self, db_path: Path = DB_PATH) -> None:
         self.db_path = db_path
@@ -477,6 +486,43 @@ class EvolutionBus:
             self._conn = sqlite3.connect(str(self.db_path))
             self._conn.row_factory = sqlite3.Row
         return self._conn
+
+    def _publish_go_bus(self, channel: str, payload: dict, source: str) -> bool:
+        """Publie via Go Bus HTTP — méthode privilégiée."""
+        try:
+            msg = json.dumps({
+                "topic": channel,
+                "source": source,
+                "payload": payload,
+                "priority": 0,
+            }).encode("utf-8")
+            req = urllib.request.Request(
+                GO_BUS_URL, data=msg,
+                headers={"Content-Type": "application/json"},
+            )
+            urllib.request.urlopen(req, timeout=5)
+            return True
+        except urllib.error.URLError as e:
+            logger.warning(f"Go Bus publish failed on {channel}: {e}")
+            return False
+        except Exception as e:
+            logger.warning(f"Go Bus error on {channel}: {e}")
+            return False
+
+    def _publish_sqlite_fallback(self, channel: str, payload: dict, source: str) -> int:
+        """Fallback SQLite — si Go Bus est injoignable."""
+        conn = sqlite3.connect(str(self.db_path))
+        now = datetime.now(timezone.utc).isoformat()
+        cursor = conn.execute(
+            """INSERT INTO events (channel, source, payload, priority, created_at, status)
+               VALUES (?, ?, ?, 0, ?, 'pending')""",
+            (channel, source, json.dumps(payload, ensure_ascii=False), now),
+        )
+        conn.commit()
+        event_id = cursor.lastrowid
+        conn.close()
+        logger.debug(f"[SQLite fallback] Event #{event_id} on {channel}")
+        return event_id
 
     def get_healed_events(
         self, last_id: int = 0
@@ -512,18 +558,12 @@ class EvolutionBus:
     def publier(
         self, channel: str, payload: dict, source: str = AGENT_ID
     ) -> int:
-        """Publie un event sur le bus."""
-        conn = sqlite3.connect(str(self.db_path))
-        now = datetime.now(timezone.utc).isoformat()
-        cursor = conn.execute(
-            """INSERT INTO events (channel, source, payload, priority, created_at, status)
-               VALUES (?, ?, ?, 0, ?, 'pending')""",
-            (channel, source, json.dumps(payload, ensure_ascii=False), now),
-        )
-        conn.commit()
-        event_id = cursor.lastrowid
-        conn.close()
-        return event_id
+        """Publie un event sur le Go Bus (HTTP) avec fallback SQLite."""
+        if self._publish_go_bus(channel, payload, source):
+            logger.debug(f"[Go Bus] Event on {channel}")
+            return 0  # Go Bus ne retourne pas d'ID séquentiel
+        # Fallback SQLite
+        return self._publish_sqlite_fallback(channel, payload, source)
 
     def heartbeat(self) -> None:
         """Publie un heartbeat sur le bus."""

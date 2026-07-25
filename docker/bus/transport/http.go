@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"sync"
 	"time"
 
 	"github.com/gorilla/websocket"
@@ -39,6 +40,9 @@ func (h *HTTPServer) Start(port string) error {
 	return http.ListenAndServe(addr, mux)
 }
 
+// [FIX 1] handlePublish no longer persists to PG directly.
+// main.go subscribes to "adam:*" on the broker and calls pgStore.Save()
+// for every event, so persisting here too caused double writes.
 func (h *HTTPServer) handlePublish(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "POST" {
 		http.Error(w, "POST required", 405)
@@ -54,28 +58,69 @@ func (h *HTTPServer) handlePublish(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), 500)
 		return
 	}
-	if h.store != nil {
-		go func() {
-			if err := h.store.Save(msg); err != nil {
-				log.Printf("[HTTP] Store.Save: %v", err)
-			}
-		}()
-	}
+	// Persistence is handled by the broker's adam:* subscriber in main.go.
 	w.WriteHeader(201)
 	json.NewEncoder(w).Encode(map[string]string{"status": "ok", "id": msg.ID})
 }
 
+// [FIX 3] handleSubscribe is now a real SSE (Server-Sent Events) stream.
+// Clients connect with ?topic=adam:critic and receive events live.
+// The connection stays open and events are flushed immediately.
 func (h *HTTPServer) handleSubscribe(w http.ResponseWriter, r *http.Request) {
 	topic := r.URL.Query().Get("topic")
 	if topic == "" {
 		http.Error(w, "topic required", 400)
 		return
 	}
-	sub := h.broker.Subscribe(topic, func(msg broker.Message) {})
-	json.NewEncoder(w).Encode(map[string]string{
-		"subscription_id": sub.ID,
-		"topic":           topic,
+
+	// SSE headers
+	w.Header().Set("Content-Type", "text/event-stream")
+	w.Header().Set("Cache-Control", "no-cache")
+	w.Header().Set("Connection", "keep-alive")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+
+	// Check if streaming is supported (ResponseWriter Flusher)
+	flusher, ok := w.(http.Flusher)
+	if !ok {
+		http.Error(w, "streaming not supported", 500)
+		return
+	}
+
+	// Channel to receive events from the broker subscription
+	eventCh := make(chan broker.Message, 64)
+
+	sub := h.broker.Subscribe(topic, func(msg broker.Message) {
+		select {
+		case eventCh <- msg:
+		default:
+			// channel full, drop event to avoid blocking the broker
+			log.Printf("[SSE] event channel full for topic %s, dropping event", topic)
+		}
 	})
+	defer h.broker.Unsubscribe(sub)
+
+	// Send initial ack
+	fmt.Fprintf(w, "event: ready\ndata: {\"subscription_id\":%q,\"topic\":%q}\n\n", sub.ID, topic)
+	flusher.Flush()
+
+	// Notify on client disconnect
+	notifyCh := r.Context().Done()
+
+	for {
+		select {
+		case <-notifyCh:
+			// client disconnected
+			return
+		case msg := <-eventCh:
+			data, err := json.Marshal(msg)
+			if err != nil {
+				log.Printf("[SSE] marshal error: %v", err)
+				continue
+			}
+			fmt.Fprintf(w, "event: message\ndata: %s\n\n", data)
+			flusher.Flush()
+		}
+	}
 }
 
 func (h *HTTPServer) handleQuery(w http.ResponseWriter, r *http.Request) {
@@ -106,6 +151,10 @@ func (h *HTTPServer) handleHealth(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(`{"status":"ok"}`))
 }
 
+// [FIX 4] WebSocket handler now uses a sync.Mutex to serialize
+// conn.WriteJSON calls. The gorilla/websocket connection is not
+// safe for concurrent writes — multiple subscribers pushing events
+// to the same conn caused a race condition and panics.
 func (h *HTTPServer) handleWebSocket(w http.ResponseWriter, r *http.Request) {
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
@@ -113,6 +162,9 @@ func (h *HTTPServer) handleWebSocket(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer conn.Close()
+
+	// Mutex protects concurrent writes to the websocket connection
+	var writeMu sync.Mutex
 
 	type WsMessage struct {
 		Action string `json:"action"`
@@ -129,7 +181,11 @@ func (h *HTTPServer) handleWebSocket(w http.ResponseWriter, r *http.Request) {
 		switch wMsg.Action {
 		case "subscribe":
 			sub := h.broker.Subscribe(wMsg.Topic, func(evt broker.Message) {
-				conn.WriteJSON(evt)
+				writeMu.Lock()
+				defer writeMu.Unlock()
+				if err := conn.WriteJSON(evt); err != nil {
+					log.Printf("[WS] write error: %v", err)
+				}
 			})
 			subs = append(subs, sub)
 		case "unsubscribe":

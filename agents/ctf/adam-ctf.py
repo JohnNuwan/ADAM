@@ -746,31 +746,33 @@ def run_training(challenges: list = None, loop: bool = False, interval: int = 60
         time.sleep(interval)
 
 def register_agent():
-    """Enregistre l'agent dans la DB."""
-    conn = db_conn()
+    """Enregistre l'agent sur le Go Bus via HTTP API (urllib.request)."""
     now = datetime.now(timezone.utc).isoformat()
-    conn.execute("""
-        INSERT OR IGNORE INTO agents (agent_id, display_name, status, heartbeat_at, config)
-        VALUES (?, ?, 'idle', ?, ?)
-    """, (AGENT_ID, DISPLAY_NAME, now, json.dumps({
-        "timeout": 300, "retries": 1,
-        "categories": ["web", "crypto", "reverse", "pwn", "forensic", "misc"],
-    })))
-    conn.commit()
-
-    # Subscriptions
-    subs = [
-        ("ctf:challenge", "/home/aza/scripts/adam-ctf.py", 1),
-        ("ctf:new_challenge", "/home/aza/scripts/adam-ctf.py", 1),
-    ]
-    for channel, handler, enabled in subs:
-        conn.execute("""
-            INSERT OR IGNORE INTO subscriptions (agent_id, channel, handler, enabled)
-            VALUES (?, ?, ?, ?)
-        """, (AGENT_ID, channel, handler, enabled))
-    conn.commit()
-    conn.close()
-    log(f"Agent {AGENT_ID} enregistré dans la DB")
+    try:
+        body = json.dumps({
+            "topic": "adam:register",
+            "source": AGENT_ID,
+            "payload": {
+                "agent_id": AGENT_ID,
+                "display_name": DISPLAY_NAME,
+                "status": "idle",
+                "heartbeat_at": now,
+                "config": {
+                    "timeout": 300, "retries": 1,
+                    "categories": ["web", "crypto", "reverse", "pwn", "forensic", "misc"],
+                },
+                "subscriptions": ["ctf:challenge", "ctf:new_challenge"],
+            },
+        }).encode("utf-8")
+        req = urllib.request.Request(
+            GO_BUS_URL,
+            data=body,
+            headers={"Content-Type": "application/json"},
+        )
+        urllib.request.urlopen(req, timeout=5)
+        log(f"Agent {AGENT_ID} enregistré sur le Go Bus")
+    except Exception as e:
+        log(f"Erreur enregistrement Go Bus: {e}", "WARN")
 
 # ─── CLI ───
 

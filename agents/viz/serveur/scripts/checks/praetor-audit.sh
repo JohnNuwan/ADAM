@@ -33,7 +33,9 @@ if [ -n "$matches" ]; then
     echo "  [ERR] Secret(s) possible(s) detecte(s):"
     echo "$matches" | grep -v 'SECRETS_PAT\|osint_env/lib\|\.venv/lib\|venv/lib' | sed 's/^/    /'
     ERRORS=$((ERRORS+1))
-fiecho "[PRAETOR] Verification IP privees..."
+fi
+
+echo "[PRAETOR] Verification IP privees..."
 ips=$(grep -rnE '(192\.168\.|10\.|172\.1[6-9]\.|172\.2[0-9]\.|172\.3[0-1])'     --include='*.py' --include='*.sh' --include='*.yaml' --include='*.json'     --exclude-dir=.git --exclude-dir=venv --exclude-dir=.venv 2>/dev/null | head -10)
 if [ -n "$ips" ]; then
     echo "  [WARN] IP privee(s) dans les fichiers:"

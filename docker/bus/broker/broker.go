@@ -2,6 +2,7 @@ package broker
 
 import (
 	"log"
+	"strings"
 	"sync"
 	"time"
 
@@ -49,6 +50,49 @@ func NewBroker() *Broker {
 	}
 }
 
+// [FIX 5] matchTopic returns true if a published topic matches a
+// subscription pattern. A subscription topic may contain a trailing
+// "*" to match a prefix (e.g. "adam:*" matches "adam:critic",
+// "adam:scribe", etc.) or contain a "*" anywhere as a wildcard.
+// We support both prefix-style ("adam:*") and full glob via
+// strings.Contains-based fallback. Exact match always wins.
+func matchTopic(pattern, topic string) bool {
+	// exact match — fast path
+	if pattern == topic {
+		return true
+	}
+	// wildcard match: pattern ends with ":*" -> prefix match
+	if strings.HasSuffix(pattern, ":*") {
+		prefix := strings.TrimSuffix(pattern, "*")
+		return strings.HasPrefix(topic, prefix)
+	}
+	// general glob: use "*" as a segment wildcard
+	if strings.Contains(pattern, "*") {
+		// Simple glob: split on "*", each segment must appear in order
+		// e.g. "adam:*:alert" matches "adam:critic:alert"
+		parts := strings.Split(pattern, "*")
+		idx := 0
+		for i, part := range parts {
+			if part == "" {
+				// leading or trailing * or ** — skip
+				continue
+			}
+			pos := strings.Index(topic[idx:], part)
+			if pos < 0 {
+				return false
+			}
+			idx += pos + len(part)
+			// For the last non-empty part, if the pattern does not
+			// end with "*", it must match the end of the topic.
+			if i == len(parts)-1 && !strings.HasSuffix(pattern, "*") {
+				return idx == len(topic)
+			}
+		}
+		return true
+	}
+	return false
+}
+
 // Publish sends a message to all subscribers of the topic
 func (b *Broker) Publish(msg Message) error {
 	if msg.ID == "" {
@@ -64,12 +108,19 @@ func (b *Broker) Publish(msg Message) error {
 	if len(b.history[msg.Topic]) > b.historyLimit {
 		b.history[msg.Topic] = b.history[msg.Topic][len(b.history[msg.Topic])-b.historyLimit:]
 	}
-	subs := b.subs[msg.Topic]
-	// Also check wildcard subscribers (adam:*)
-	wildcardSubs := b.subs["adam:*"]
+
+	// [FIX 5] Collect all matching subscribers (exact + wildcard patterns)
+	// Previously only "adam:*" was treated as a wildcard, so subscriptions
+	// like "adam:critic:*" or "system:*" were never invoked.
+	var matching []*Subscription
+	for pattern, subs := range b.subs {
+		if matchTopic(pattern, msg.Topic) {
+			matching = append(matching, subs...)
+		}
+	}
 	b.mu.Unlock()
 
-	// Notify subscribers (async)
+	// Notify subscribers (async, panic-safe)
 	notify := func(sub *Subscription) {
 		if sub != nil && sub.Active {
 			go func() {
@@ -83,17 +134,15 @@ func (b *Broker) Publish(msg Message) error {
 		}
 	}
 
-	for _, sub := range subs {
-		notify(sub)
-	}
-	for _, sub := range wildcardSubs {
+	for _, sub := range matching {
 		notify(sub)
 	}
 
 	return nil
 }
 
-// Subscribe registers a handler for a topic pattern (supports adam:* glob)
+// Subscribe registers a handler for a topic pattern (supports wildcards
+// like "adam:*", "adam:critic:*", or "system:*")
 func (b *Broker) Subscribe(topic string, handler func(Message)) *Subscription {
 	sub := &Subscription{
 		ID:      uuid.New().String(),
@@ -160,4 +209,3 @@ func (b *Broker) Stats() map[string]interface{} {
 	}
 	return stats
 }
-

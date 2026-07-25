@@ -21,7 +21,7 @@ import json
 import re
 import ast
 import argparse
-import subprocess
+import urllib.request
 from datetime import datetime, timezone
 from collections import defaultdict
 from pathlib import Path
@@ -32,7 +32,7 @@ LOG_DIR = os.path.join(ADAM_V2_DIR, "logs")
 LOG_FILE = os.path.join(LOG_DIR, "critic-handler.log")
 TASKS_DIR = os.path.join(ADAM_V2_DIR, "tasks")
 FIXES_DIR = os.path.join(ADAM_V2_DIR, "fixes")
-EVENT_BUS = os.path.join(ADAM_V2_DIR, "publish.py")
+GO_BUS_URL = "http://localhost:8086/api/publish"
 SKILLS_DIR = os.path.expanduser("~/.hermes/skills")
 REPO_DIR = os.environ.get("ADAM_REPO_DIR", "/home/aza/test-pr-repo")
 
@@ -50,12 +50,18 @@ def log(level, msg):
 
 def publish(channel, payload):
     try:
-        payload_str = json.dumps(payload) if isinstance(payload, dict) else str(payload)
-        result = subprocess.run(
-            [sys.executable, EVENT_BUS, channel, payload_str],
-            capture_output=True, text=True, timeout=15
+        body = json.dumps({
+            "topic": channel,
+            "source": "adam-critic",
+            "payload": payload,
+        }).encode("utf-8")
+        req = urllib.request.Request(
+            GO_BUS_URL,
+            data=body,
+            headers={"Content-Type": "application/json"},
         )
-        log("INFO", f"Published on {channel}: {result.stdout.strip()}")
+        urllib.request.urlopen(req, timeout=5)
+        log("INFO", f"Published on {channel}")
         return True
     except Exception as e:
         log("ERROR", f"Publish failed on {channel}: {e}")

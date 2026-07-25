@@ -367,26 +367,31 @@ def main():
     log(f"✅ OSINT terminé pour {target}")
 
     # ──────────────────────────────────────────
-    # Follow-up event — chaîne entre agents
+    # Follow-up event — chaîne entre agents (Go Bus via urllib.request)
     # ──────────────────────────────────────────
     # Si breaches détectées → alerter adam-blue (security)
     breach_count = len(breaches.get("breaches", []))
     if breach_count > 0:
         try:
-            import subprocess
-            publish_path = str(ADAM_V2_DIR / "publish.py")
-            subprocess.run(
-                ["python3", publish_path, "security:vulnerability_detected",
-                 json.dumps({
-                     "type": "data_breach",
-                     "target": target,
-                     "breach_count": breach_count,
-                     "severity": "high",
-                     "source_agent": "adam-red"
-                 }),
-                 "--source", "adam-red"],
-                capture_output=True, text=True, timeout=10
+            import urllib.request
+            go_bus_url = "http://localhost:8086/api/publish"
+            body = json.dumps({
+                "topic": "security:vulnerability_detected",
+                "source": "adam-red",
+                "payload": {
+                    "type": "data_breach",
+                    "target": target,
+                    "breach_count": breach_count,
+                    "severity": "high",
+                    "source_agent": "adam-red"
+                },
+            }).encode("utf-8")
+            req = urllib.request.Request(
+                go_bus_url,
+                data=body,
+                headers={"Content-Type": "application/json"},
             )
+            urllib.request.urlopen(req, timeout=5)
             log(f"→ published security:vulnerability_detected for adam-blue ({breach_count} breaches)")
         except Exception as e:
             log(f"⚠ Échec publication follow-up: {e}")

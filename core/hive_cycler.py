@@ -23,11 +23,14 @@ import json
 import sqlite3
 import subprocess
 import socket
+import urllib.request
+import urllib.error
 from pathlib import Path
 from datetime import datetime, timezone
 
 ADAM_V2_DIR = Path(os.environ.get("ADAM_V2_DIR", os.path.expanduser("~/eva-adam-v2")))
 DB_PATH = ADAM_V2_DIR / "event_bus.db"
+GO_BUS_URL = os.environ.get("GO_BUS_URL", "http://localhost:8086/api/publish")
 LOG_DIR = ADAM_V2_DIR / "logs"
 LOG_FILE = LOG_DIR / "hive_cycler.log"
 REPO_DIR = Path(os.environ.get("ADAM_REPO_DIR", os.path.expanduser("~/test-pr-repo")))
@@ -49,8 +52,30 @@ def log(msg):
     with open(LOG_FILE, "a") as f:
         f.write(line + "\n")
 
-def publish(channel, payload, source="hive_cycler", priority=5):
-    """Publie un event directement dans event_bus.db."""
+def _publish_go_bus(channel, payload, source, priority):
+    """Publie via Go Bus HTTP — méthode privilégiée."""
+    try:
+        msg = json.dumps({
+            "topic": channel,
+            "source": source,
+            "payload": payload,
+            "priority": priority,
+        }).encode("utf-8")
+        req = urllib.request.Request(
+            GO_BUS_URL, data=msg,
+            headers={"Content-Type": "application/json"},
+        )
+        urllib.request.urlopen(req, timeout=5)
+        return True
+    except urllib.error.URLError as e:
+        log(f"  GO_BUS unreachable for {channel}: {e}")
+        return False
+    except Exception as e:
+        log(f"  GO_BUS error for {channel}: {e}")
+        return False
+
+def _publish_sqlite_fallback(channel, payload, source, priority):
+    """Fallback SQLite — utilisée si Go Bus est injoignable."""
     try:
         conn = sqlite3.connect(str(DB_PATH), timeout=5)
         now = datetime.now(timezone.utc).isoformat()
@@ -62,11 +87,19 @@ def publish(channel, payload, source="hive_cycler", priority=5):
         conn.commit()
         eid = conn.execute("SELECT last_insert_rowid()").fetchone()[0]
         conn.close()
-        log(f"  → Event #{eid} on {channel}")
+        log(f"  → (SQLite fallback) Event #{eid} on {channel}")
         return eid
     except Exception as e:
-        log(f"  ERROR publishing {channel}: {e}")
+        log(f"  ERROR SQLite fallback publishing {channel}: {e}")
         return None
+
+def publish(channel, payload, source="hive_cycler", priority=5):
+    """Publie un event sur le Go Bus (HTTP) avec fallback SQLite."""
+    if _publish_go_bus(channel, payload, source, priority):
+        log(f"  → (Go Bus) Event on {channel}")
+        return True
+    # Fallback SQLite si Go Bus est down
+    return _publish_sqlite_fallback(channel, payload, source, priority) is not None
 
 def get_real_metrics():
     """Collecte de vraies métriques système."""

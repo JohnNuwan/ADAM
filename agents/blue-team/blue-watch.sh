@@ -114,29 +114,38 @@ handle_vulnerability_detected() {
 }
 
 # ──────────────────────────────────────────────
-# Dispatch + follow-up events (chaînes entre agents)
+# Dispatch + follow-up events (chaînes entre agents — Go Bus via curl)
 # ──────────────────────────────────────────────
-PUBLISH="${ADAM_V2_DIR}/publish.py"
+GO_BUS_URL="http://localhost:8086/api/publish"
+
+publish_go_bus() {
+    # $1 = topic, $2 = JSON payload
+    curl -s -X POST "$GO_BUS_URL" \
+        -H 'Content-Type: application/json' \
+        -d "{\"topic\":\"$1\",\"source\":\"adam-blue\",\"payload\":$2}" \
+        >/dev/null 2>&1
+}
 
 case "$CHANNEL" in
     security:permission_drift)
         handle_permission_drift
         # → Publier security:alert pour adam-sentinel
-        python3 "$PUBLISH" security:alert "{\"type\":\"permission_drift\",\"file\":\"${file:-unknown}\",\"severity\":\"low\",\"source_agent\":\"adam-blue\"}" --source adam-blue 2>/dev/null
+        publish_go_bus "security:alert" "{\"type\":\"permission_drift\",\"file\":\"${file:-unknown}\",\"severity\":\"low\",\"source_agent\":\"adam-blue\"}"
         log "INFO" "→ published security:alert for adam-sentinel"
         ;;
     security:suid_change)
         handle_suid_change
         # → Publier security:alert pour adam-sentinel si nouveaux SUID
         if [[ -n "${added:-}" ]]; then
-            python3 "$PUBLISH" security:alert "{\"type\":\"suid_added\",\"count\":\"$(echo \"$added\" | grep -c . || echo 1)\",\"severity\":\"medium\",\"source_agent\":\"adam-blue\"}" --source adam-blue 2>/dev/null
+            SUID_COUNT=$(echo "$added" | grep -c . || echo 1)
+            publish_go_bus "security:alert" "{\"type\":\"suid_added\",\"count\":\"${SUID_COUNT}\",\"severity\":\"medium\",\"source_agent\":\"adam-blue\"}"
             log "INFO" "→ published security:alert (suid_added) for adam-sentinel"
         fi
         ;;
     security:vulnerability_detected)
         handle_vulnerability_detected
         # → Publier security:alert pour adam-sentinel
-        python3 "$PUBLISH" security:alert "{\"type\":\"vulnerability\",\"package\":\"${pkg:-unknown}\",\"severity\":\"${severity:-medium}\",\"cve\":\"${cve:-}\",\"source_agent\":\"adam-blue\"}" --source adam-blue 2>/dev/null
+        publish_go_bus "security:alert" "{\"type\":\"vulnerability\",\"package\":\"${pkg:-unknown}\",\"severity\":\"${severity:-medium}\",\"cve\":\"${cve:-}\",\"source_agent\":\"adam-blue\"}"
         log "INFO" "→ published security:alert (vulnerability) for adam-sentinel"
         ;;
     *)

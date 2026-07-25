@@ -91,6 +91,12 @@ def main():
     except json.JSONDecodeError:
         payload = {}
 
+    if not channel:
+        # Lancé sans channel — faire un heartbeat et sortir proprement
+        print("🔄 Handler RAG déclenché sans channel — heartbeat uniquement")
+        heartbeat(agent_id=agent_id, status="ok")
+        sys.exit(0)
+
     if channel == "rag:query":
         result = handle_query(payload)
     elif channel == "rag:reindex":
@@ -108,6 +114,7 @@ def main():
               error=result.get("error") if status == "error" else None)
 
     print(json.dumps(result, ensure_ascii=False, indent=2))
+    # Ne pas exit 1 sur "offline" — le serveur RAG peut être en panne temporairement
     sys.exit(0 if status == "ok" else 1)
 
 if __name__ == "__main__":

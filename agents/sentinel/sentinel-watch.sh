@@ -73,19 +73,27 @@ case "$CHANNEL" in
 esac
 
 # ──────────────────────────────────────────────
-# Follow-up events — chaînes entre agents
+# Follow-up events — chaînes entre agents (Go Bus via curl)
 # ──────────────────────────────────────────────
-PUBLISH="${ADAM_V2_DIR:-/home/aza/eva-adam-v2}/publish.py"
+GO_BUS_URL="http://localhost:8086/api/publish"
+
+publish_go_bus() {
+    # $1 = topic, $2 = JSON payload
+    curl -s -X POST "$GO_BUS_URL" \
+        -H 'Content-Type: application/json' \
+        -d "{\"topic\":\"$1\",\"source\":\"adam-sentinel\",\"payload\":$2}" \
+        >/dev/null 2>&1
+}
 
 case "$CHANNEL" in
     update:available)
         # MAJ détectée → notifier adam-praetor pour validation config
-        python3 "$PUBLISH" config:changed "{\"component\":\"${UPDATE_NAME:-unknown}\",\"type\":\"update_available\",\"version\":\"${UPDATE_VERSION:-}\",\"source_agent\":\"adam-sentinel\"}" --source adam-sentinel 2>/dev/null
+        publish_go_bus "config:changed" "{\"component\":\"${UPDATE_NAME:-unknown}\",\"type\":\"update_available\",\"version\":\"${UPDATE_VERSION:-}\",\"source_agent\":\"adam-sentinel\"}"
         log "→ published config:changed for adam-praetor"
         ;;
     security:alert)
         # Alerte sécurité reçue → notifier adam-red pour recherche OSINT
-        python3 "$PUBLISH" security:scan "{\"source\":\"adam-sentinel\",\"alert_type\":\"${UPDATE_TYPE:-generic}\",\"source_agent\":\"adam-sentinel\"}" --source adam-sentinel 2>/dev/null
+        publish_go_bus "security:scan" "{\"source\":\"adam-sentinel\",\"alert_type\":\"${UPDATE_TYPE:-generic}\",\"source_agent\":\"adam-sentinel\"}"
         log "→ published security:scan for adam-red"
         ;;
 esac

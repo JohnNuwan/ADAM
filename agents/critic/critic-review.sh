@@ -130,19 +130,27 @@ case "$CHANNEL" in
 esac
 
 # ──────────────────────────────────────────────
-# Follow-up events — chaînes entre agents
+# Follow-up events — chaînes entre agents (Go Bus via curl)
 # ──────────────────────────────────────────────
-PUBLISH="${ADAM_V2_DIR:-/home/aza/eva-adam-v2}/publish.py"
+GO_BUS_URL="http://localhost:8086/api/publish"
+
+publish_go_bus() {
+    # $1 = topic, $2 = JSON payload
+    curl -s -X POST "$GO_BUS_URL" \
+        -H 'Content-Type: application/json' \
+        -d "{\"topic\":\"$1\",\"source\":\"adam-critic\",\"payload\":$2}" \
+        >/dev/null 2>&1
+}
 
 case "$CHANNEL" in
     skill:created|skill:updated)
         # Skill modifié → notifier adam-docs pour màj wiki
-        python3 "$PUBLISH" wiki:update "{\"skill\":\"${SKILL_NAME:-unknown}\",\"action\":\"${CHANNEL}\",\"source_agent\":\"adam-critic\"}" --source adam-critic 2>/dev/null
+        publish_go_bus "wiki:update" "{\"skill\":\"${SKILL_NAME:-unknown}\",\"action\":\"${CHANNEL}\",\"source_agent\":\"adam-critic\"}"
         log "→ published wiki:update for adam-docs"
         ;;
     skill:broken)
         # Skill cassé → notifier adam-praetor pour investigation
-        python3 "$PUBLISH" config:changed "{\"component\":\"skill:${SKILL_NAME:-unknown}\",\"type\":\"broken\",\"error\":\"${SKILL_ERROR:-}\",\"source_agent\":\"adam-critic\"}" --source adam-critic 2>/dev/null
+        publish_go_bus "config:changed" "{\"component\":\"skill:${SKILL_NAME:-unknown}\",\"type\":\"broken\",\"error\":\"${SKILL_ERROR:-}\",\"source_agent\":\"adam-critic\"}"
         log "→ published config:changed for adam-praetor"
         ;;
 esac

@@ -27,12 +27,15 @@ from pathlib import Path
 
 # ── Importer le bus d'événements depuis le même répertoire ──
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from event_bus import EventBus
+from event_bus import EventBus, GoBusClient
 
 # ── Variables d'environnement ──
 WORKER_ID = os.environ.get("WORKER_ID", "worker-1")
 WORKER_TIMEOUT = int(os.environ.get("WORKER_TIMEOUT", "180"))
 DB_PATH = os.environ.get("DB_PATH", "/data/event_bus.db")
+
+# ── Go Bus client (HTTP — privilégié pour la publication) ──
+go_bus = GoBusClient()
 
 # ── Chemins internes du conteneur ──
 HANDLERS_DIR = Path("/handlers")       # Scripts montés en lecture seule
@@ -225,6 +228,12 @@ def worker_loop():
             # 1. Envoyer un battement de cœur
             bus.heartbeat(WORKER_ID)
             bus.update_agent_status(WORKER_ID, "running")
+            # Go Bus heartbeat (HTTP — privilégié)
+            go_bus.publish("adam:heartbeat", {
+                "agent_id": WORKER_ID,
+                "status": "running",
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+            }, source=WORKER_ID)
 
             # 2. Récupérer les événements en attente
             pending = get_all_pending_events(DB_PATH)
@@ -303,6 +312,15 @@ def worker_loop():
                     "[cycle #%d] %s Event #%d terminé (%d handler(s))",
                     cycle_count, status_symbol, event_id, len(subscriptions),
                 )
+                # Publier le résultat sur le Go Bus (HTTP — privilégié)
+                go_bus.publish(f"worker:done", {
+                    "event_id": event_id,
+                    "channel": channel,
+                    "worker_id": WORKER_ID,
+                    "success": all_success,
+                    "handlers": len(subscriptions),
+                    "timestamp": datetime.now(timezone.utc).isoformat(),
+                }, source=WORKER_ID, priority=1 if not all_success else 0)
 
             # 4. Pause avant le prochain cycle
             time.sleep(5)
