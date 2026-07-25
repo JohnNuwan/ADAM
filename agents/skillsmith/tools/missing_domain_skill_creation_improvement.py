@@ -1,1 +1,1 @@
-missing_domain_skill_creation_improvement(domain='autonomie financière et AGI')
+Utiliser les leçons apprises pour créer un outil amélioré qui permettra de développer un skill pour combler un domaine de connaissance manquant.

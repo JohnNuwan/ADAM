@@ -1,1 +1,4 @@
-Créer un outil container_diagnostic qui analyse les données recueillies par docker_inspect et resource_monitor pour identifier les conteneurs problématiques et leurs problèmes spécifiques.
+def container_diagnostic(docker_data, resource_data):
+    # Analyse des données recueillies
+    # Diagnostiquer les problèmes potentiels des conteneurs
+    pass
