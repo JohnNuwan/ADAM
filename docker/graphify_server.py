@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Graphify 3D V5 - Live Activity: Solar System + real-time agent activity"""
+"""Graphify 3D V6 - Network Flow Hub: EVA brain, agents, skills, services + animated packet flows"""
 from flask import Flask, jsonify
 import psycopg2, json, os, urllib.request, time, threading
 
@@ -8,8 +8,6 @@ PG_DSN = os.environ.get("PG_DSN", "postgres://adam:***@postgres:5432/adam")
 BUS_URL = os.environ.get("BUS_URL", "http://go-bus:8086")
 
 nodes_cache = {"nodes": [], "edges": [], "ts": 0}
-packets_cache = []
-agents_status = {}
 lock = threading.Lock()
 
 def refresh_graph():
@@ -36,22 +34,7 @@ def refresh_graph():
             print(f"[ERR] {e}", flush=True)
         time.sleep(15)
 
-def refresh_packets():
-    while True:
-        try:
-            req = urllib.request.Request(f"{BUS_URL}/api/query?limit=15&topic=adam:packet")
-            with urllib.request.urlopen(req, timeout=3) as resp:
-                data = json.loads(resp.read().decode())
-                if isinstance(data, list):
-                    with lock:
-                        packets_cache.clear()
-                        packets_cache.extend(data)
-        except Exception:
-            pass
-        time.sleep(3)
-
 threading.Thread(target=refresh_graph, daemon=True).start()
-threading.Thread(target=refresh_packets, daemon=True).start()
 
 @app.route("/api/graph")
 def get_graph():
@@ -61,7 +44,7 @@ def get_graph():
 @app.route("/api/packets")
 def get_packets():
     try:
-        req = urllib.request.Request(f"{BUS_URL}/api/query?limit=15&topic=adam:packet")
+        req = urllib.request.Request(f"{BUS_URL}/api/query?limit=20&topic=adam:packet")
         with urllib.request.urlopen(req, timeout=3) as resp:
             data = json.loads(resp.read().decode())
             if isinstance(data, list):
@@ -70,145 +53,116 @@ def get_packets():
     except Exception as e:
         return jsonify({"packets": [], "error": str(e)})
 
-@app.route("/api/agents/status")
-def get_agents_status():
+@app.route("/api/flows")
+def get_flows():
+    """Return recent packet flow data for animation"""
     try:
-        req = urllib.request.Request(f"{BUS_URL}/api/query?limit=20&topic=adam:packet")
+        req = urllib.request.Request(f"{BUS_URL}/api/query?limit=30&topic=adam:packet")
         with urllib.request.urlopen(req, timeout=3) as resp:
             data = json.loads(resp.read().decode())
-            packets = data if isinstance(data, list) else data.get("events", [])
-            agents = {}
-            now = time.time()
-            for p in packets:
-                src = p.get("source", "")
-                ts = p.get("timestamp", "")
-                if src:
-                    agents[src] = {"name": src, "active": True, "status": "working",
-                                   "text": p.get("payload", {}).get("action", "working"),
-                                   "timestamp": ts}
-            return jsonify({"agents": agents, "packets": packets[:10]})
+            pkts = data if isinstance(data, list) else data.get("events", [])
+            flows = []
+            for p in pkts:
+                flows.append({
+                    "source": p.get("source", ""),
+                    "topic": p.get("topic", ""),
+                    "timestamp": p.get("timestamp", ""),
+                    "status": p.get("status", "done"),
+                    "action": p.get("payload", {}).get("action", p.get("payload", {}).get("status", "")),
+                })
+            return jsonify({"flows": flows})
     except Exception as e:
-        return jsonify({"agents": {}, "packets": [], "error": str(e)})
+        return jsonify({"flows": [], "error": str(e)})
 
 HTML = r"""<!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ADAM Galaxy - Live</title>
+<title>ADAM Network Flow Hub</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:#020208;color:#e8e8f0;font-family:'SF Pro Display','Segoe UI',system-ui,sans-serif;overflow:hidden}
+body{background:#050510;color:#e0e8f0;font-family:'SF Pro Display','Segoe UI',sans-serif;overflow:hidden}
 #app{width:100vw;height:100vh}
-#topbar{position:fixed;top:0;left:0;right:0;height:44px;background:linear-gradient(180deg,rgba(2,2,8,0.95),rgba(2,2,8,0.3));display:flex;align-items:center;justify-content:space-between;padding:0 24px;z-index:100;backdrop-filter:blur(10px);border-bottom:1px solid rgba(68,102,136,0.1)}
+
+#topbar{position:fixed;top:0;left:0;right:0;height:44px;background:linear-gradient(180deg,rgba(5,5,16,0.95),rgba(5,5,16,0.3));display:flex;align-items:center;justify-content:space-between;padding:0 24px;z-index:100;backdrop-filter:blur(10px);border-bottom:1px solid rgba(68,102,136,0.1)}
 #topbar .logo{display:flex;align-items:center;gap:10px}
-#topbar .logo .dot{width:8px;height:8px;border-radius:50%;background:#ffaa00;box-shadow:0 0 12px #ffaa00;animation:pulse 2s infinite}
+#topbar .logo .dot{width:8px;height:8px;border-radius:50%;background:#00aaff;box-shadow:0 0 12px #00aaff;animation:pulse 2s infinite}
 #topbar .logo span{font-size:13px;font-weight:600;letter-spacing:0.5px}
-#topbar .stats{display:flex;gap:16px;font-size:11px;color:#5577aa}
+#topbar .stats{display:flex;gap:20px;font-size:11px;color:#5577aa}
 #topbar .stats .val{color:#e8e8f0;font-weight:600}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
 
-#info{position:fixed;top:60px;left:20px;z-index:50;background:rgba(5,5,15,0.92);padding:14px 18px;border-radius:12px;border:1px solid rgba(68,102,136,0.2);max-width:280px;pointer-events:none;opacity:0;transition:all 0.3s;transform:translateY(-5px)}
-#info.visible{opacity:1;transform:translateY(0)}
-#info h3{margin:0 0 2px;font-size:15px;font-weight:600}
-#info .tag{display:inline-block;font-size:9px;padding:2px 8px;border-radius:10px;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px;font-weight:600}
-#info .props{font-size:11px;line-height:1.6;color:#88aacc}
-#info .props .k{color:#5577aa;font-size:10px}
-#info .status-live{font-size:11px;color:#00ff88;margin-top:8px;display:flex;align-items:center;gap:5px}
-#info .status-live .dot{width:6px;height:6px;border-radius:50%;background:#00ff88;animation:pulse 1s infinite}
+#info-panel{position:fixed;top:60px;left:20px;z-index:50;background:rgba(5,5,16,0.93);padding:14px 18px;border-radius:12px;border:1px solid rgba(68,102,136,0.2);max-width:280px;pointer-events:none;opacity:0;transition:all 0.3s;transform:translateY(-5px);backdrop-filter:blur(5px)}
+#info-panel.visible{opacity:1;transform:translateY(0)}
+#info-panel h3{margin:0 0 2px;font-size:15px;font-weight:600}
+#info-panel .tag{display:inline-block;font-size:9px;padding:2px 8px;border-radius:10px;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px;font-weight:600}
+#info-panel .props{font-size:11px;line-height:1.6;color:#88aacc}
+#info-panel .props .k{color:#5577aa;font-size:10px}
 
-#legend{position:fixed;bottom:20px;left:20px;z-index:50;background:rgba(5,5,15,0.92);padding:10px 14px;border-radius:10px;border:1px solid rgba(68,102,136,0.12)}
+#flow-panel{position:fixed;top:60px;right:20px;z-index:50;background:rgba(5,5,16,0.93);padding:12px;border-radius:10px;border:1px solid rgba(68,102,136,0.12);width:280px;max-height:60vh;overflow-y:auto;backdrop-filter:blur(5px)}
+#flow-panel::-webkit-scrollbar{width:3px}
+#flow-panel::-webkit-scrollbar-thumb{background:rgba(68,102,136,0.3);border-radius:2px}
+#flow-panel h4{font-size:10px;color:#5577aa;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px;display:flex;align-items:center;gap:6px}
+#flow-panel .live-dot{width:5px;height:5px;border-radius:50%;background:#ff4466;animation:pulse 1s infinite}
+
+.flow-row{display:flex;align-items:center;gap:6px;padding:4px 0;border-bottom:1px solid rgba(68,102,136,0.06);font-size:10px;font-family:'SF Mono',Menlo,monospace;color:#88aacc}
+.flow-row .src{color:#00ff88;font-weight:600;min-width:65px}
+.flow-row .dst{color:#aaccff;min-width:65px}
+.flow-row .action{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#6688aa}
+.flow-row .st{font-size:8px;padding:1px 4px;border-radius:3px;font-weight:600}
+.flow-row .arrow{color:#446688;font-size:8px}
+
+#legend{position:fixed;bottom:20px;left:20px;z-index:50;background:rgba(5,5,16,0.92);padding:10px 14px;border-radius:10px;border:1px solid rgba(68,102,136,0.12)}
 #legend h4{font-size:10px;color:#5577aa;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px}
 #legend .item{display:flex;align-items:center;gap:8px;font-size:11px;padding:2px 0;color:#aabbcc}
 #legend .dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;box-shadow:0 0 6px currentColor}
 #legend .count{color:#446688;font-size:9px;margin-left:auto}
 
-#packet-stream{position:fixed;bottom:20px;right:20px;z-index:50;background:rgba(5,5,15,0.92);padding:12px;border-radius:10px;border:1px solid rgba(68,102,136,0.12);width:360px;max-height:320px;overflow-y:auto}
-#packet-stream::-webkit-scrollbar{width:3px}
-#packet-stream::-webkit-scrollbar-thumb{background:rgba(68,102,136,0.3);border-radius:2px}
-#packet-stream h4{font-size:10px;color:#5577aa;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px;display:flex;align-items:center;gap:6px}
-#packet-stream .live{width:5px;height:5px;border-radius:50%;background:#ff4466;animation:pulse 1s infinite}
-.pkt{color:#88aacc;padding:4px 0;border-bottom:1px solid rgba(68,102,136,0.06);font-size:10px;font-family:'SF Mono',Menlo,monospace;display:flex;align-items:center;gap:5px}
-.pkt .t{color:#446688;min-width:50px}
-.pkt .s{color:#00ff88;font-weight:600;min-width:65px}
-.pkt .top{color:#aaccff;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.pkt .st{font-size:8px;padding:1px 4px;border-radius:3px;font-weight:600;text-transform:uppercase}
-
-#agent-panel{position:fixed;top:60px;right:20px;z-index:50;background:rgba(5,5,15,0.92);padding:12px;border-radius:10px;border:1px solid rgba(68,102,136,0.12);width:220px;max-height:50vh;overflow-y:auto}
-#agent-panel::-webkit-scrollbar{width:3px}
-#agent-panel::-webkit-scrollbar-thumb{background:rgba(68,102,136,0.3);border-radius:2px}
-#agent-panel h4{font-size:10px;color:#5577aa;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px}
-.agent-row{display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:1px solid rgba(68,102,136,0.06);font-size:11px}
-.agent-row .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
-.agent-row .dot.active{background:#00ff88;box-shadow:0 0 6px #00ff88;animation:pulse 1.5s infinite}
-.agent-row .dot.idle{background:#446688}
-.agent-row .name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.agent-row .status{font-size:9px;color:#446688}
-
-.node-label{position:absolute;font-size:10px;font-weight:500;text-shadow:0 0 4px #000,0 0 8px #000;background:rgba(2,2,8,0.8);padding:2px 6px;border-radius:4px;pointer-events:none;white-space:nowrap;z-index:5;transform:translate(-50%,-50%)}
-#hint{position:fixed;bottom:20px;right:400px;z-index:50;font-size:10px;color:#334455;line-height:1.8;text-align:right}
-.activity-indicator{position:absolute;font-size:9px;color:#00ff88;background:rgba(0,255,136,0.15);padding:1px 6px;border-radius:3px;pointer-events:none;z-index:6;transform:translate(-50%,-100%);animation:fadeUp 2s infinite}
-@keyframes fadeUp{0%{opacity:0;transform:translate(-50%,-100%) translateY(5px)}20%{opacity:1}80%{opacity:1}100%{opacity:0;transform:translate(-50%,-100%) translateY(-5px)}}
+.node-label{position:absolute;font-size:10px;font-weight:500;text-shadow:0 0 4px #000,0 0 8px #000;background:rgba(5,5,16,0.8);padding:2px 6px;border-radius:4px;pointer-events:none;white-space:nowrap;z-index:5;transform:translate(-50%,-50%)}
 </style>
 </head>
 <body>
 <div id="app"></div>
 <div id="topbar">
-  <div class="logo"><div class="dot"></div><span>ADAM Galaxy</span></div>
+  <div class="logo"><div class="dot"></div><span>ADAM Network Flow Hub</span></div>
   <div class="stats" id="stats-bar"></div>
 </div>
-<div id="info">
+<div id="info-panel">
   <h3 id="info-name">-</h3>
   <div class="tag" id="info-tag"></div>
   <div class="props" id="info-props"></div>
-  <div class="status-live" id="info-status" style="display:none"><span class="dot"></span><span id="info-status-text">Actif</span></div>
 </div>
-<div id="agent-panel"><h4>Agents actifs</h4><div id="agent-list"></div></div>
-<div id="legend"><h4>Systeme</h4><div id="legend-items"></div></div>
-<div id="packet-stream"><h4><span class="live"></span>Flux temps reel</h4></div>
-<div id="hint">Glisser: orbiter<br>Molette: zoom<br>Clic: details</div>
+<div id="flow-panel"><h4><span class="live-dot"></span>Flux temps reel</h4></div>
+<div id="legend"><h4>Legende</h4><div id="legend-items"></div></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 <script>
 var scene, camera, renderer, controls;
-var meshes = {};
-var orbits = [];
+var nodes = {};
+var edges = [];
+var flowParticles = [];
 var raycaster, pointer;
 var selected = null;
 var animTime = 0;
-var lastPackets = [];
-var agentActivity = {};
+var maxFlows = 20;
 
-var AGENT_PLANETS = {
-  "adam-praetor":   {dist: 5, angle: 0,    speed: 0.15, size: 0.5, color: 0xff4444, clr: "#ff4444"},
-  "adam-critic":    {dist: 6, angle: 0.8,  speed: 0.12, size: 0.45, color: 0xffdd00, clr: "#ffdd00"},
-  "adam-sentinel":  {dist: 7, angle: 1.6,  speed: 0.10, size: 0.55, color: 0x00ddff, clr: "#00ddff"},
-  "adam-monitor":   {dist: 8, angle: 2.4,  speed: 0.08, size: 0.5, color: 0xff8800, clr: "#ff8800"},
-  "adam-blue":      {dist: 9, angle: 3.2,  speed: 0.07, size: 0.48, color: 0x4488ff, clr: "#4488ff"},
-  "adam-red":       {dist: 9.5, angle: 4.0, speed: 0.065, size: 0.48, color: 0xff4444, clr: "#ff4444"},
-  "adam-doctor":    {dist: 10, angle: 4.8, speed: 0.06, size: 0.42, color: 0xaa66ff, clr: "#aa66ff"},
-  "adam-cicd":      {dist: 6.5, angle: 5.6, speed: 0.11, size: 0.4, color: 0xffffff, clr: "#ffffff"},
-  "adam-scribe":    {dist: 7.5, angle: 6.4, speed: 0.09, size: 0.4, color: 0x88ccff, clr: "#88ccff"},
-  "adam-treasurer": {dist: 8.5, angle: 0.4, speed: 0.075, size: 0.38, color: 0xffaa00, clr: "#ffaa00"},
-  "adam-social":    {dist: 5.5, angle: 1.2, speed: 0.14, size: 0.38, color: 0xff66aa, clr: "#ff66aa"},
-  "adam-rag":       {dist: 10.5, angle: 2.0, speed: 0.055, size: 0.42, color: 0x44ffaa, clr: "#44ffaa"},
-  "adam-viz":       {dist: 11, angle: 2.8, speed: 0.05, size: 0.45, color: 0x88ffaa, clr: "#88ffaa"},
-  "adam-chat":      {dist: 7, angle: 5.2, speed: 0.10, size: 0.38, color: 0xaa88ff, clr: "#aa88ff"}
+var NODE_COLORS = {
+  'EVA':         {color: 0x00aaff, clr: '#00aaff', size: 1.8, labelSize: '16px', emissive: 0x0066ff},
+  'Agent':       {color: 0x00ff88, clr: '#00ff88', size: 0.6, labelSize: '11px', emissive: 0x00cc55},
+  'SkillDomain': {color: 0x4488ff, clr: '#4488ff', size: 0.2, labelSize: '8px', emissive: 0x2244aa},
+  'Service':     {color: 0xff8844, clr: '#ff8844', size: 0.5, labelSize: '10px', emissive: 0xcc6622}
 };
 
-var SERVICE_STATIONS = {
-  "go-bus":      {dist: 3.5, angle: 0.5, color: 0x00aaff, clr: "#00aaff", size: 0.35},
-  "postgresql":  {dist: 3.5, angle: 2.5, color: 0x3366aa, clr: "#5588cc", size: 0.35},
-  "graphify":    {dist: 3.5, angle: 4.5, color: 0xff8844, clr: "#ff8844", size: 0.35}
-};
+var AGENT_NAMES = {};
 
 function init() {
   scene = new THREE.Scene();
-  scene.background = new THREE.Color(0x020208);
-  scene.fog = new THREE.FogExp2(0x020208, 0.010);
+  scene.background = new THREE.Color(0x050510);
+  scene.fog = new THREE.FogExp2(0x050510, 0.008);
 
   camera = new THREE.PerspectiveCamera(55, window.innerWidth/window.innerHeight, 0.1, 500);
-  camera.position.set(0, 20, 25);
+  camera.position.set(0, 12, 18);
 
   renderer = new THREE.WebGLRenderer({antialias: true});
   renderer.setSize(window.innerWidth, window.innerHeight);
@@ -219,26 +173,26 @@ function init() {
   controls.enableDamping = true;
   controls.dampingFactor = 0.06;
   controls.autoRotate = true;
-  controls.autoRotateSpeed = 0.25;
-  controls.minDistance = 3;
-  controls.maxDistance = 50;
+  controls.autoRotateSpeed = 0.3;
+  controls.minDistance = 4;
+  controls.maxDistance = 40;
 
   raycaster = new THREE.Raycaster();
   pointer = new THREE.Vector2();
 
-  // Lighting
-  var sunLight = new THREE.PointLight(0xffaa44, 2.5, 50, 1.5);
-  sunLight.position.set(0, 0, 0);
-  scene.add(sunLight);
-  scene.add(new THREE.AmbientLight(0x111122));
-  var fill = new THREE.DirectionalLight(0x4466aa, 0.3);
-  fill.position.set(10, 10, 10);
-  scene.add(fill);
+  // Lights
+  scene.add(new THREE.AmbientLight(0x222244));
+  var dl = new THREE.DirectionalLight(0x4488ff, 0.8);
+  dl.position.set(10, 20, 10);
+  scene.add(dl);
+  var dl2 = new THREE.DirectionalLight(0xff8844, 0.3);
+  dl2.position.set(-10, -5, -10);
+  scene.add(dl2);
 
-  // Stars
+  // Stars background
   var sg = new THREE.BufferGeometry();
-  var sp = new Float32Array(6000);
-  for (var i = 0; i < 6000; i++) {
+  var sp = new Float32Array(4000);
+  for (var i = 0; i < 4000; i++) {
     var r = 50 + Math.random() * 200;
     var t = Math.random() * Math.PI * 2;
     var p = Math.acos(2 * Math.random() - 1);
@@ -247,7 +201,7 @@ function init() {
     sp[i*3+2] = r * Math.cos(p);
   }
   sg.setAttribute('position', new THREE.BufferAttribute(sp, 3));
-  scene.add(new THREE.Points(sg, new THREE.PointsMaterial({color: 0x445577, size: 0.4, transparent: true, opacity: 0.7, sizeAttenuation: true})));
+  scene.add(new THREE.Points(sg, new THREE.PointsMaterial({color: 0x445577, size: 0.3, transparent: true, opacity: 0.6, sizeAttenuation: true})));
 
   renderer.domElement.addEventListener('click', onClick);
   window.addEventListener('resize', onResize);
@@ -255,228 +209,197 @@ function init() {
 }
 
 function loadGraph() {
-  fetch('/api/graph').then(function(r) { return r.json(); }).then(function(data) {
-    buildSolarSystem(data);
+  Promise.all([
+    fetch('/api/graph').then(function(r) { return r.json(); }),
+    fetch('/api/flows').then(function(r) { return r.json(); })
+  ]).then(function(responses) {
+    buildHub(responses[0], responses[1].flows || []);
     animate();
-    fetchAgentStatus();
   });
 }
 
-function buildSolarSystem(data) {
-  var skillNodes = {};
-  var agentNodes = {};
-  var serviceNodes = {};
-  var evaNode = null;
-  var agentSkills = {};
+function buildHub(graphData, flows) {
+  // Clear old nodes
+  while(scene.children.length > 6) scene.remove(scene.children[scene.children.length - 1]);
 
-  for (var i = 0; i < data.nodes.length; i++) {
-    var n = data.nodes[i];
-    if (n.label === 'EVA') evaNode = n;
-    else if (n.label === 'Agent') agentNodes[n.id] = n;
-    else if (n.label === 'Service') serviceNodes[n.id] = n;
-    else if (n.label === 'SkillDomain') { skillNodes[n.id] = n; }
+  var graphNodes = graphData.nodes;
+  var graphEdges = graphData.edges;
+  var legendItems = {};
+  var nodePositions = {};
+
+  // Separate nodes by type
+  var eva = [], agents = [], skills = [], services = [];
+  for (var i = 0; i < graphNodes.length; i++) {
+    var n = graphNodes[i];
+    if (n.label === 'EVA') eva.push(n);
+    else if (n.label === 'Agent') agents.push(n);
+    else if (n.label === 'SkillDomain') skills.push(n);
+    else if (n.label === 'Service') services.push(n);
   }
 
-  // Map skills to agents
-  for (var key in agentNodes) { agentSkills[key] = []; }
-  for (var i = 0; i < data.edges.length; i++) {
-    var e = data.edges[i];
-    if (e.relation === 'has_skill' && agentNodes[e.source] && skillNodes[e.target]) {
-      agentSkills[e.source].push(skillNodes[e.target]);
+  // Layout: EVA at center, agents in a ring, services in inner ring, skills around their agents
+  // EVA
+  var evaNode = eva[0] || {id:'eva', name:'EVA', label:'EVA', properties:{}};
+  var evaPos = new THREE.Vector3(0, 0, 0);
+  nodePositions['eva'] = evaPos;
+
+  // Services: inner ring
+  var svcRadius = 2.5;
+  for (var i = 0; i < services.length; i++) {
+    var angle = (2 * Math.PI * i) / services.length;
+    nodePositions[services[i].id] = new THREE.Vector3(
+      Math.cos(angle) * svcRadius,
+      Math.sin(angle) * svcRadius * 0.3,
+      Math.sin(angle) * svcRadius
+    );
+  }
+
+  // Agents: main ring
+  var agentRadius = 5.5;
+  for (var i = 0; i < agents.length; i++) {
+    var angle = (2 * Math.PI * i) / agents.length - Math.PI / 2;
+    nodePositions[agents[i].id] = new THREE.Vector3(
+      Math.cos(angle) * agentRadius,
+      Math.sin(angle * 2) * 0.8,
+      Math.sin(angle) * agentRadius
+    );
+    AGENT_NAMES[agents[i].id] = agents[i].name;
+  }
+
+  // Skills: distributed around their parent agents
+  // Find which skills connect to which agents via edges
+  var skillParents = {};
+  for (var i = 0; i < graphEdges.length; i++) {
+    var e = graphEdges[i];
+    if (e.relation === 'has_skill') {
+      skillParents[e.target] = e.source;
     }
   }
 
-  // === SUN (EVA) ===
-  var sunSize = 1.5;
-  var sun = new THREE.Mesh(
-    new THREE.SphereGeometry(sunSize, 48, 48),
-    new THREE.MeshBasicMaterial({color: 0xffaa00})
-  );
-  sun.userData = {name: evaNode ? evaNode.name : 'EVA', label: 'EVA', props: evaNode ? evaNode.properties : {}};
-  scene.add(sun);
-  meshes['eva'] = sun;
-
-  // Sun corona
-  for (var ci = 0; ci < 4; ci++) {
-    var corona = new THREE.Mesh(
-      new THREE.SphereGeometry(sunSize * (1.3 + ci * 0.3), 32, 32),
-      new THREE.MeshBasicMaterial({color: 0xffaa00, transparent: true, opacity: 0.08 - ci * 0.015, side: THREE.BackSide})
-    );
-    scene.add(corona);
+  // Count skills per agent for distribution
+  var skillCountPerAgent = {};
+  for (var sid in skillParents) {
+    var pid = skillParents[sid];
+    if (!skillCountPerAgent[pid]) skillCountPerAgent[pid] = 0;
+    skillCountPerAgent[pid]++;
   }
 
-  // Sun glow
-  var glowCanvas = document.createElement('canvas');
-  glowCanvas.width = 256; glowCanvas.height = 256;
-  var gctx = glowCanvas.getContext('2d');
-  var grad = gctx.createRadialGradient(128, 128, 0, 128, 128, 128);
-  grad.addColorStop(0, 'rgba(255,170,0,0.8)');
-  grad.addColorStop(0.3, 'rgba(255,140,0,0.4)');
-  grad.addColorStop(1, 'rgba(255,100,0,0)');
-  gctx.fillStyle = grad;
-  gctx.fillRect(0, 0, 256, 256);
-  var glowTex = new THREE.Texture(glowCanvas);
-  glowTex.needsUpdate = true;
-  var sunGlow = new THREE.Sprite(new THREE.SpriteMaterial({map: glowTex, blending: THREE.AdditiveBlending, transparent: true}));
-  sunGlow.scale.set(7, 7, 1);
-  scene.add(sunGlow);
+  var skillIndex = {};
+  for (var sid in skillParents) {
+    var pid = skillParents[sid];
+    if (!skillIndex[pid]) skillIndex[pid] = 0;
+    var basePos = nodePositions[pid] || new THREE.Vector3(Math.random()*3, 0, Math.random()*3);
+    var count = skillCountPerAgent[pid] || 10;
+    var idx = skillIndex[pid]++;
+    var angle = (2 * Math.PI * idx) / Math.min(count, 20) + Math.random() * 0.2;
+    var dist = 0.8 + Math.random() * 0.5;
+    nodePositions[sid] = new THREE.Vector3(
+      basePos.x + Math.cos(angle) * dist,
+      basePos.y + Math.sin(angle) * dist * 0.5,
+      basePos.z + Math.sin(angle) * dist
+    );
+  }
 
-  // Sun label
-  var sl = document.createElement('div');
-  sl.className = 'node-label';
-  sl.textContent = 'EVA';
-  sl.style.color = '#ffaa00';
-  sl.style.fontSize = '14px';
-  sl.style.fontWeight = '700';
-  document.body.appendChild(sl);
-  sun.userData.labelEl = sl;
+  // Build nodes
+  nodes = {};
+  for (var i = 0; i < graphNodes.length; i++) {
+    var n = graphNodes[i];
+    var pos = nodePositions[n.id] || new THREE.Vector3(Math.random()*5-2.5, Math.random()*5-2.5, Math.random()*5-2.5);
+    var cfg = NODE_COLORS[n.label] || NODE_COLORS['SkillDomain'];
+    var size = cfg.size;
 
-  // === PLANETS (Agents) ===
-  var agentKeys = Object.keys(agentNodes);
-  var planetIndex = 0;
+    // Make EVA bigger
+    if (n.label === 'EVA') size = cfg.size;
+    else if (n.label === 'Agent') size = cfg.size;
+    else if (n.label === 'Service') size = cfg.size;
 
-  for (var i = 0; i < agentKeys.length; i++) {
-    var agentId = agentKeys[i];
-    var agentNode = agentNodes[agentId];
-    var pconfig = null;
-    for (var pkey in AGENT_PLANETS) {
-      if (agentNode.name.toLowerCase().includes(pkey.replace('adam-', ''))) {
-        pconfig = AGENT_PLANETS[pkey];
-        break;
+    var geom = new THREE.SphereGeometry(size, n.label === 'EVA' ? 48 : 20, n.label === 'EVA' ? 48 : 20);
+    var mat = new THREE.MeshPhongMaterial({
+      color: cfg.color,
+      emissive: cfg.emissive || cfg.color,
+      emissiveIntensity: n.label === 'EVA' ? 0.6 : (n.label === 'Agent' ? 0.25 : 0.15),
+      shininess: 60
+    });
+    var mesh = new THREE.Mesh(geom, mat);
+    mesh.position.copy(pos);
+    mesh.userData = {id: n.id, name: n.name, label: n.label, props: n.properties};
+    scene.add(mesh);
+    nodes[n.id] = mesh;
+
+    // Glow for EVA
+    if (n.label === 'EVA') {
+      for (var ci = 0; ci < 3; ci++) {
+        var glow = new THREE.Mesh(
+          new THREE.SphereGeometry(size * (1.2 + ci * 0.25), 32, 32),
+          new THREE.MeshBasicMaterial({color: 0x00aaff, transparent: true, opacity: 0.06 - ci * 0.015, side: THREE.BackSide})
+        );
+        glow.position.copy(pos);
+        scene.add(glow);
       }
     }
-    if (!pconfig) {
-      pconfig = {dist: 5 + planetIndex * 0.8, angle: planetIndex * 0.5, speed: 0.1 - planetIndex * 0.005, size: 0.4, color: 0x888888, clr: '#888'};
-    }
 
-    // Orbit ring
-    var ringGeom = new THREE.RingGeometry(pconfig.dist - 0.02, pconfig.dist + 0.02, 128);
-    var ring = new THREE.Mesh(ringGeom, new THREE.MeshBasicMaterial({color: pconfig.color, transparent: true, opacity: 0.08, side: THREE.DoubleSide}));
-    ring.rotation.x = Math.PI / 2;
-    scene.add(ring);
-    orbits.push(ring);
-
-    // Planet
-    var planet = new THREE.Mesh(
-      new THREE.SphereGeometry(pconfig.size, 24, 24),
-      new THREE.MeshPhongMaterial({color: pconfig.color, emissive: pconfig.color, emissiveIntensity: 0.2, shininess: 60})
-    );
-    planet.userData = {
-      id: agentId, name: agentNode.name, label: 'Agent',
-      props: agentNode.properties,
-      orbit: {dist: pconfig.dist, angle: pconfig.angle, speed: pconfig.speed},
-      isPlanet: true
-    };
-    scene.add(planet);
-    meshes[agentId] = planet;
-
-    // Planet glow (bigger when active)
-    var pglow = new THREE.Mesh(
-      new THREE.SphereGeometry(pconfig.size * 1.8, 16, 16),
-      new THREE.MeshBasicMaterial({color: pconfig.color, transparent: true, opacity: 0.08})
-    );
-    planet.userData.glow = pglow;
-    scene.add(pglow);
-
-    // Planet label
-    var pl = document.createElement('div');
-    pl.className = 'node-label';
-    pl.textContent = agentNode.name;
-    pl.style.color = pconfig.clr;
-    document.body.appendChild(pl);
-    planet.userData.labelEl = pl;
-
-    // Activity indicator
-    var ai = document.createElement('div');
-    ai.className = 'activity-indicator';
-    ai.textContent = '...';
-    ai.style.color = pconfig.clr;
-    ai.style.borderColor = pconfig.clr + '44';
-    ai.style.display = 'none';
-    document.body.appendChild(ai);
-    planet.userData.activityEl = ai;
-
-    // === MOONS (Skills) ===
-    var skills = agentSkills[agentId] || [];
-    var numMoons = Math.min(skills.length, 12);
-
-    for (var mi = 0; mi < numMoons; mi++) {
-      var skill = skills[mi];
-      var moonDist = pconfig.size + 0.35 + (mi % 5) * 0.22;
-      var moonAngle = (mi / numMoons) * Math.PI * 2;
-      var moonSpeed = 0.4 + Math.random() * 0.3;
-      var moonSize = 0.06 + Math.random() * 0.05;
-
-      var moon = new THREE.Mesh(
-        new THREE.SphereGeometry(moonSize, 12, 12),
-        new THREE.MeshPhongMaterial({color: 0x4488ff, emissive: 0x4488ff, emissiveIntensity: 0.15})
+    // Glow for agents
+    if (n.label === 'Agent') {
+      var aglow = new THREE.Mesh(
+        new THREE.SphereGeometry(size * 1.5, 16, 16),
+        new THREE.MeshBasicMaterial({color: cfg.color, transparent: true, opacity: 0.06})
       );
-      moon.userData = {
-        id: skill.id, name: skill.name, label: 'SkillDomain',
-        props: skill.properties,
-        parentPlanet: planet,
-        orbit: {dist: moonDist, angle: moonAngle, speed: moonSpeed, parentDist: pconfig.dist, parentAngle: pconfig.angle, parentSpeed: pconfig.speed},
-        isMoon: true
-      };
-      scene.add(moon);
-      meshes[skill.id] = moon;
-
-      var ml = document.createElement('div');
-      ml.className = 'node-label';
-      ml.textContent = skill.name;
-      ml.style.color = '#5588cc';
-      ml.style.fontSize = '9px';
-      document.body.appendChild(ml);
-      moon.userData.labelEl = ml;
+      aglow.position.copy(pos);
+      mesh.userData.glow = aglow;
+      scene.add(aglow);
     }
-    planetIndex++;
+
+    // Label
+    var l = document.createElement('div');
+    l.className = 'node-label';
+    l.textContent = n.label === 'SkillDomain' ? n.name.substring(0, 12) : n.name;
+    l.style.color = cfg.clr;
+    l.style.fontSize = n.label === 'EVA' ? '16px' : (n.label === 'Agent' ? '11px' : (n.label === 'Service' ? '10px' : '8px'));
+    l.style.fontWeight = n.label === 'EVA' ? '700' : '500';
+    document.body.appendChild(l);
+    mesh.userData.labelEl = l;
+
+    // Legend
+    if (!legendItems[n.label]) {
+      legendItems[n.label] = {clr: cfg.clr, count: 0};
+    }
+    legendItems[n.label].count++;
   }
 
-  // === SERVICES (Stations) ===
-  var svcKeys = Object.keys(serviceNodes);
-  for (var i = 0; i < svcKeys.length; i++) {
-    var svcId = svcKeys[i];
-    var svcNode = serviceNodes[svcId];
-    var scfg = SERVICE_STATIONS['go-bus'];
-    if (svcNode.name.includes('Graph')) scfg = SERVICE_STATIONS['graphify'];
-    if (svcNode.name.includes('Postgre')) scfg = SERVICE_STATIONS['postgresql'];
-
-    var station = new THREE.Mesh(
-      new THREE.IcosahedronGeometry(scfg.size, 0),
-      new THREE.MeshPhongMaterial({color: scfg.color, emissive: scfg.color, emissiveIntensity: 0.25, flatShading: true})
-    );
-    station.userData = {
-      id: svcId, name: svcNode.name, label: 'Service',
-      props: svcNode.properties,
-      orbit: {dist: scfg.dist, angle: scfg.angle, speed: 0.15 + i * 0.05},
-      isStation: true
-    };
-    scene.add(station);
-    meshes[svcId] = station;
-
-    var stl = document.createElement('div');
-    stl.className = 'node-label';
-    stl.textContent = svcNode.name;
-    stl.style.color = scfg.clr;
-    document.body.appendChild(stl);
-    station.userData.labelEl = stl;
+  // Build edges (with animation paths)
+  edges = [];
+  for (var i = 0; i < graphEdges.length; i++) {
+    var e = graphEdges[i];
+    if (nodes[e.source] && nodes[e.target]) {
+      var s = nodes[e.source].position;
+      var t = nodes[e.target].position;
+      var dist = s.distanceTo(t);
+      if (dist < 15) {
+        var mid = new THREE.Vector3().addVectors(s, t).multiplyScalar(0.5);
+        var curve = new THREE.QuadraticBezierCurve3(s, mid, t);
+        var pts = curve.getPoints(20);
+        var opacity = Math.min(0.2, 0.4 - dist * 0.02);
+        var line = new THREE.Line(
+          new THREE.BufferGeometry().setFromPoints(pts),
+          new THREE.LineBasicMaterial({color: 0x446688, transparent: true, opacity: opacity})
+        );
+        scene.add(line);
+        edges.push({source: e.source, target: e.target, curve: curve, dist: dist});
+      }
+    }
   }
 
-  // Stats bar
-  var sb = document.getElementById('stats-bar');
-  sb.innerHTML = '<div>Soleil: <span class="val">EVA</span></div>' +
-                 '<div>Planetes: <span class="val">' + agentKeys.length + '</span></div>' +
-                 '<div>Skills: <span class="val">' + Object.keys(skillNodes).length + '</span></div>' +
-                 '<div>Services: <span class="val">' + svcKeys.length + '</span></div>';
+  // Build flow particles from recent events
+  buildFlows(flows);
 
   // Legend
   var leg = document.getElementById('legend-items');
   leg.innerHTML = '';
   var items = [
-    {clr: '#ffaa00', label: 'EVA (Soleil)', count: 1},
-    {clr: '#00ff88', label: 'Agents (Planetes)', count: agentKeys.length},
-    {clr: '#4488ff', label: 'Skills (Satellites)', count: Object.keys(skillNodes).length},
-    {clr: '#ff8844', label: 'Services (Stations)', count: svcKeys.length}
+    {clr: '#00aaff', label: 'EVA (Cerveau)', count: eva.length},
+    {clr: '#00ff88', label: 'Agents', count: agents.length},
+    {clr: '#4488ff', label: 'Skills', count: skills.length},
+    {clr: '#ff8844', label: 'Services', count: services.length}
   ];
   for (var i = 0; i < items.length; i++) {
     var d = document.createElement('div');
@@ -485,112 +408,141 @@ function buildSolarSystem(data) {
     leg.appendChild(d);
   }
 
-  console.log('Galaxy V5 built: ' + data.nodes.length + ' nodes');
+  // Stats bar
+  var sb = document.getElementById('stats-bar');
+  sb.innerHTML = '<div>Noeuds: <span class="val">' + graphNodes.length + '</span></div>' +
+                 '<div>Aretes: <span class="val">' + edges.length + '</span></div>' +
+                 '<div>Flux: <span class="val">' + flows.length + '</span></div>';
+
+  console.log('Hub built: ' + graphNodes.length + ' nodes, ' + edges.length + ' edges');
 }
 
-function updatePositions(t) {
-  for (var key in meshes) {
-    var m = meshes[key];
-    var u = m.userData;
+function buildFlows(flows) {
+  // Remove old particles
+  flowParticles.forEach(function(p) { scene.remove(p); });
+  flowParticles = [];
 
-    if (u.isPlanet && u.orbit) {
-      var angle = u.orbit.angle + t * u.orbit.speed;
-      m.position.set(
-        Math.cos(angle) * u.orbit.dist,
-        Math.sin(t * u.orbit.speed * 0.3) * 0.5,
-        Math.sin(angle) * u.orbit.dist
-      );
-      if (u.glow) u.glow.position.copy(m.position);
+  var count = Math.min(flows.length, maxFlows);
+  for (var i = 0; i < count; i++) {
+    var f = flows[i];
+    var srcNode = null, dstNode = null;
 
-      // Activity pulse
-      if (agentActivity[u.id]) {
-        var pulse = 0.5 + 0.5 * Math.sin(Date.now() * 0.005);
-        m.material.emissiveIntensity = 0.2 + pulse * 0.4;
-        if (u.glow) u.glow.material.opacity = 0.08 + pulse * 0.1;
+    // Find source and destination nodes
+    var srcName = f.source || '';
+    if (srcName.includes('adam-') || srcName === 'system') {
+      // Try to find by name substring
+      for (var key in nodes) {
+        var n = nodes[key];
+        if (n.userData.name && n.userData.name.toLowerCase().includes(srcName.replace('adam-', ''))) {
+          srcNode = n;
+          break;
+        }
       }
     }
 
-    if (u.isStation && u.orbit) {
-      var angle = u.orbit.angle + t * u.orbit.speed;
-      m.position.set(
-        Math.cos(angle) * u.orbit.dist,
-        Math.sin(t * u.orbit.speed * 0.5) * 0.3,
-        Math.sin(angle) * u.orbit.dist
-      );
-      m.rotation.y = t * 0.5;
-      m.rotation.x = t * 0.3;
+    // Destination: try to match topic
+    var topic = f.topic || '';
+    if (topic.includes('packet') || topic.includes('mission')) {
+      // Pick EVA as destination
+      dstNode = nodes['eva'] || nodes[Object.keys(nodes).find(k => nodes[k].userData.label === 'EVA')];
+    } else if (topic.includes('knowledge') || topic.includes('heartbeat')) {
+      dstNode = nodes['eva'] || nodes[Object.keys(nodes).find(k => nodes[k].userData.label === 'EVA')];
     }
 
-    if (u.isMoon && u.orbit && u.parentPlanet) {
-      var pa = u.orbit.parentAngle + t * u.orbit.parentSpeed;
-      var px = Math.cos(pa) * u.orbit.parentDist;
-      var pz = Math.sin(pa) * u.orbit.parentDist;
-      var py = Math.sin(t * u.orbit.parentSpeed * 0.3) * 0.5;
-      var ma = u.orbit.angle + t * u.orbit.speed;
-      m.position.set(
-        px + Math.cos(ma) * u.orbit.dist,
-        py + Math.sin(ma * 2) * u.orbit.dist * 0.3,
-        pz + Math.sin(ma) * u.orbit.dist
-      );
+    if (!srcNode) {
+      // Fallback: use first agent found
+      srcNode = nodes[Object.keys(nodes).find(function(k) { return nodes[k].userData.label === 'Agent'; })];
     }
+    if (!dstNode) srcNode = null;
+
+    if (srcNode && dstNode && srcNode !== dstNode) {
+      var s = srcNode.position.clone();
+      var t = dstNode.position.clone();
+      var mid = new THREE.Vector3().addVectors(s, t).multiplyScalar(0.5);
+      var size = 0.04 + Math.random() * 0.04;
+      var geom = new THREE.SphereGeometry(size, 8, 8);
+      var mat = new THREE.MeshBasicMaterial({
+        color: f.status === 'timeout' ? 0xff4466 : (f.status === 'failed' ? 0xff6644 : 0x00ff88),
+        transparent: true,
+        opacity: 0.6 + Math.random() * 0.2
+      });
+      var particle = new THREE.Mesh(geom, mat);
+      scene.add(particle);
+      flowParticles.push({
+        mesh: particle,
+        curve: new THREE.QuadraticBezierCurve3(s, mid, t),
+        progress: i / count,
+        speed: 0.005 + Math.random() * 0.008,
+        glow: new THREE.Mesh(
+          new THREE.SphereGeometry(size * 3, 8, 8),
+          new THREE.MeshBasicMaterial({color: 0x00ff88, transparent: true, opacity: 0.02})
+        )
+      });
+      scene.add(flowParticles[flowParticles.length - 1].glow);
+    }
+  }
+
+  // Add flow to panel
+  var panel = document.getElementById('flow-panel');
+  panel.innerHTML = '<h4><span class="live-dot"></span>Flux temps reel</h4>';
+  for (var i = 0; i < count; i++) {
+    var f = flows[i];
+    var div = document.createElement('div');
+    div.className = 'flow-row';
+    var src = (f.source || '').split('/')[0].substring(0, 12);
+    var dst = (f.topic || '').split(':').pop() || 'hub';
+    var act = (f.action || f.status || '').substring(0, 15);
+    var st = f.status || 'done';
+    var stClr = st === 'done' ? '#00ff88' : (st === 'timeout' ? '#ff4466' : '#ffaa44');
+    div.innerHTML = '<span class="src">' + src + '</span><span class="arrow">→</span><span class="dst">' + dst + '</span><span class="action">' + act + '</span><span class="st" style="background:' + stClr + '22;color:' + stClr + '">' + st + '</span>';
+    panel.appendChild(div);
   }
 }
 
 function updateLabels() {
-  for (var key in meshes) {
-    var m = meshes[key];
-    var u = m.userData;
-    if (u.labelEl) {
-      var pos = m.position.clone();
+  for (var key in nodes) {
+    var mesh = nodes[key];
+    if (mesh.userData.labelEl) {
+      var pos = mesh.position.clone();
       pos.project(camera);
       if (pos.z < 1) {
         var x = (pos.x * 0.5 + 0.5) * window.innerWidth;
         var y = (-pos.y * 0.5 + 0.5) * window.innerHeight;
-        u.labelEl.style.left = x + 'px';
-        u.labelEl.style.top = y + 'px';
-        var dist = camera.position.distanceTo(m.position);
-        if (u.isMoon && dist > 18) { u.labelEl.style.display = 'none'; }
-        else if (dist > 45) { u.labelEl.style.display = 'none'; }
-        else { u.labelEl.style.display = 'block'; }
-      } else {
-        u.labelEl.style.display = 'none';
-      }
-    }
-    // Activity indicator
-    if (u.activityEl) {
-      if (agentActivity[u.id] && agentActivity[u.id].active) {
-        var pos = m.position.clone();
-        pos.y += u.orbit ? u.orbit.dist * 0.3 + 0.5 : 1;
-        pos.project(camera);
-        if (pos.z < 1) {
-          var x = (pos.x * 0.5 + 0.5) * window.innerWidth;
-          var y = (-pos.y * 0.5 + 0.5) * window.innerHeight;
-          u.activityEl.style.left = x + 'px';
-          u.activityEl.style.top = y + 'px';
-          u.activityEl.style.display = 'block';
-          u.activityEl.textContent = agentActivity[u.id].text || 'working';
+        mesh.userData.labelEl.style.left = x + 'px';
+        mesh.userData.labelEl.style.top = y + 'px';
+        var dist = camera.position.distanceTo(mesh.position);
+        if (mesh.userData.label === 'SkillDomain' && dist > 20) {
+          mesh.userData.labelEl.style.display = 'none';
+        } else if (dist > 35) {
+          mesh.userData.labelEl.style.display = 'none';
         } else {
-          u.activityEl.style.display = 'none';
+          mesh.userData.labelEl.style.display = 'block';
         }
       } else {
-        u.activityEl.style.display = 'none';
+        mesh.userData.labelEl.style.display = 'none';
       }
     }
   }
 }
 
-function updateAgentPanel() {
-  var list = document.getElementById('agent-list');
-  list.innerHTML = '';
-  var sorted = Object.keys(agentActivity).sort();
-  for (var i = 0; i < sorted.length; i++) {
-    var aid = sorted[i];
-    var a = agentActivity[aid];
-    var row = document.createElement('div');
-    row.className = 'agent-row';
-    var dotClass = a.active ? 'active' : 'idle';
-    row.innerHTML = '<span class="dot ' + dotClass + '"></span><span class="name">' + a.name + '</span><span class="status">' + a.status + '</span>';
-    list.appendChild(row);
+function animateFlows() {
+  animTime += 0.02;
+  for (var i = 0; i < flowParticles.length; i++) {
+    var p = flowParticles[i];
+    p.progress += p.speed;
+    if (p.progress > 1) p.progress = 0;
+
+    var pt = p.curve.getPoint(p.progress);
+    p.mesh.position.copy(pt);
+    p.glow.position.copy(pt);
+
+    // Pulse glow
+    p.glow.material.opacity = 0.01 + 0.03 * Math.sin(Date.now() * 0.003 + i);
+  }
+
+  // Pulse EVA
+  if (nodes['eva']) {
+    nodes['eva'].material.emissiveIntensity = 0.5 + 0.3 * Math.sin(Date.now() * 0.002);
   }
 }
 
@@ -600,35 +552,26 @@ function onClick(event) {
   pointer.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
   raycaster.setFromCamera(pointer, camera);
   var hits = raycaster.intersectObjects(scene.children.filter(function(c) {
-    return c.isMesh && c.geometry && (c.geometry.type === 'SphereGeometry' || c.geometry.type === 'IcosahedronGeometry');
+    return c.isMesh && c.geometry && c.geometry.type === 'SphereGeometry' && c.userData.name;
   }));
   if (hits.length > 0 && hits[0].object.userData.name) {
     var o = hits[0].object;
     document.getElementById('info-name').textContent = o.userData.name;
     var tag = document.getElementById('info-tag');
     tag.textContent = o.userData.label;
-    var clr = o.userData.label === 'EVA' ? '#ffaa00' : (o.userData.label === 'Agent' ? '#00ff88' : (o.userData.label === 'SkillDomain' ? '#4488ff' : '#ff8844'));
-    tag.style.background = clr + '22';
-    tag.style.color = clr;
+    var cfg = NODE_COLORS[o.userData.label] || NODE_COLORS['SkillDomain'];
+    tag.style.background = cfg.clr + '22';
+    tag.style.color = cfg.clr;
     var p = o.userData.props || {};
     var html = '';
     for (var k in p) { html += '<div><span class="k">' + k + '</span> ' + p[k] + '</div>'; }
     document.getElementById('info-props').innerHTML = html || 'Aucune propriete';
-    // Show activity status
-    var statusEl = document.getElementById('info-status');
-    var statusText = document.getElementById('info-status-text');
-    if (agentActivity[o.userData.id] && agentActivity[o.userData.id].active) {
-      statusEl.style.display = 'flex';
-      statusText.textContent = agentActivity[o.userData.id].text || 'Actif';
-    } else {
-      statusEl.style.display = 'none';
-    }
-    document.getElementById('info').classList.add('visible');
+    document.getElementById('info-panel').classList.add('visible');
     if (selected) selected.material.emissiveIntensity = 0.2;
     selected = o;
-    selected.material.emissiveIntensity = 0.6;
+    selected.material.emissiveIntensity = 0.8;
   } else {
-    document.getElementById('info').classList.remove('visible');
+    document.getElementById('info-panel').classList.remove('visible');
     if (selected) { selected.material.emissiveIntensity = 0.2; selected = null; }
   }
 }
@@ -641,55 +584,24 @@ function onResize() {
 
 function animate() {
   requestAnimationFrame(animate);
-  animTime += 0.008;
   controls.update();
-  updatePositions(animTime);
-  renderer.render(scene, camera);
+  animateFlows();
   updateLabels();
+  renderer.render(scene, camera);
 }
 
-function fetchAgentStatus() {
-  fetch('/api/agents/status').then(function(r) { return r.json(); }).then(function(d) {
-    // Update activity map
-    var now = Date.now();
-    for (var key in agentActivity) { agentActivity[key].active = false; }
-    for (var i = 0; i < d.packets.length; i++) {
-      var p = d.packets[i];
-      var src = p.source || '';
-      var ts = p.timestamp || '';
-      // Agent is "active" if it published in the last 30 seconds
-      if (src && (now - new Date(ts).getTime()) < 30000) {
-        agentActivity[src] = {name: src, active: true, status: 'working', text: (p.payload && p.payload.mission ? p.payload.mission : 'working')};
-      }
-    }
-    updateAgentPanel();
-  }).catch(function(e) {});
-}
-
-function fetchPackets() {
-  fetch('/api/packets').then(function(r) { return r.json(); }).then(function(d) {
-    if (!d.packets || !d.packets.length) return;
-    lastPackets = d.packets;
-    var c = document.getElementById('packet-stream');
-    c.innerHTML = '<h4><span class="live"></span>Flux temps reel</h4>';
-    for (var i = 0; i < Math.min(d.packets.length, 8); i++) {
-      var p = d.packets[i];
-      var div = document.createElement('div');
-      div.className = 'pkt';
-      var t = (p.timestamp || '').slice(11, 19) || '--:--:--';
-      var st = p.status || 'done';
-      var stClr = st === 'done' ? '#00ff88' : (st === 'failed' ? '#ff4466' : '#ffaa44');
-      div.innerHTML = '<span class="t">' + t + '</span><span class="s">' + p.source + '</span><span class="top">' + p.topic + '</span><span class="st" style="background:' + stClr + '22;color:' + stClr + '">' + st + '</span>';
-      c.appendChild(div);
+function refreshFlows() {
+  fetch('/api/flows').then(function(r) { return r.json(); }).then(function(d) {
+    if (d.flows && d.flows.length) {
+      buildFlows(d.flows);
     }
   }).catch(function(e) {});
 }
 
 setInterval(function() { loadGraph(); }, 30000);
-setInterval(fetchAgentStatus, 3000);
+setInterval(refreshFlows, 3000);
 init();
-setInterval(fetchPackets, 2000);
-fetchPackets();
+refreshFlows();
 </script>
 </body>
 </html>"""
