@@ -101,6 +101,26 @@ services:
       go-bus:
         condition: service_started
 
+  activity:
+    image: python:3.12-slim
+    container_name: eva-activity
+    restart: unless-stopped
+    ports:
+      - "8092:8092"
+    command: >
+      bash -c "
+      pip install -q flask &&
+      python /app/eva_activity.py
+      "
+    environment:
+      VLLM_URL: http://192.168.1.5:8000
+    volumes:
+      - ./eva_activity.py:/app/eva_activity.py
+      - /home/aza/eva-adam-v2/agents:/data/agents:ro
+    depends_on:
+      go-bus:
+        condition: service_started
+
 volumes:
   pgdata:
 
