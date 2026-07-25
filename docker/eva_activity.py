@@ -15,10 +15,108 @@ sprint_counter = 1
 lock = threading.Lock()
 
 def poll_activity():
-    """Poll Go Bus for all agent activity"""
-    global activity_log
+    """Poll Go Bus for all agent activity + auto-create sprints"""
+    global activity_log, sprints, sprint_counter
     activity_log = []
     seen_ids = set()
+    
+    # Auto-create sprints from EVA objectives
+    def auto_create_sprints():
+        try:
+            req = urllib.request.Request(f"{BUS_URL}/api/query?limit=10&topic=eva:objective")
+            with urllib.request.urlopen(req, timeout=3) as resp:
+                data = json.loads(resp.read().decode())
+                events = data if isinstance(data, list) else data.get("events", [])
+                for e in events:
+                    eid = e.get("id", "")
+                    payload = e.get("payload", {})
+                    if not isinstance(payload, dict): continue
+                    objective = payload.get("objective", "")
+                    agents_list = payload.get("agents", [])
+                    cycle = payload.get("cycle", 0)
+                    
+                    # Check if sprint already exists for this objective
+                    sprint_id = f"sprint_obj_{cycle}"
+                    if sprint_id not in sprints and objective:
+                        sprint = {
+                            "id": sprint_id,
+                            "name": f"Auto-Sprint Cycle {cycle}",
+                            "objective": objective,
+                            "status": "active",
+                            "created_at": datetime.now().isoformat(),
+                            "missions": [],
+                            "progress": 0
+                        }
+                        # Add missions for each agent
+                        for agent in agents_list:
+                            mission = {
+                                "id": f"m_{len(sprint['missions'])+1}",
+                                "agent": agent if agent.startswith("adam-") else f"adam-{agent}",
+                                "mission": objective + " — Ta contribution",
+                                "status": "pending",
+                                "result": None,
+                                "tools_created": [],
+                                "timestamp": datetime.now().isoformat()
+                            }
+                            sprint["missions"].append(mission)
+                        with lock:
+                            sprints[sprint_id] = sprint
+                        print(f"[SPRINT] Auto-created: {sprint_id} — {objective[:60]}")
+        except:
+            pass
+    
+    # Auto-clean old completed sprints (keep last 5)
+    def cleanup_sprints():
+        with lock:
+            if len(sprints) > 5:
+                # Sort by creation date, keep newest 5
+                sorted_ids = sorted(sprints.keys(), key=lambda k: sprints[k].get("created_at", ""))
+                for sid in sorted_ids[:-5]:
+                    s = sprints[sid]
+                    # Only remove if all missions are done or failed
+                    all_done = all(m.get("status") in ("done", "failed") for m in s.get("missions", []))
+                    if all_done and s.get("missions"):
+                        del sprints[sid]
+                        print(f"[SPRINT] Cleaned: {sid}")
+    
+    # Update sprint mission statuses from Go Bus
+    def update_sprint_statuses():
+        try:
+            req = urllib.request.Request(f"{BUS_URL}/api/query?limit=20&topic=adam:packet")
+            with urllib.request.urlopen(req, timeout=3) as resp:
+                data = json.loads(resp.read().decode())
+                pkts = data if isinstance(data, list) else data.get("events", [])
+                with lock:
+                    for sid in sprints:
+                        s = sprints[sid]
+                        for m in s.get("missions", []):
+                            # Check if this agent has completed a packet
+                            agent_name = m.get("agent", "").lower().replace("adam-", "")
+                            for p in pkts:
+                                src = p.get("source", "").lower().replace("adam-", "")
+                                if src == agent_name:
+                                    payload = p.get("payload", {})
+                                    if isinstance(payload, dict):
+                                        status = payload.get("status", "")
+                                        if status == "done":
+                                            m["status"] = "done"
+                                        elif status == "failed":
+                                            m["status"] = "failed"
+                                        elif status == "timeout":
+                                            m["status"] = "failed"
+                                        m["tools_created"] = payload.get("tools_created", [])
+                                        m["result"] = payload.get("thought", "")[:100]
+                        # Update progress
+                        total = len(s.get("missions", []))
+                        done = len([m for m in s.get("missions", []) if m.get("status") == "done"])
+                        s["progress"] = round(done/total*100) if total > 0 else 0
+                        if s["progress"] == 100 and s["status"] != "done":
+                            s["status"] = "done"
+        except:
+            pass
+    
+    # Run auto-sprint management every 15 seconds
+    last_sprint_check = 0
     while True:
         try:
             # Get all recent events (multiple topics)
@@ -49,6 +147,13 @@ def poll_activity():
                     pass
         except:
             pass
+        # Auto-sprint management every 15 seconds
+        if time.time() - last_sprint_check > 15:
+            auto_create_sprints()
+            update_sprint_statuses()
+            cleanup_sprints()
+            last_sprint_check = time.time()
+        
         time.sleep(3)
 
 def classify_event(e):
