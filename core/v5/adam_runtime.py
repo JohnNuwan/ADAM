@@ -1,0 +1,277 @@
+#!/usr/bin/env python3
+"""
+ADAM Runtime V5 — Moteur d'agent autonome.
+
+Chaque Adam est un agent IA qui:
+1. Reçoit une mission (depuis Go Bus ou directement)
+2. Réfléchit avec le LLM (vLLM Qwen2.5-32B local)
+3. Planifie les étapes
+4. Exécute (outils existants ou nouveaux)
+5. Crée des outils si besoin
+6. Sauvegarde l'apprentissage (mémoire + skills)
+7. Peut déléguer à d'autres Adams
+8. Reporte le résultat sur Go Bus
+"""
+import os
+import sys
+import json
+import time
+import urllib.request
+from pathlib import Path
+from datetime import datetime, timezone
+from typing import Optional
+
+# Add core to path
+sys.path.insert(0, str(Path(__file__).parent))
+from adam_tools import ToolSystem
+from adam_memory import AdamMemory
+
+
+class AdamRuntime:
+    """Runtime d'un agent Adam autonome."""
+
+    def __init__(self, agent_name: str, role: str = "", vllm_url: str = None):
+        self.agent_name = agent_name
+        self.role = role
+        self.vllm_url = vllm_url or os.environ.get("VLLM_URL", "http://localhost:8000")
+        self.model = os.environ.get("VLLM_MODEL", "Qwen2.5-32B-Instruct-AWQ")
+        self.bus_url = os.environ.get("GO_BUS_URL", "http://localhost:8086/api/publish")
+
+        # Sub-systems
+        self.tools = ToolSystem(agent_name)
+        self.memory = AdamMemory(agent_name)
+
+        # Workspace
+        base = Path(os.environ.get("ADAM_V2_DIR", "/home/aza/eva-adam-v2"))
+        self.workspace = base / "agents" / agent_name.replace("adam-", "")
+
+    def _llm(self, prompt: str, system: str = "", max_tokens: int = 1024) -> str:
+        """Appelle le LLM local (vLLM) pour réfléchir."""
+        messages = []
+        if system:
+            messages.append({"role": "system", "content": system})
+        messages.append({"role": "user", "content": prompt})
+
+        payload = json.dumps({
+            "model": self.model,
+            "messages": messages,
+            "max_tokens": max_tokens,
+            "temperature": 0.7,
+        }).encode()
+
+        try:
+            req = urllib.request.Request(
+                f"{self.vllm_url}/v1/chat/completions",
+                data=payload,
+                headers={"Content-Type": "application/json"},
+            )
+            with urllib.request.urlopen(req, timeout=120) as resp:
+                data = json.loads(resp.read().decode())
+                return data["choices"][0]["message"]["content"]
+        except Exception as e:
+            return f"[LLM ERROR] {e}"
+
+    def _bus_publish(self, topic: str, payload: dict):
+        """Publie un événement sur le Go Bus."""
+        data = json.dumps({
+            "topic": topic,
+            "source": self.agent_name,
+            "payload": payload,
+            "priority": 1,
+        }).encode()
+        try:
+            req = urllib.request.Request(self.bus_url, data=data,
+                                        headers={"Content-Type": "application/json"})
+            urllib.request.urlopen(req, timeout=5)
+        except Exception:
+            pass
+
+    def run_mission(self, mission: str) -> dict:
+        """Exécute une mission complète: réfléchir → planifier → agir → apprendre."""
+        start_time = time.time()
+        self._bus_publish("adam:mission:started", {
+            "agent": self.agent_name, "mission": mission,
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+        })
+
+        # 1. Contexte: mémoire + outils disponibles
+        memory_ctx = self.memory.get_context_for_llm(mission)
+        tools_list = self.tools.list_tools()
+        tools_str = "\n".join(f"- {t['name']} ({t['type']}): {t['description']}" for t in tools_list) or "Aucun outil"
+
+        # 2. Réfléchir et planifier
+        system_prompt = f"""Tu es {self.agent_name}, un agent IA autonome du système ADAM.
+Rôle: {self.role}
+Tu reçois des missions, tu les Accomplis en utilisant tes outils ou en créant de nouveaux outils.
+Tu réponds en JSON avec le format suivant:
+{{"plan": [{{"action": "execute_tool|create_tool|delegate|report", "tool": "nom_outil", "args": "...", "code": "...", "target_agent": "...", "description": "..."}}]}}
+
+Outils disponibles:
+{tools_str}
+
+{memory_ctx}"""
+
+        think_prompt = f"Mission: {mission}\n\nÉlabore un plan d'action en JSON:"
+        plan_response = self._llm(think_prompt, system=system_prompt, max_tokens=2048)
+
+        # 3. Parser le plan
+        plan = self._parse_plan(plan_response)
+
+        # 4. Exécuter le plan
+        results = []
+        for step in plan:
+            result = self._execute_step(step, mission)
+            results.append({"step": step, "result": result})
+
+        # 5. Évaluer le résultat
+        success = all(r["result"].get("success", False) for r in results) if results else False
+        elapsed = round(time.time() - start_time, 2)
+
+        final_result = {
+            "agent": self.agent_name,
+            "mission": mission,
+            "success": success,
+            "steps": len(results),
+            "elapsed_s": elapsed,
+            "results": results,
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+        }
+
+        # 6. Sauvegarder en mémoire
+        self.memory.save_mission(mission, final_result, [r["step"] for r in results])
+
+        # 7. Apprendre une leçon
+        if results:
+            lesson_prompt = f"Mission: {mission}\nRésultat: {'succès' if success else 'échec'}\nQuelle leçon retenir? Réponds en une phrase:"
+            lesson = self._llm(lesson_prompt, max_tokens=256)
+            self.memory.save_lesson(lesson.strip(), mission_type=mission.split()[0] if mission else "")
+
+        # 8. Publier le résultat
+        self._bus_publish("adam:mission:done", final_result)
+
+        return final_result
+
+    def _parse_plan(self, response: str) -> list:
+        """Parse la réponse du LLM en plan d'action."""
+        # Essayer de parser le JSON
+        try:
+            # Trouver le JSON dans la réponse
+            start = response.find("{")
+            end = response.rfind("}") + 1
+            if start >= 0 and end > start:
+                data = json.loads(response[start:end])
+                return data.get("plan", [])
+        except json.JSONDecodeError:
+            pass
+
+        # Fallback: traiter la réponse comme une action simple
+        return [{"action": "report", "description": response[:500]}]
+
+    def _execute_step(self, step: dict, mission: str) -> dict:
+        """Exécute une étape du plan."""
+        action = step.get("action", "report")
+
+        if action == "execute_tool":
+            tool_name = step.get("tool", "")
+            args = step.get("args", "")
+            # Chercher l'outil par nom
+            for tid, info in self.tools.registry["tools"].items():
+                if info["name"] == tool_name:
+                    return self.tools.execute_tool(tid, args)
+            return {"error": f"Outil '{tool_name}' introuvable"}
+
+        elif action == "create_tool":
+            name = step.get("tool", f"tool_{int(time.time())}")
+            code = step.get("code", "")
+            tool_type = step.get("type", "python")
+            desc = step.get("description", "")
+            if code:
+                return self.tools.create_tool(name, code, tool_type, desc)
+            return {"error": "Pas de code fourni"}
+
+        elif action == "delegate":
+            target = step.get("target_agent", "")
+            subtask = step.get("description", "")
+            # Publier une sous-mission sur le bus
+            self._bus_publish("adam:mission", {
+                "agent": target, "mission": subtask,
+                "delegated_by": self.agent_name,
+            })
+            return {"status": "delegated", "target": target, "subtask": subtask}
+
+        elif action == "report":
+            return {"success": True, "report": step.get("description", "")}
+
+        return {"error": f"Action inconnue: {action}"}
+
+    def status(self) -> dict:
+        """Retourne le statut de l'agent."""
+        return {
+            "agent": self.agent_name,
+            "role": self.role,
+            "tools": len(self.tools.list_tools()),
+            "memory": self.memory.get_summary(),
+            "workspace": str(self.workspace),
+            "vllm": self.vllm_url,
+            "model": self.model,
+        }
+
+
+# ============================================================
+# AGENT REGISTRY — Les 14 Adams + EVA
+# ============================================================
+AGENTS = {
+    "eva":          {"role": "Cerveau central - Orchestrateur", "type": "orchestrator"},
+    "adam-praetor": {"role": "Auto-correction et maintenance serveurs", "type": "watcher"},
+    "adam-sentinel":{"role": "Veille 24/7 - scrapping, monitoring, alerte", "type": "watcher"},
+    "adam-critic":  {"role": "Revue de code, qualité, notation SKILL.md", "type": "analysis"},
+    "adam-scribe":  {"role": "Rédaction documentation, commits, synthèses", "type": "creation"},
+    "adam-skillsmith": {"role": "Création et validation de SKILL.md", "type": "creation"},
+    "adam-doctor":  {"role": "Diagnostic et guérison des processus", "type": "watcher"},
+    "adam-treasurer": {"role": "Suivi financier, tracking dépenses", "type": "analysis"},
+    "adam-social":  {"role": "Gestion réseaux sociaux (Maeve.tech)", "type": "creation"},
+    "adam-osint":   {"role": "Collecte OSINT, email, reconnaissance", "type": "collection"},
+    "adam-researcher": {"role": "Scan vulnérabilités, recherche académique", "type": "analysis"},
+    "adam-rag":     {"role": "Recherche RAG, base de connaissances", "type": "analysis"},
+    "adam-viz":     {"role": "Dashboard temps réel + monde 3D", "type": "visualization"},
+    "adam-ctf":     {"role": "Challenge CTF autonome", "type": "security"},
+    "adam-blue":    {"role": "Hardening et défense", "type": "security"},
+    "adam-red":     {"role": "Tests d'intrusion, OSINT", "type": "security"},
+}
+
+
+# ============================================================
+# CLI
+# ============================================================
+if __name__ == "__main__":
+    import argparse
+    parser = argparse.ArgumentParser(description="ADAM Runtime V5")
+    parser.add_argument("agent", help="Nom de l'agent (ex: adam-blue)")
+    parser.add_argument("--mission", "-m", help="Mission à accomplir")
+    parser.add_argument("--status", "-s", action="store_true", help="Afficher le statut")
+    parser.add_argument("--tools", "-t", action="store_true", help="Lister les outils")
+    args = parser.parse_args()
+
+    agent_info = AGENTS.get(args.agent)
+    if not agent_info:
+        print(f"Agent inconnu: {args.agent}")
+        print(f"Disponibles: {', '.join(AGENTS.keys())}")
+        sys.exit(1)
+
+    runtime = AdamRuntime(args.agent, role=agent_info["role"])
+
+    if args.status:
+        print(json.dumps(runtime.status(), indent=2, ensure_ascii=False))
+    elif args.tools:
+        tools = runtime.tools.list_tools()
+        if tools:
+            for t in tools:
+                print(f"  {t['name']:20s} ({t['type']:6s}) uses={t['uses']} rating={t['rating']}/5  {t['description']}")
+        else:
+            print("Aucun outil. L'agent peut en créer avec --mission")
+    elif args.mission:
+        print(f"🐝 {args.agent} reçoit la mission: {args.mission}")
+        result = runtime.run_mission(args.mission)
+        print(json.dumps(result, indent=2, ensure_ascii=False))
+    else:
+        print(f"Usage: {sys.argv[0]} <agent> --mission '...' | --status | --tools")
