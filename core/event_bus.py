@@ -27,7 +27,7 @@ logger = logging.getLogger("eva.adam.eventbus")
 
 # --- Constantes ---
 ADAM_V2_DIR = Path.home() / "eva-adam-v2"
-DB_PATH = ADAM_V2_DIR / "event_bus.db"
+DB_PATH = ADAM_V2_DIR / "data" / "event_bus.db"
 
 # Canaux d'événements (convention namespace:action)
 CHANNELS = {

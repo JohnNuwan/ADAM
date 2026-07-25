@@ -1,24 +1,41 @@
-# Bases de données
+# === Bases de données ===
 *.db
 *.db-shm
 *.db-wal
 *.db.corrupt.bak*
+data/*.db
+data/*.db-shm
+data/*.db-wal
 
-# Cache Python
+# === Cache Python ===
 __pycache__/
 *.pyc
+*.pyo
 
-# PIDs
+# === PIDs ===
 *.pid
 
-# Logs
-logs/*.log*
+# === Logs ===
+logs/
+*.log
 
-# Sauvegardes
+# === OS temporaires ===
+osint_reports/
+research/
+wordlists/
+
+# === Fixes / sauvegardes ===
 fixes/
 
-# Osint/research temporaires
-osint_reports/
-research/seen_findings.json
-wordlists/leaked/rockyou/rockyou.txt
-wordlists/rainbow-tables/rainbow.db
+# === Fichiers locaux ===
+.env
+*.local
+*.bak
+*.swp
+*.swo
+
+# === Architecture diagrams (regenerated) ===
+architecture-diagram.png
+architecture-diagram.svg
+architecture-diagram.html
+

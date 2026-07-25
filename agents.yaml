@@ -1,0 +1,171 @@
+# =============================================================================
+# ADAM — Registre Central des Agents
+# =============================================================================
+# Ce fichier décrit tous les agents du framework ADAM.
+# Chaque agent a un dossier dans agents/<nom>/ avec son code.
+# =============================================================================
+
+version: "1.0"
+repo: "git@github.com:JohnNuwan/ADAM.git"
+derniere_mise_a_jour: "2026-07-25"
+
+agents:
+  - name: praetor
+    description: "Auto-correction et maintenance des serveurs"
+    scripts:
+      - praetor-watch.sh
+      - praetor-auto-learn.sh
+    type: watcher
+    statut: actif
+
+  - name: sentinel
+    description: "Veille 24/7 — scrapping, monitoring, alerte"
+    scripts:
+      - sentinel-scraper.py
+      - sentinel-watch.sh
+      - sentinel-update.sh
+    type: watcher
+    statut: actif
+
+  - name: critic
+    description: "Revue de code, qualité, notation des SKILL.md"
+    scripts:
+      - critic-review.py
+      - critic-review.sh
+    type: analyse
+    statut: actif
+
+  - name: scribe
+    description: "Rédaction documentation, commits, synthèses"
+    scripts:
+      - scribe-write.sh
+      - gen-docs.sh
+    type: creation
+    statut: actif
+
+  - name: skillsmith
+    description: "Création et validation de SKILL.md"
+    scripts:
+      - skillsmith-create.sh
+      - validate-skill-structure.py
+      - validate-skill-structure.sh
+    type: creation
+    statut: actif
+
+  - name: doctor
+    description: "Diagnostic et guérison des processus défaillants"
+    scripts:
+      - doctor-watch.py
+      - doctor-watch.sh
+    type: watcher
+    statut: actif
+
+  - name: treasurer
+    description: "Suivi financier, tracking dépenses"
+    scripts:
+      - treasurer-track.py
+    type: analyse
+    statut: actif
+
+  - name: social
+    description: "Gestion des réseaux sociaux"
+    scripts:
+      - social-manage.py
+    type: creation
+    statut: actif
+
+  - name: osint
+    description: "Collecte OSINT, email, reconnaissance"
+    scripts:
+      - osint-handler.py
+      - osint-email.sh
+    type: collecte
+    statut: actif
+
+  - name: researcher
+    description: "Scan et analyse de vulnérabilités"
+    scripts:
+      - researcher-scan.py
+    type: analyse
+    statut: actif
+
+  - name: rag
+    description: "Recherche RAG, base de connaissances"
+    scripts:
+      - rag-handler.py
+    type: analyse
+    statut: actif
+    port: 8083
+
+  - name: viz
+    description: "Visualisation 3D, monde des agents"
+    scripts:
+      - viz-checker.py
+    type: visualisation
+    statut: actif
+    port: 8084
+
+  - name: ctf
+    description: "Challenge CTF autonome"
+    scripts:
+      - adam-ctf.py
+      - adam-red-challenge.py
+    type: securite
+    statut: actif
+
+  - name: blue-team
+    description: "Hardening et défense"
+    scripts:
+      - blue-team-fix-perms.sh
+      - blue-team-hardening.sh
+      - blue-watch.sh
+    type: securite
+    statut: actif
+
+  - name: red-team
+    description: "Tests d'intrusion, Kali"
+    scripts:
+      - red-watch.sh
+      - kali-run.sh
+    type: securite
+    statut: actif
+
+# === Services Core ===
+core:
+  - name: event_bus
+    description: "Bus d'événements central (SQLite)"
+    script: event_bus.py
+    db: "data/event_bus.db"
+    statut: actif
+
+  - name: event_daemon
+    description: "Démon d'événements"
+    script: event_daemon.py
+    statut: actif
+
+  - name: file_watcher
+    description: "Surveillance des fichiers"
+    script: file_watcher.py
+    statut: actif
+
+  - name: adam_evolution
+    description: "Boucle d'auto-évolution principale"
+    script: adam-evolution.py
+    statut: actif
+
+# === Scripts utilitaires ===
+utilitaires:
+  - script: git-sync.sh
+    description: "Sync git avec pull avant push"
+    usage: "./scripts/git-sync.sh"
+  - script: deploy.sh
+    description: "Déploiement"
+  - script: cicd-hook.sh
+    description: "Hook CI/CD"
+  - script: heal-handler.sh
+    description: "Handler de guérison"
+  - script: backup.sh
+    description: "Sauvegarde"
+  - script: monitor-alert.sh
+    description: "Monitoring et alertes"
+
