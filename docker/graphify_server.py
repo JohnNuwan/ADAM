@@ -91,10 +91,19 @@ def refresh_tools():
         try:
             import os
             from pathlib import Path
-            base = Path(os.environ.get("ADAM_V2_DIR", "/home/aza/eva-adam-v2"))
-            adir = base / "agents"
+            # Try multiple possible paths
+            candidates = [
+                Path("/data/agents"),
+                Path("/data/agents"),
+                Path("/data/agents"),
+            ]
+            adir = None
+            for p in candidates:
+                if p.exists():
+                    adir = p
+                    break
             new_tools = {}
-            if adir.exists():
+            if adir:
                 for d in sorted(adir.iterdir()):
                     if d.is_dir():
                         name = "adam-" + d.name
@@ -108,9 +117,9 @@ def refresh_tools():
             with lock:
                 tools_cache.clear()
                 tools_cache.update(new_tools)
-        except Exception:
-            pass
-        time.sleep(60)
+        except Exception as e:
+            print(f"[ERR tools] {e}", flush=True)
+        time.sleep(30)
 
 threading.Thread(target=refresh_graph, daemon=True).start()
 threading.Thread(target=poll_activity, daemon=True).start()
@@ -135,7 +144,27 @@ def api_missions():
 @app.route("/api/tools")
 def api_tools():
     with lock:
-        return jsonify({"tools": tools_cache})
+        tc = dict(tools_cache)
+    # Fallback: if no tools from filesystem, check Go Bus
+    if not tc:
+        try:
+            req = urllib.request.Request(f"{BUS_URL}/api/query?limit=20&topic=adam:tool:created")
+            with urllib.request.urlopen(req, timeout=3) as resp:
+                data = json.loads(resp.read().decode())
+                events = data if isinstance(data, list) else data.get("events", [])
+                for e in events:
+                    src = e.get("source", "")
+                    payload = e.get("payload", {})
+                    if isinstance(payload, dict) and src:
+                        key = "adam-" + src.replace("adam-", "")
+                        if key not in tc:
+                            tc[key] = {"scripts": [], "tools": []}
+                        tool = payload.get("tool", payload.get("name", ""))
+                        if tool and tool not in tc[key]["tools"]:
+                            tc[key]["tools"].append(tool)
+        except:
+            pass
+    return jsonify({"tools": tc})
 
 @app.route("/api/packets")
 def api_packets():
@@ -416,9 +445,43 @@ function init() {
   loadGraph();
 }
 
+function loadToolSatellites() {
+  fetch('/api/tools').then(function(r) { return r.json(); }).then(function(td) {
+    var toolsData = td.tools || {};
+    var toolMeshes = {};
+    for (var agentKey in toolsData) {
+      var agentNode = null;
+      for (var nk in nodes) {
+        var nm = nodes[nk].userData.name || '';
+        if (nm.toLowerCase().replace(/^adam-/, '') === agentKey.toLowerCase().replace(/^adam-/, '')) {
+          agentNode = nodes[nk];
+          break;
+        }
+      }
+      if (!agentNode) continue;
+
+      var allTools = (toolsData[agentKey].scripts || []).concat(toolsData[agentKey].tools || []);
+      for (var ti = 0; ti < Math.min(allTools.length, 8); ti++) {
+        var toolName = allTools[ti];
+        var angle = (2 * Math.PI * ti) / Math.max(allTools.length, 1);
+        var orbitR = 0.6 + (ti % 3) * 0.15;
+        var tGeom = new THREE.OctahedronGeometry(0.06, 0);
+        var tMat = new THREE.MeshPhongMaterial({color: 0xffaa00, emissive: 0xff8800, emissiveIntensity: 0.4});
+        var tMesh = new THREE.Mesh(tGeom, tMat);
+        tMesh.position.copy(agentNode.position);
+        tMesh.userData = {name: toolName, label: 'Tool', parent: agentNode, angle: angle, orbitR: orbitR};
+        scene.add(tMesh);
+        toolMeshes[agentKey + '_' + ti] = tMesh;
+      }
+    }
+    window._toolMeshes = toolMeshes;
+  }).catch(function(e) { console.log('Tools load error:', e); });
+}
+
 function loadGraph() {
   fetch('/api/graph').then(function(r) { return r.json(); }).then(function(data) {
     buildHub(data);
+    loadToolSatellites();
     animate();
   });
 }
@@ -497,11 +560,10 @@ function buildHub(data) {
     nodes[n.id] = mesh;
 
     if (n.label === 'EVA') {
-      for (var ci = 0; ci < 3; ci++) {
-        var glow = new THREE.Mesh(new THREE.SphereGeometry(size * (1.2 + ci * 0.25), 32, 32), new THREE.MeshBasicMaterial({color: 0x00aaff, transparent: true, opacity: 0.06 - ci * 0.015, side: THREE.BackSide}));
-        glow.position.copy(pos);
-        scene.add(glow);
-      }
+      // Single subtle glow - no extra spheres
+      var glow = new THREE.Mesh(new THREE.SphereGeometry(size * 1.3, 32, 32), new THREE.MeshBasicMaterial({color: 0x00aaff, transparent: true, opacity: 0.04, side: THREE.BackSide}));
+      glow.position.copy(pos);
+      scene.add(glow);
     }
 
     if (mesh.userData.labelEl) { mesh.userData.labelEl.remove(); }
@@ -686,6 +748,32 @@ function animate() {
     p.mesh.position.copy(pt);
     p.glow.position.copy(pt);
     p.glow.material.opacity = 0.01 + 0.02 * Math.sin(Date.now() * 0.003 + i);
+  }
+
+  // Animate tool satellites orbiting their agents
+  var tm = window._toolMeshes || {};
+  var now = Date.now() * 0.001;
+  for (var tk in tm) {
+    var t = tm[tk];
+    if (t.userData.parent) {
+      var ang = t.userData.angle + now * 0.5;
+      var r = t.userData.orbitR;
+      t.position.x = t.userData.parent.position.x + Math.cos(ang) * r;
+      t.position.z = t.userData.parent.position.z + Math.sin(ang) * r;
+      t.position.y = t.userData.parent.position.y + 0.2 + Math.sin(now * 2 + t.userData.angle) * 0.05;
+      t.rotation.y += 0.02;
+    }
+  }
+
+  // Flash random skill nodes to show "skill calls"
+  if (Math.random() < 0.02 && Object.keys(nodes).length > 0) {
+    var skillKeys = Object.keys(nodes).filter(function(k) { return nodes[k].userData.label === 'SkillDomain'; });
+    if (skillKeys.length > 0) {
+      var sk = skillKeys[Math.floor(Math.random() * skillKeys.length)];
+      var sm = nodes[sk];
+      sm.material.emissiveIntensity = 0.8;
+      setTimeout(function() { if (sm.material) sm.material.emissiveIntensity = 0.15; }, 300);
+    }
   }
 
   renderer.render(scene, camera);

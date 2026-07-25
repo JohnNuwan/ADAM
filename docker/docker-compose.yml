@@ -75,6 +75,7 @@ services:
       PG_DSN: postgres://adam:adam_secret_2026@postgres:5432/adam?sslmode=disable
     volumes:
       - ./graphify_server.py:/app/graphify_server.py
+      - /home/aza/eva-adam-v2/agents:/data/agents:ro
     depends_on:
       postgres:
         condition: service_healthy
