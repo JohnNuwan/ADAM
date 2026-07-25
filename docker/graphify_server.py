@@ -346,6 +346,27 @@ renderer.domElement.addEventListener('dblclick',()=>{
 
 })();
 </script>
+
+<div id="packet-stream"><h4 style="color:#6688aa;margin-bottom:6px;font-size:12px;">📦 Flux paquets temps réel</h4></div>
+<script>
+const pktContainer = document.getElementById("packet-stream");
+async function pollPackets(){
+  try{
+    const r=await fetch("/api/packets"),d=await r.json();
+    if(!d.packets||!d.packets.length) return;
+    pktContainer.innerHTML = "<h4 style=\"color:#6688aa;margin-bottom:6px;font-size:12px;\">📦 Flux paquets temps réel</h4>";
+    d.packets.slice(0,10).forEach(p=>{
+      const div=document.createElement("div");
+      div.style.cssText="padding:3px 0;border-bottom:1px solid rgba(68,102,136,0.1);font-size:11px;";
+      const t=(p.timestamp||"").slice(11,19)||new Date().toLocaleTimeString();
+      div.innerHTML='<span style="color:#446688">'+t+'</span> <span style="color:#00ff88">'+p.source+'</span> → '+p.topic+' <span style="color:#ff8844">'+(p.status||"done")+'</span>';
+      pktContainer.appendChild(div);
+    });
+  }catch(e){console.log(e)}
+}
+setInterval(pollPackets,3000);
+pollPackets();
+</script>
 </body>
 </html>"""
 
