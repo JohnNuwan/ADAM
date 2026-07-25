@@ -37,6 +37,30 @@ def refresh_graph():
                 elif n["label"] == "Agent": hub["agents"].append(n)
                 elif n["label"] == "SkillDomain": hub["skills"].append(n)
                 elif n["label"] == "Service": hub["services"].append(n)
+
+            # Auto-detect new agents from filesystem (AGI-3 created agents)
+            try:
+                from pathlib import Path as _P
+                agents_fs = _P("/data/agents")
+                if agents_fs.exists():
+                    existing_names = {a["name"].lower().replace("adam-","") for a in hub["agents"]}
+                    for d in sorted(agents_fs.iterdir()):
+                        if d.is_dir() and d.name.lower() not in existing_names and d.name not in ["new"]:
+                            import uuid as _uuid
+                            uid = str(_uuid.uuid5(_uuid.NAMESPACE_DNS, f"adam-{d.name}"))
+                            # Add to PG
+                            try:
+                                cur2 = pg.cursor()
+                                cur2.execute("INSERT INTO knowledge_nodes (id, label, name, properties) VALUES (%s, 'Agent', %s, %s) ON CONFLICT DO NOTHING",
+                                           (uid, f"Adam-{d.name.title()}", json.dumps({"role": "Agent créé", "workspace": d.name})))
+                                pg.commit()
+                                cur2.close()
+                            except:
+                                pass
+                            # Add to hub
+                            hub["agents"].append({"id": uid, "label": "Agent", "name": f"Adam-{d.name.title()}", "properties": {"role": "Agent créé"}})
+            except:
+                pass
             with lock:
                 graph_cache["hub"] = hub
                 graph_cache["ts"] = time.time()
@@ -1170,10 +1194,12 @@ init();
 fetchAgents();
 fetchMissions();
 fetchPackets();
+loadToolSatellites();
 setInterval(fetchAgents, 5000);
 setInterval(fetchMissions, 5000);
 setInterval(fetchPackets, 3000);
 setInterval(loadGraph, 30000);
+setInterval(loadToolSatellites, 30000);
 </script>
 </body>
 </html>"""
