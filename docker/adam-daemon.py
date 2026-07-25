@@ -410,7 +410,7 @@ AUTO_OBJECTIVES = [
 
 def generate_auto_objective(cycle):
     """EVA génère automatiquement un objectif stratégique tous les 5 cycles"""
-    if cycle % 5 != 0:
+    if cycle % 3 != 0:
         return None
     
     # Choisir un objectif basé sur le cycle
@@ -472,6 +472,48 @@ def run_cycle(cycle):
         urllib.request.urlopen(req, timeout=3)
     except:
         pass
+
+    # Git sync — sauvegarder outils, mémoire, et progression tous les 5 cycles
+    if cycle % 5 == 0 and cycle > 0:
+        try:
+            import subprocess as _sp
+            logger.info(f"Git sync — sauvegarde cycle {cycle}...")
+            
+            # ADD: tools, memory, new agents
+            r1 = _sp.run(["git", "add", "-A"], capture_output=True, text=True, timeout=10, cwd=str(BASE))
+            
+            # Check if there are changes to commit
+            r2 = _sp.run(["git", "diff", "--cached", "--stat"], capture_output=True, text=True, timeout=5, cwd=str(BASE))
+            
+            if r2.stdout.strip():
+                # Commit
+                commit_msg = f"[ADAM] auto-sync cycle {cycle} — outils, mémoire, progression"
+                r3 = _sp.run(["git", "commit", "--no-verify", "-m", commit_msg], capture_output=True, text=True, timeout=10, cwd=str(BASE))
+                
+                # Push
+                r4 = _sp.run(["git", "push", "origin", "main"], capture_output=True, text=True, timeout=20, cwd=str(BASE))
+                
+                if r3.returncode == 0:
+                    logger.info(f"Git sync OK — cycle {cycle} sauvegardé")
+                else:
+                    logger.warning(f"Git commit: {r3.stderr[:100]}")
+            else:
+                logger.info(f"Git sync — rien à sauvegarder cycle {cycle}")
+        except Exception as e:
+            logger.error(f"Git sync erreur: {e}")
+        
+        # Sync EVA_CORE repo too
+        try:
+            import subprocess as _sp
+            eva_core = Path("/home/aza/EVA_CORE")
+            _sp.run(["git", "add", "-A"], capture_output=True, text=True, timeout=10, cwd=str(eva_core))
+            r = _sp.run(["git", "diff", "--cached", "--stat"], capture_output=True, text=True, timeout=5, cwd=str(eva_core))
+            if r.stdout.strip():
+                _sp.run(["git", "commit", "--no-verify", "-m", f"[EVA] auto-sync cycle {cycle}"], capture_output=True, text=True, timeout=10, cwd=str(eva_core))
+                _sp.run(["git", "push", "origin", "Dev"], capture_output=True, text=True, timeout=20, cwd=str(eva_core))
+                logger.info(f"EVA_CORE sync OK — cycle {cycle}")
+        except Exception as e:
+            logger.error(f"EVA_CORE sync erreur: {e}")
 
     # Daemon tick
     tick = json.dumps({"topic": "adam:daemon:tick", "source": "daemon", "payload": {"cycle": cycle}, "priority": 0}).encode()
