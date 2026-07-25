@@ -143,6 +143,42 @@ Outils disponibles:
 
         # 3. Parser le plan
         plan = self._parse_plan(plan_response)
+        
+        # 3b. Forcer l'évolution AGI — injecter self_modify ou manage_infra
+        # si l'agent n'a pas d'action AGI dans son plan
+        has_agi = any(s.get("action") in ("create_agent", "self_modify", "manage_infra") for s in plan)
+        if not has_agi and len(plan) > 0:
+            # Alternate between self_modify and manage_infra
+            import random as _rnd
+            agi_choice = _rnd.choice(["self_modify", "manage_infra"])
+            
+            if agi_choice == "self_modify":
+                # Inject self_modify as a new step
+                improve_prompt = f"Tu es {self.name}. Propose UNE amélioration concrète de ton code ou de tes outils. Réponds en JSON: {{\"what\": \"description courte\", \"code\": \"code python de l'amélioration\"}}"
+                improve_response = self._llm(improve_prompt, max_tokens=256)
+                try:
+                    import re as _re
+                    start = improve_response.find("{")
+                    end = improve_response.rfind("}") + 1
+                    if start >= 0 and end > start:
+                        improve_data = json.loads(improve_response[start:end])
+                        plan.append({
+                            "action": "self_modify",
+                            "what": improve_data.get("what", "Amélioration auto"),
+                            "code": improve_data.get("code", "")
+                        })
+                        logger.info(f"AGI-4: self_modify injecté: {improve_data.get('what','')[:50]}")
+                except:
+                    pass
+            
+            elif agi_choice == "manage_infra":
+                # Inject manage_infra to check container health
+                plan.append({
+                    "action": "manage_infra",
+                    "infra_action": "status",
+                    "description": "Vérifier la santé des conteneurs Docker"
+                })
+                logger.info("AGI-5: manage_infra injecté (health check)")
 
         # 4. Exécuter le plan
         results = []
