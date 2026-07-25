@@ -771,7 +771,6 @@ function loadToolSatellites() {
 function loadGraph() {
   fetch('/api/graph').then(function(r) { return r.json(); }).then(function(data) {
     buildHub(data);
-    loadToolSatellites();
     animate();
   });
 }
@@ -959,6 +958,45 @@ function buildHub(data) {
       }
     }
   }
+  // Load tools as satellites (inline, not separate call)
+  fetch('/api/tools').then(function(r) { return r.json(); }).then(function(td) {
+    var toolsData = td.tools || {};
+    var toolMeshes = {};
+    for (var agentKey in toolsData) {
+      var agentNode = null;
+      for (var nk in nodes) {
+        var nm = (nodes[nk].userData.name || '').toLowerCase().replace(/^adam-/, '');
+        if (nm === agentKey.toLowerCase().replace(/^adam-/, '')) {
+          agentNode = nodes[nk];
+          break;
+        }
+      }
+      if (!agentNode) continue;
+      var allTools = (toolsData[agentKey].scripts || []).concat(toolsData[agentKey].tools || []);
+      for (var ti = 0; ti < Math.min(allTools.length, 6); ti++) {
+        var toolName = allTools[ti];
+        var angle = (2 * Math.PI * ti) / Math.max(allTools.length, 1);
+        var orbitR = 0.6 + (ti % 3) * 0.15;
+        var tGeom = new THREE.OctahedronGeometry(0.06, 0);
+        var tMat = new THREE.MeshPhongMaterial({color: 0xffaa00, emissive: 0xff8800, emissiveIntensity: 0.4});
+        var tMesh = new THREE.Mesh(tGeom, tMat);
+        tMesh.position.copy(agentNode.position);
+        tMesh.userData = {name: toolName, label: 'Tool', parent: agentNode, angle: angle, orbitR: orbitR};
+        scene.add(tMesh);
+        toolMeshes[agentKey + '_' + ti] = tMesh;
+        var tl = document.createElement('div');
+        tl.className = 'node-label';
+        tl.textContent = toolName.substring(0, 15);
+        tl.style.color = '#ffaa00';
+        tl.style.fontSize = '7px';
+        tl.style.fontWeight = '400';
+        document.body.appendChild(tl);
+        tMesh.userData.labelEl = tl;
+      }
+    }
+    window._toolMeshes = toolMeshes;
+  }).catch(function(e) {});
+
   spawnFlows();
   
   // Spawn skill interaction particles (agent → skill)
@@ -1272,7 +1310,7 @@ setInterval(fetchAgents, 5000);
 setInterval(fetchMissions, 5000);
 setInterval(fetchPackets, 3000);
 setInterval(loadGraph, 30000);
-setInterval(loadToolSatellites, 30000);
+
 </script>
 </body>
 </html>"""
