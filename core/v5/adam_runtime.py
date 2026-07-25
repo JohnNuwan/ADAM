@@ -364,7 +364,9 @@ AGENTS = {
     "adam-viz":     {"role": "Dashboard temps réel + monde 3D", "type": "visualization"},
     "adam-ctf":     {"role": "Challenge CTF autonome", "type": "security"},
     "adam-blue":    {"role": "Hardening et défense", "type": "security"},
+    "adam-blue-team": {"role": "Hardening et défense", "type": "security"},
     "adam-red":     {"role": "Tests d'intrusion, OSINT", "type": "security"},
+    "adam-red-team":  {"role": "Tests d'intrusion, OSINT", "type": "security"},
 }
 
 
