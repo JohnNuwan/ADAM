@@ -224,7 +224,9 @@ body{background:#0a0a14;color:#e0e8f0;font-family:'SF Pro Display','Segoe UI',sy
 .panel-content::-webkit-scrollbar-thumb{background:rgba(68,102,136,0.3)}
 
 /* Feed messages */
-.feed-msg{padding:8px 10px;margin-bottom:6px;border-radius:8px;background:rgba(10,15,25,0.6);font-size:11px;line-height:1.5;border-left:3px solid #446688}
+.feed-msg{padding:8px 10px;margin-bottom:6px;border-radius:8px;background:rgba(10,15,25,0.6);font-size:11px;line-height:1.5;border-left:3px solid #446688;cursor:pointer;transition:background 0.2s}
+.feed-msg:hover{background:rgba(10,15,25,0.9)}
+.feed-msg .content{max-height:200px;overflow-y:auto}
 .feed-msg.objective{border-left-color:#00aaff;background:rgba(0,170,255,0.05)}
 .feed-msg.mission{border-left-color:#ffaa44;background:rgba(255,170,68,0.05)}
 .feed-msg.mission_done{border-left-color:#00ff88;background:rgba(0,255,136,0.05)}
@@ -232,7 +234,10 @@ body{background:#0a0a14;color:#e0e8f0;font-family:'SF Pro Display','Segoe UI',sy
 .feed-msg .header{display:flex;justify-content:space-between;margin-bottom:3px}
 .feed-msg .agent{font-weight:600;color:#00ff88;font-size:10px}
 .feed-msg .time{font-size:9px;color:#446688}
-.feed-msg .content{color:#88aacc}
+.feed-msg .content{color:#88aacc;word-wrap:break-word;white-space:pre-wrap;line-height:1.5}
+.feed-msg .content .mission-full{color:#e0e8f0;font-weight:500}
+.feed-msg .content .thought-full{color:#88aacc;font-style:italic}
+.feed-msg .content .output-full{color:#6688aa;font-family:monospace;font-size:10px}
 .feed-msg .tools{color:#ffaa00;font-size:10px;margin-top:2px}
 .feed-msg .status{font-size:9px;padding:1px 6px;border-radius:6px;display:inline-block;margin-top:2px}
 .feed-msg .status.done{background:#00ff8822;color:#00ff88}
@@ -243,8 +248,8 @@ body{background:#0a0a14;color:#e0e8f0;font-family:'SF Pro Display','Segoe UI',sy
 /* Agent cards */
 .agent-card{background:rgba(10,15,25,0.6);border-radius:8px;padding:10px;margin-bottom:8px;border-left:3px solid #00ff88}
 .agent-card .name{font-size:12px;font-weight:600;color:#00ff88;margin-bottom:4px}
-.agent-card .mission{font-size:10px;color:#88aacc;margin-bottom:4px}
-.agent-card .thought{font-size:10px;color:#6688aa;font-style:italic;margin-bottom:4px}
+.agent-card .mission{font-size:11px;color:#e0e8f0;margin-bottom:4px;word-wrap:break-word;white-space:pre-wrap;line-height:1.4}
+.agent-card .thought{font-size:10px;color:#88aacc;font-style:italic;margin-bottom:4px;word-wrap:break-word;white-space:pre-wrap;line-height:1.4}
 .agent-card .stats{font-size:9px;color:#5577aa;display:flex;gap:12px}
 .agent-card .stats .stat{display:flex;gap:3px}
 .agent-card .stats .stat .v{color:#00aaff;font-weight:600}
@@ -270,7 +275,7 @@ body{background:#0a0a14;color:#e0e8f0;font-family:'SF Pro Display','Segoe UI',sy
 .sprint-mission .status-dot.done{background:#00ff88}
 .sprint-mission .status-dot.failed{background:#ff4466}
 .sprint-mission .agent{color:#00ff88;font-weight:600;min-width:70px}
-.sprint-mission .text{color:#88aacc;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sprint-mission .text{color:#88aacc;flex:1;word-wrap:break-word;white-space:pre-wrap;line-height:1.3;font-size:10px}
 
 /* New sprint button */
 .btn-new{background:#00aaff33;border:1px solid #00aaff44;color:#00aaff;border-radius:6px;padding:6px 12px;font-size:11px;cursor:pointer}
@@ -358,12 +363,12 @@ function fetchFeed() {
       var tools = '';
       var status = '';
       
-      if (payload.mission) content = payload.mission.substring(0,100);
-      else if (payload.thought) content = payload.thought.substring(0,100);
-      else if (payload.output) content = payload.output.substring(0,100);
-      else if (payload.objective) content = payload.objective.substring(0,100);
+      if (payload.mission) content = payload.mission;
+      else if (payload.thought) content = payload.thought;
+      else if (payload.output) content = payload.output.substring(0,200);
+      else if (payload.objective) content = payload.objective;
       else if (payload.cycle !== undefined) content = 'Cycle ' + payload.cycle + ' — ' + (payload.agents||'') + ' agents';
-      else content = JSON.stringify(payload).substring(0,80);
+      else content = JSON.stringify(payload).substring(0,150);
       
       if (payload.tools_created && payload.tools_created.length) {
         tools = '🔧 ' + payload.tools_created.join(', ');
@@ -407,8 +412,8 @@ function fetchAgentsDetail() {
       
       html += '<div class="agent-card" style="border-left-color:'+stColor+'">';
       html += '<div class="name">'+name+' <span style="font-size:9px;color:#446688">('+t+')</span></div>';
-      if (a.current_mission) html += '<div class="mission">📋 '+a.current_mission.substring(0,70)+'</div>';
-      if (a.thought) html += '<div class="thought">💭 '+a.thought.substring(0,80)+'</div>';
+      if (a.current_mission) html += '<div class="mission">📋 '+a.current_mission+'</div>';
+      if (a.thought) html += '<div class="thought">💭 '+a.thought+'</div>';
       if (tools.length) html += '<div style="font-size:9px;color:#ffaa00;margin-top:2px">🔧 '+tools.join(', ').substring(0,50)+'</div>';
       html += '<div class="stats">';
       html += '<div class="stat">Missions: <span class="v">'+totalM+'</span></div>';
@@ -451,18 +456,18 @@ function fetchSprints() {
       html += '<div class="mission-cols">';
       html += '<div class="mission-col"><h4>À faire ('+pending.length+')</h4>';
       for (var j=0; j<pending.length; j++) {
-        html += '<div class="sprint-mission"><div class="status-dot pending"></div><div class="agent">'+pending[j].agent.replace('adam-','')+'</div><div class="text">'+pending[j].mission.substring(0,40)+'</div></div>';
+        html += '<div class="sprint-mission"><div class="status-dot pending"></div><div class="agent">'+pending[j].agent.replace('adam-','')+'</div><div class="text">'+pending[j].mission+'</div></div>';
       }
       html += '</div>';
       html += '<div class="mission-col"><h4>En cours ('+running.length+')</h4>';
       for (var j=0; j<running.length; j++) {
-        html += '<div class="sprint-mission"><div class="status-dot running"></div><div class="agent">'+running[j].agent.replace('adam-','')+'</div><div class="text">'+running[j].mission.substring(0,40)+'</div></div>';
+        html += '<div class="sprint-mission"><div class="status-dot running"></div><div class="agent">'+running[j].agent.replace('adam-','')+'</div><div class="text">'+running[j].mission+'</div></div>';
       }
       html += '</div>';
       html += '<div class="mission-col"><h4>Terminé ('+done.length+')</h4>';
       for (var j=0; j<done.length; j++) {
         var stColor = done[j].status==='done'?'done':'failed';
-        html += '<div class="sprint-mission"><div class="status-dot '+stColor+'"></div><div class="agent">'+done[j].agent.replace('adam-','')+'</div><div class="text">'+done[j].mission.substring(0,40)+'</div></div>';
+        html += '<div class="sprint-mission"><div class="status-dot '+stColor+'"></div><div class="agent">'+done[j].agent.replace('adam-','')+'</div><div class="text">'+done[j].mission+'</div></div>';
       }
       html += '</div>';
       html += '</div>';
