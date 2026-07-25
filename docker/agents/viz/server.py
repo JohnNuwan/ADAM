@@ -69,7 +69,7 @@ def bus_publish(topic, source, payload, priority=1):
         return None
 
 def get_bus_events(topic=None, limit=50):
-    q = f"/api/query?limit={limit}"
+    q = f"/api/query?topic=adam:packet&limit={limit}"
     if topic:
         q += f"&topic={topic}"
     data = bus_get(q)

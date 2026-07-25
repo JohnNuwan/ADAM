@@ -7,6 +7,8 @@ app = Flask(__name__)
 PG_DSN = os.environ.get("PG_DSN", "postgres://adam:***@postgres:5432/adam")
 
 @app.route("/api/graph")
+
+
 def get_graph():
     pg = psycopg2.connect(PG_DSN)
     cur = pg.cursor()
@@ -91,7 +93,7 @@ const scene=new THREE.Scene();
 scene.background=new THREE.Color(0x0a0a0f);
 
 const camera=new THREE.PerspectiveCamera(60,window.innerWidth/window.innerHeight,0.1,1000);
-camera.position.set(10,8,14);
+camera.position.set(22,16,28);
 
 const renderer=new THREE.WebGLRenderer({antialias:true});
 renderer.setSize(window.innerWidth,window.innerHeight);
@@ -112,8 +114,8 @@ controls.enableDamping=true;
 controls.dampingFactor=0.08;
 controls.autoRotate=true;
 controls.autoRotateSpeed=0.6;
-controls.minDistance=4;
-controls.maxDistance=30;
+controls.minDistance=8;
+controls.maxDistance=60;
 
 // Colors by label
 const ColorMap={
@@ -346,6 +348,20 @@ renderer.domElement.addEventListener('dblclick',()=>{
 </script>
 </body>
 </html>"""
+
+
+
+@app.route("/api/packets")
+def get_packets():
+    import urllib.request
+    try:
+        bus = os.environ.get("BUS_URL", "http://go-bus:8086")
+        req = urllib.request.Request(f"{bus}/api/query?limit=20&topic=adam:packet")
+        with urllib.request.urlopen(req, timeout=3) as resp:
+            data = json.loads(resp.read().decode())
+            return jsonify({"packets": data if isinstance(data, list) else data.get("events", [])})
+    except Exception as e:
+        return jsonify({"packets": [], "error": str(e)})
 
 if __name__=="__main__":
     app.run(host="0.0.0.0",port=8090)
