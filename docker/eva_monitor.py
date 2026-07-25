@@ -463,9 +463,14 @@ function fetchObjectives() {
         subtasks: [
           {label: 'Treasurer actif', done: agents.agents && agents.agents['treasurer'] ? true : false},
           {label: 'Social actif (Maeve.tech)', done: agents.agents && agents.agents['social'] ? true : false},
+          {label: 'Researcher opportunités', done: agents.agents && agents.agents['researcher'] ? true : false},
+          {label: 'Scribe freelance/articles', done: agents.agents && agents.agents['scribe'] ? true : false},
+          {label: 'Red-Team SaaS sécurité', done: agents.agents && agents.agents['red-team'] ? true : false},
+          {label: 'OSINT rapports B2B', done: agents.agents && agents.agents['osint'] ? true : false},
           {label: 'Outil de trading créé', done: false},
-          {label: 'Stratégie validée', done: false},
+          {label: 'Bot de trading automatisé', done: false},
           {label: 'Premier revenu', done: false},
+          {label: '10,000€/mois atteint', done: false},
         ]
       },
       {

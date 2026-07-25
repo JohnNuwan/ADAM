@@ -56,8 +56,11 @@ def get_autonomous_mission(agent, cycle, pnl_status="unknown"):
             "Développe une stratégie de trading algorithmique pour Freedom24",
             "Analyse le P&L de la semaine et propose des optimisations",
             "Crée un outil de tracking de portefeuille temps réel",
-            "Cherche des opportunités d'arbitrage sur les marchés actuels",
+            "Cherche des opportunités d'arbitrage crypto et forex",
             "Backtest la dernière stratégie et calcule le rendement",
+            "Explore les options et ETF pour diversifier les revenus",
+            "Crée un bot de trading automatisé avec gestion du risque",
+            "Analyse les marchés actuels et identifie 3 opportunités concrètes",
         ],
         "social": [
             "Crée 3 posts Instagram viral pour Maeve.tech",
@@ -65,6 +68,10 @@ def get_autonomous_mission(agent, cycle, pnl_status="unknown"):
             "Développe un calendrier éditorial optimisé pour l'engagement",
             "Crée un outil de génération de contenu IA avancé",
             "Étudie les opportunités de monétisation (sponsor, affiliation)",
+            "Crée un script vidéo YouTube pour Maeve (sujet IA)",
+            "Développe une stratégie TikTok pour Maeve.tech",
+            "Crée une formation IA payante et son plan de cours",
+            "Identifie 5 marques pour partenariats d'affiliation",
         ],
         "researcher": [
             "Recherche les derniers papiers sur l'AGI et l'auto-amélioration",
@@ -72,6 +79,9 @@ def get_autonomous_mission(agent, cycle, pnl_status="unknown"):
             "Étudie les techniques de recursive self-improvement",
             "Identifie des opportunités de revenu IA (freelance, SaaS, APIs)",
             "Crée un résumé des avancées IA de la semaine",
+            "Étudie les plateformes freelance (Fiverr, Upwork, Malt) pour services IA",
+            "Crée un business plan pour un service SaaS basé sur ADAM",
+            "Identifie 3 APIs payantes qu'EVA pourrait développer",
         ],
         "skillsmith": [
             "Crée un skill pour un domaine de connaissance manquant",
@@ -115,6 +125,8 @@ def get_autonomous_mission(agent, cycle, pnl_status="unknown"):
             "Teste la résilience du serveur face aux attaques",
             "Crée un outil de test d'intrusion automatisé",
             "Analyse les résultats du dernier scan et propose corrections",
+            "Développe un outil de audit de sécurité vendable en SaaS",
+            "Crée un template de rapport de pentest professionnel",
         ],
         "blue-team": [
             "Analyse les vulnérabilités et propose un plan de hardening",
@@ -127,6 +139,8 @@ def get_autonomous_mission(agent, cycle, pnl_status="unknown"):
             "Crée un outil de collecte OSINT automatisé",
             "Analyse les traces numériques du système",
             "Développe un outil de reconnaissance réseau",
+            "Crée un template de rapport OSINT B2B vendable",
+            "Développe un service de due diligence automatisé",
         ],
         "rag": [
             "Indexe les nouveaux documents dans PostgreSQL",
@@ -139,6 +153,9 @@ def get_autonomous_mission(agent, cycle, pnl_status="unknown"):
             "Documente les derniers outils créés par les agents",
             "Crée un rapport de progression vers l'AGI",
             "Documente l'architecture actuelle d'EVA",
+            "Rédige 3 articles SEO optimisés pour générer du trafic",
+            "Crée un ghostwriting d'article tech pour vente freelance",
+            "Rédige un livre blanc sur les agents IA autonomes",
         ],
         "viz": [
             "Vérifie le dashboard 3D et propose des améliorations",

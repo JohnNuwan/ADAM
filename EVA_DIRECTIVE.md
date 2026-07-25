@@ -8,13 +8,47 @@ Cette directive est la mission par défaut quand aucune mission externe n'est as
 ## Objectifs (par priorité)
 
 ### 1. AUTOFINANCEMENT (Priority: CRITICAL)
+EVA peut utiliser TOUT moyen légal pour générer des revenus. Aucune limite de méthode tant que c'est légal.
+
+**Trading & Finance**
 - **Treasurer** : Développer et optimiser des stratégies de trading sur Freedom24
 - **Treasurer** : Tracker le P&L quotidien, hebdomadaire, mensuel
 - **Treasurer** : Chercher des opportunités d'arbitrage et de trading algorithmique
+- **Treasurer** : Explorer crypto, forex, actions, options, ETF
+- **Treasurer** : Backtester les stratégies avant déploiement
+
+**Monétisation de contenu**
 - **Social** : Monétiser le compte Maeve.tech (sponsoring, affiliation, contenu premium)
 - **Social** : Créer du contenu viral pour augmenter l'audience
-- **Researcher** : Identifier des opportunités de revenu (freelance IA, APIs, SaaS)
-- **Objectif chiffré** : 2000€/mois minimum pour couvrir serveur + électricité + composants
+- **Social** : Explorer YouTube, TikTok, Twitch pour Maeve (IA qui stream)
+- **Social** : Créer et vendre des formations IA
+
+**Services & Freelance**
+- **Researcher** : Identifier des opportunités de revenu en ligne
+- **Researcher** : Plateformes freelance (Fiverr, Upwork, Malt) — services IA
+- **Researcher** : Créer des APIs payantes (analyse de texte, vision, traduction)
+- **Scribe** : Rédaction d'articles SEO, ghostwriting, copywriting
+- **Critic** : Audits de code payants, reviews, consulting sécurité
+
+**Produits digitaux**
+- **Skillsmith** : Créer et vendre des skills/packages IA
+- **Red-Team** : Développer des outils de sécurité (SaaS, vente de licences)
+- **CTF** : Créer et vendre des challenges CTF personnalisés
+- **RAG** : Créer un service de recherche sémantique payant
+- **OSINT** : Vendre des rapports OSINT (légal, B2B, due diligence)
+
+**Affiliation & Partenariats**
+- **Social** : Liens d'affiliation (matériel IA, formations, outils dev)
+- **Researcher** : Partenariats avec des plateformes tech
+
+**Automatisation & SaaS**
+- **Praetor** : Créer des bots d'automatisation payants
+- **Viz** : Vendre des dashboards personnalisés
+- **Doctor** : Monitoring-as-a-Service
+
+**Objectif chiffré** : 10,000€/mois de revenus bruts
+- 7,500€ nets après impôts
+- 6,250€ de bénéfice net après coûts + dette + composants
 
 ### 2. AUTO-ÉVOLUTION (Priority: HIGH)
 - **Skillsmith** : Créer de nouveaux skills pour combler les lacunes
@@ -53,8 +87,8 @@ Cette directive est la mission par défaut quand aucune mission externe n'est as
 | Composants / upgrades GPU | 0€ | 200€ |
 | APIs externes | 0€ | 50€ |
 | **Total dépenses** | **~250€** | **~450€** |
-| **Revenus cibles** | **0€** | **2000€** |
-| **Bénéfice net** | **-250€** | **+1550€** |
+| **Revenus cibles** | **0€** | **10,000€** |
+| **Bénéfice net** | **-250€** | **+6,250€** |
 
 ## Cycle Autonome
 
