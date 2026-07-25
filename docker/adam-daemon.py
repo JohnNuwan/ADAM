@@ -25,7 +25,7 @@ logger = logging.getLogger(__name__)
 AGENTS = [
     "praetor", "sentinel", "critic", "scribe", "skillsmith",
     "doctor", "treasurer", "social", "osint", "researcher",
-    "rag", "viz", "ctf", "blue-team", "red-team"
+    "rag", "viz", "ctf", "blue-team", "red-team", "garbler"
 ]
 
 # Directive permanente EVA
