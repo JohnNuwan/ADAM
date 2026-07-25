@@ -1,0 +1,1 @@
+def text_semantics_skill(components):\n    # Utilise les composants identifiés pour créer un nouveau skill pour l'analyse sémantique du texte\n    pass

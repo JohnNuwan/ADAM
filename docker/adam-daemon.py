@@ -400,8 +400,62 @@ def run_agent(agent, mission):
             publish_packet(agent, 1, "", "error")
             return 1
 
+AUTO_OBJECTIVES = [
+    {"objective": "Augmente les revenus: crée un produit ou service vendable", "agents": ["treasurer", "social", "researcher", "scribe"]},
+    {"objective": "Améliore la sécurité: audite et corrige les vulnérabilités", "agents": ["sentinel", "red-team", "blue-team"]},
+    {"objective": "Évolue le système: crée un nouvel agent spécialisé ou améliore le code existant", "agents": ["skillsmith", "critic", "praetor"]},
+    {"objective": "Optimise l'infrastructure: vérifie les conteneurs et propose des améliorations", "agents": ["doctor", "praetor", "viz"]},
+    {"objective": "Innovation: recherche de nouvelles techniques ou opportunités", "agents": ["researcher", "ctf", "osint"]},
+]
+
+def generate_auto_objective(cycle):
+    """EVA génère automatiquement un objectif stratégique tous les 5 cycles"""
+    if cycle % 5 != 0:
+        return None
+    
+    # Choisir un objectif basé sur le cycle
+    obj_idx = (cycle // 5) % len(AUTO_OBJECTIVES)
+    obj = AUTO_OBJECTIVES[obj_idx]
+    
+    logger.info(f"🎯 Auto-objectif EVA (cycle {cycle}): {obj['objective']}")
+    
+    # Publier l'objectif sur le Go Bus
+    payload = json.dumps({
+        "topic": "eva:objective",
+        "source": "eva-autonomous",
+        "payload": {"objective": obj["objective"], "agents": obj["agents"], "cycle": cycle},
+        "priority": 2
+    }).encode()
+    try:
+        req = urllib.request.Request(GO_BUS, data=payload, headers={"Content-Type": "application/json"})
+        urllib.request.urlopen(req, timeout=3)
+    except:
+        pass
+    
+    # Générer des missions spécifiques pour chaque agent via le LLM
+    for agent in obj["agents"]:
+        # Publier une mission personnalisée liée à l'objectif
+        mission = obj["objective"] + " — Ta contribution en tant que " + agent
+        payload = json.dumps({
+            "topic": "adam:mission",
+            "source": "eva-autonomous",
+            "payload": {"agent": "adam-" + agent if not agent.startswith("adam-") else agent, "mission": mission, "status": "pending", "objective": obj["objective"]},
+            "priority": 2
+        }).encode()
+        try:
+            req = urllib.request.Request(GO_BUS, data=payload, headers={"Content-Type": "application/json"})
+            urllib.request.urlopen(req, timeout=3)
+        except:
+            pass
+    
+    return obj
+
 def run_cycle(cycle):
     """Run one complete cycle of all agents"""
+    # 1. EVA génère un auto-objectif tous les 5 cycles
+    generate_auto_objective(cycle)
+    
+    # 2. Lancer chaque agent
     for agent in AGENTS:
         mission = get_agent_mission(agent, cycle)
         run_agent(agent, mission)
@@ -441,6 +495,14 @@ def main():
     cycle = 0
     while True:
         logger.info(f"--- Cycle {cycle} ---")
+        
+        # Méta-mission tous les 3 cycles: pousser l'évolution AGI
+        if cycle % 3 == 0 and cycle > 0:
+            meta_agent = AGENTS[cycle % len(AGENTS)]
+            meta_mission = "MÉTA: Évalue si le système a besoin d'un nouvel agent spécialisé, d'une auto-modification, ou d'une action d'infrastructure. Propose et exécute une action AGI (create_agent, self_modify, ou manage_infra)."
+            logger.info(f"🧬 Méta-mission AGI pour {meta_agent}")
+            run_agent(meta_agent, meta_mission)
+        
         run_cycle(cycle)
         cycle += 1
         time.sleep(5)

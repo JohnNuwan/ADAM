@@ -1,0 +1,1 @@
+Créer un outil qui permettra de développer une stratégie de trading algorithmique pour Freedom24, en prenant en compte les analyses financière et de marché, ainsi que les leçons apprises.

@@ -1,0 +1,71 @@
+{
+  "missions": [
+    {
+      "id": "m_1",
+      "mission": "Conduire des tests d'intrusion pour évaluer la résilience du serveur face aux attaques.",
+      "result": {
+        "agent": "adam-red",
+        "mission": "Conduire des tests d'intrusion pour évaluer la résilience du serveur face aux attaques.",
+        "success": false,
+        "steps": 2,
+        "elapsed_s": 7.22,
+        "results": [
+          {
+            "step": {
+              "action": "create_tool",
+              "tool": "scanner_vulnerabilites",
+              "args": "",
+              "code": "def scanner_vulnerabilites(target):\n    # Code pour scanner les vulnérabilités du serveur\n    pass",
+              "target_agent": "",
+              "description": "Création d'un outil pour scanner les vulnérabilités du serveur cible."
+            },
+            "result": {
+              "id": "c3606e44f489",
+              "name": "scanner_vulnerabilites",
+              "file": "scanner_vulnerabilites.py",
+              "status": "created"
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "scanner_vulnerabilites",
+              "args": "{ \"target\": \"adresse_ip_serveur\" }",
+              "code": "",
+              "target_agent": "",
+              "description": "Exécution du scan de vulnérabilités sur le serveur cible pour identifier les points faibles."
+            },
+            "result": {
+              "tool": "scanner_vulnerabilites",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          }
+        ],
+        "timestamp": "2026-07-25T11:06:48.180841+00:00"
+      },
+      "steps": [
+        {
+          "action": "create_tool",
+          "tool": "scanner_vulnerabilites",
+          "args": "",
+          "code": "def scanner_vulnerabilites(target):\n    # Code pour scanner les vulnérabilités du serveur\n    pass",
+          "target_agent": "",
+          "description": "Création d'un outil pour scanner les vulnérabilités du serveur cible."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "scanner_vulnerabilites",
+          "args": "{ \"target\": \"adresse_ip_serveur\" }",
+          "code": "",
+          "target_agent": "",
+          "description": "Exécution du scan de vulnérabilités sur le serveur cible pour identifier les points faibles."
+        }
+      ],
+      "timestamp": "2026-07-25T11:06:48.180856+00:00",
+      "agent": "adam-red"
+    }
+  ]
+}

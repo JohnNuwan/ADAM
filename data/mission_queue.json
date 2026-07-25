@@ -1,5 +1,62 @@
 {
-  "pending": [],
+  "pending": [
+    {
+      "agent": "adam-blue",
+      "mission": "Proposer et mettre en œuvre des mesures de hardening pour améliorer la sécurité du serveur.",
+      "priority": 2,
+      "objective": "Audite la sécurité du serveur et propose des améliorations",
+      "status": "pending",
+      "submitted_at": "2026-07-25T09:48:09.075330+00:00"
+    },
+    {
+      "agent": "adam-doctor",
+      "mission": "Diagnostic des processus actuels pour identifier les points faibles en termes de sécurité.",
+      "priority": 2,
+      "objective": "Audite la sécurité du serveur et propose des améliorations",
+      "status": "pending",
+      "submitted_at": "2026-07-25T09:48:09.075332+00:00"
+    },
+    {
+      "agent": "adam-researcher",
+      "mission": "Scanner les vulnérabilités du serveur et identifier les points faibles.",
+      "priority": 2,
+      "objective": "Analyse la sécurité du serveur et soumet des améliorations",
+      "status": "pending",
+      "submitted_at": "2026-07-25T11:06:40.519169+00:00"
+    },
+    {
+      "agent": "adam-blue",
+      "mission": "Appliquer des mesures de hardening et de défense pour renforcer la sécurité du serveur.",
+      "priority": 2,
+      "objective": "Analyse la sécurité du serveur et soumet des améliorations",
+      "status": "pending",
+      "submitted_at": "2026-07-25T11:06:40.519189+00:00"
+    },
+    {
+      "agent": "adam-red",
+      "mission": "Conduire des tests d'intrusion pour évaluer l'efficacité des mesures de sécurité mises en place.",
+      "priority": 2,
+      "objective": "Analyse la sécurité du serveur et soumet des améliorations",
+      "status": "pending",
+      "submitted_at": "2026-07-25T11:06:40.519193+00:00"
+    },
+    {
+      "agent": "adam-doctor",
+      "mission": "Guérir les processus en cours qui peuvent être vulnérables ou inefficaces.",
+      "priority": 2,
+      "objective": "Analyse la sécurité du serveur et soumet des améliorations",
+      "status": "pending",
+      "submitted_at": "2026-07-25T11:06:40.519195+00:00"
+    },
+    {
+      "agent": "adam-sentinel",
+      "mission": "Effectuer un test de veille et signaler tout incident fictif pour valider la réponse.",
+      "priority": 2,
+      "objective": "Test",
+      "status": "pending",
+      "submitted_at": "2026-07-25T17:47:47.580173+00:00"
+    }
+  ],
   "active": [],
   "done": [
     {
@@ -31,6 +88,126 @@
         "timestamp": "2026-07-25T09:27:49.272910+00:00"
       },
       "completed_at": "2026-07-25T09:27:49.274747+00:00"
+    },
+    {
+      "agent": "adam-researcher",
+      "mission": "Scanner les vulnérabilités du serveur et documenter les résultats.",
+      "priority": 2,
+      "objective": "Audite la sécurité du serveur et propose des améliorations",
+      "status": "failed",
+      "submitted_at": "2026-07-25T09:48:09.075305+00:00",
+      "started_at": "2026-07-25T09:48:09.541343+00:00",
+      "result": {
+        "agent": "adam-researcher",
+        "mission": "Scanner les vulnérabilités du serveur et documenter les résultats.",
+        "success": false,
+        "steps": 3,
+        "elapsed_s": 9.67,
+        "results": [
+          {
+            "step": {
+              "action": "create_tool",
+              "tool": "vulnerability_scanner",
+              "args": "",
+              "code": "def vulnerability_scanner(target_server):\n    # Code pour scanner les vulnérabilités du serveur\n    pass",
+              "target_agent": "",
+              "description": "Création d'un outil pour scanner les vulnérabilités sur un serveur donné."
+            },
+            "result": {
+              "id": "7962e3d21324",
+              "name": "vulnerability_scanner",
+              "file": "vulnerability_scanner.py",
+              "status": "created"
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "vulnerability_scanner",
+              "args": "{ \"target_server\": \"192.168.1.1\" }",
+              "code": "",
+              "target_agent": "",
+              "description": "Exécution du scan de vulnérabilité sur le serveur cible 192.168.1.1."
+            },
+            "result": {
+              "tool": "vulnerability_scanner",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "report",
+              "tool": "",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Rapport des résultats du scan de vulnérabilité."
+            },
+            "result": {
+              "success": true,
+              "report": "Rapport des résultats du scan de vulnérabilité."
+            }
+          }
+        ],
+        "timestamp": "2026-07-25T09:48:19.211764+00:00"
+      },
+      "completed_at": "2026-07-25T09:48:21.173490+00:00"
+    },
+    {
+      "agent": "adam-red",
+      "mission": "Conduire des tests d'intrusion pour évaluer la résilience du serveur face aux attaques.",
+      "priority": 2,
+      "objective": "Audite la sécurité du serveur et propose des améliorations",
+      "status": "failed",
+      "submitted_at": "2026-07-25T09:48:09.075327+00:00",
+      "started_at": "2026-07-25T11:06:40.957821+00:00",
+      "result": {
+        "agent": "adam-red",
+        "mission": "Conduire des tests d'intrusion pour évaluer la résilience du serveur face aux attaques.",
+        "success": false,
+        "steps": 2,
+        "elapsed_s": 7.22,
+        "results": [
+          {
+            "step": {
+              "action": "create_tool",
+              "tool": "scanner_vulnerabilites",
+              "args": "",
+              "code": "def scanner_vulnerabilites(target):\n    # Code pour scanner les vulnérabilités du serveur\n    pass",
+              "target_agent": "",
+              "description": "Création d'un outil pour scanner les vulnérabilités du serveur cible."
+            },
+            "result": {
+              "id": "c3606e44f489",
+              "name": "scanner_vulnerabilites",
+              "file": "scanner_vulnerabilites.py",
+              "status": "created"
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "scanner_vulnerabilites",
+              "args": "{ \"target\": \"adresse_ip_serveur\" }",
+              "code": "",
+              "target_agent": "",
+              "description": "Exécution du scan de vulnérabilités sur le serveur cible pour identifier les points faibles."
+            },
+            "result": {
+              "tool": "scanner_vulnerabilites",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          }
+        ],
+        "timestamp": "2026-07-25T11:06:48.180841+00:00"
+      },
+      "completed_at": "2026-07-25T11:06:49.700030+00:00"
     }
   ]
 }
