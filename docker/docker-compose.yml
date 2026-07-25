@@ -80,10 +80,6 @@ services:
       postgres:
         condition: service_healthy
 
-volumes:
-  pgdata:
-
-
   monitor:
     image: python:3.12-slim
     container_name: eva-monitor
@@ -104,3 +100,7 @@ volumes:
     depends_on:
       go-bus:
         condition: service_started
+
+volumes:
+  pgdata:
+
