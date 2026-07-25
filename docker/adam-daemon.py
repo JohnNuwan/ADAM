@@ -28,7 +28,143 @@ AGENTS = [
     "rag", "viz", "ctf", "blue-team", "red-team"
 ]
 
-# Missions par défaut (fallback si pas de mission dans le bus)
+# Directive permanente EVA
+DIRECTIVE_FILE = Path("/home/aza/eva-adam-v2/EVA_DIRECTIVE.md")
+
+def read_directive():
+    """Read EVA permanent directive"""
+    try:
+        if DIRECTIVE_FILE.exists():
+            return DIRECTIVE_FILE.read_text()
+    except:
+        pass
+    return ""
+
+def get_autonomous_mission(agent, cycle, pnl_status="unknown"):
+    """Get autonomous mission based on EVA directive
+    
+    When no external mission is available, EVA generates missions
+    based on the permanent directive (autofinancement, AGI, etc.)
+    """
+    # Autonomous missions by priority, rotated by cycle
+    # Priority 1: Autofinancement (if P&L is negative or unknown)
+    # Priority 2: Auto-evolution (improve code, skills, tools)
+    # Priority 3: AGI (research, self-improvement)
+    
+    autonomous_missions = {
+        "treasurer": [
+            "Développe une stratégie de trading algorithmique pour Freedom24",
+            "Analyse le P&L de la semaine et propose des optimisations",
+            "Crée un outil de tracking de portefeuille temps réel",
+            "Cherche des opportunités d'arbitrage sur les marchés actuels",
+            "Backtest la dernière stratégie et calcule le rendement",
+        ],
+        "social": [
+            "Crée 3 posts Instagram viral pour Maeve.tech",
+            "Analyse les tendances Instagram de la semaine",
+            "Développe un calendrier éditorial optimisé pour l'engagement",
+            "Crée un outil de génération de contenu IA avancé",
+            "Étudie les opportunités de monétisation (sponsor, affiliation)",
+        ],
+        "researcher": [
+            "Recherche les derniers papiers sur l'AGI et l'auto-amélioration",
+            "Analyse 5 publications importantes sur les agents IA autonomes",
+            "Étudie les techniques de recursive self-improvement",
+            "Identifie des opportunités de revenu IA (freelance, SaaS, APIs)",
+            "Crée un résumé des avancées IA de la semaine",
+        ],
+        "skillsmith": [
+            "Crée un skill pour un domaine de connaissance manquant",
+            "Améliore un skill existant basé sur les leçons apprises",
+            "Développe un skill de raisonnement avancé",
+            "Audite la qualité des skills et propose des corrections",
+        ],
+        "critic": [
+            "Audite le code des agents et identifie les améliorations",
+            "Évalue le taux de succès des missions récentes",
+            "Identifie les limites cognitives du système ADAM",
+            "Propose des optimisations pour augmenter le taux de succès",
+        ],
+        "praetor": [
+            "Analyse les performances du système et propose des optimisations",
+            "Identifie les gaspillages (GPU, RAM, conteneurs inutiles)",
+            "Crée un plan d'évolution pour ADAM basé sur la directive",
+            "Vérifie que les corrections précédentes fonctionnent",
+            "Propose une architecture plus intelligente (multi-agent, reflection)",
+        ],
+        "sentinel": [
+            "Scanne les CVE de la semaine et croise avec la stack",
+            "Crée un outil de veille automatisée qui tourne en continu",
+            "Analyse les tendances des vulnérabilités",
+            "Vérifie que les correctifs précédents ont été appliqués",
+        ],
+        "doctor": [
+            "Diagnostique les conteneurs et mesure la consommation GPU/CPU/RAM",
+            "Optimise l'utilisation des RTX 3090 (batch, quantization)",
+            "Crée un outil de monitoring de santé du système",
+            "Identifie les conteneurs inutiles et propose un nettoyage",
+        ],
+        "ctf": [
+            "Analyse un challenge CTF et documente les techniques apprises",
+            "Crée un nouveau challenge CTF pour entraîner les autres agents",
+            "Participe à un CTF en ligne si disponible",
+            "Crée un outil de génération de challenges automatiques",
+        ],
+        "red-team": [
+            "Développe un nouvel outil de scan de sécurité",
+            "Teste la résilience du serveur face aux attaques",
+            "Crée un outil de test d'intrusion automatisé",
+            "Analyse les résultats du dernier scan et propose corrections",
+        ],
+        "blue-team": [
+            "Analyse les vulnérabilités et propose un plan de hardening",
+            "Crée un outil de monitoring de sécurité temps réel",
+            "Vérifie que les corrections précédentes sont appliquées",
+            "Durcit la configuration des conteneurs Docker",
+        ],
+        "osint": [
+            "Collecte des informations OSINT sur une cible",
+            "Crée un outil de collecte OSINT automatisé",
+            "Analyse les traces numériques du système",
+            "Développe un outil de reconnaissance réseau",
+        ],
+        "rag": [
+            "Indexe les nouveaux documents dans PostgreSQL",
+            "Améliore la recherche sémantique avec PGVector",
+            "Crée un pipeline RAG pour les connaissances ADAM",
+            "Indexe les leçons apprises pour un accès rapide",
+        ],
+        "scribe": [
+            "Rédige un rapport complet de l'état du système",
+            "Documente les derniers outils créés par les agents",
+            "Crée un rapport de progression vers l'AGI",
+            "Documente l'architecture actuelle d'EVA",
+        ],
+        "viz": [
+            "Vérifie le dashboard 3D et propose des améliorations",
+            "Crée de nouvelles visualisations pour les métriques",
+            "Optimise les performances du dashboard",
+            "Ajoute le suivi du P&L dans le dashboard",
+        ],
+    }
+    
+    missions = autonomous_missions.get(agent, [])
+    if not missions:
+        return None
+    
+    # Rotate based on cycle
+    idx = cycle % len(missions)
+    mission = missions[idx]
+    
+    # Add directive context
+    directive = read_directive()
+    if directive and cycle % 10 == 0:
+        # Every 10 cycles, remind the agent of the directive
+        mission += " (Contexte: EVA vise l'autonomie financière et l'AGI)"
+    
+    return mission
+
+# Missions par défaut (legacy fallback)
 DEFAULT_MISSIONS = {
     "praetor": "Vérifie l'état du système et propose des corrections",
     "sentinel": "Scanne les 3 dernières CVE et crée un rapport",
@@ -169,11 +305,10 @@ def fetch_mission_from_bus(agent):
     return None
 
 def get_evolutionary_mission(agent, cycle):
-    """Get an evolutionary mission based on cycle number and lessons"""
-    if agent in EVOLUTION_MISSIONS:
-        missions = EVOLUTION_MISSIONS[agent]
-        idx = cycle % len(missions)
-        return missions[idx]
+    """Get autonomous mission based on EVA directive"""
+    mission = get_autonomous_mission(agent, cycle)
+    if mission:
+        return mission
     return DEFAULT_MISSIONS.get(agent, "Exécute ta mission")
 
 def get_agent_mission(agent, cycle):
@@ -282,7 +417,9 @@ def main():
     logger.info(f"Runtime V5: {RUNTIME_V5} ({'OK' if RUNTIME_V5.exists() else 'NOT FOUND'})")
     logger.info(f"VLLM URL: {VLLM_URL}")
     logger.info(f"Go Bus: {GO_BUS}")
-    logger.info(f"Missions: Go Bus → évolutives → défaut")
+    directive = read_directive()
+    logger.info(f"Missions: Go Bus → directive EVA → défaut")
+    logger.info(f"Directive: {'chargée (' + str(len(directive)) + ' chars)' if directive else 'NON TROUVÉE'}")
 
     cycle = 0
     while True:
