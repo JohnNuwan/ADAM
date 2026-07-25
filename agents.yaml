@@ -98,12 +98,14 @@ agents:
     port: 8083
 
   - name: viz
-    description: "Visualisation 3D, monde des agents"
+    description: "Dashboard temps reel ADAM + monde 3D"
     scripts:
       - viz-checker.py
+      - serveur/server.py
     type: visualisation
     statut: actif
     port: 8084
+    note: "Dashboard The Hive sur 8084, page 3D sur /3d" 
 
   - name: ctf
     description: "Challenge CTF autonome"
@@ -168,4 +170,3 @@ utilitaires:
     description: "Sauvegarde"
   - script: monitor-alert.sh
     description: "Monitoring et alertes"
-
