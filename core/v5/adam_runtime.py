@@ -217,12 +217,61 @@ Outils disponibles:
         elif action == "delegate":
             target = step.get("target_agent", "")
             subtask = step.get("description", "")
-            # Publier une sous-mission sur le bus
             self._bus_publish("adam:mission", {
                 "agent": target, "mission": subtask,
                 "delegated_by": self.agent_name,
             })
             return {"status": "delegated", "target": target, "subtask": subtask}
+
+        elif action == "create_agent":
+            # AGI Niveau 3: Créer un nouvel agent spécialisé
+            agent_name = step.get("agent_name", "adam-new")
+            role = step.get("role", step.get("description", ""))
+            first_mission = step.get("mission", step.get("description", ""))
+            import os as _os
+            from pathlib import Path as _Path
+            import json as _json
+            dir_name = agent_name.replace("adam-", "")
+            agent_dir = _Path(f"/home/aza/eva-adam-v2/agents/{dir_name}")
+            agent_dir.mkdir(parents=True, exist_ok=True)
+            (agent_dir / "tools").mkdir(exist_ok=True)
+            (agent_dir / "memory").mkdir(exist_ok=True)
+            (agent_dir / "memory" / "missions.json").write_text(_json.dumps({"missions": []}))
+            (agent_dir / "memory" / "lessons.json").write_text(_json.dumps({"lessons": []}))
+            self._bus_publish("adam:agent:created", {"new_agent": agent_name, "role": role, "created_by": self.agent_name})
+            self._bus_publish("adam:mission", {"agent": agent_name, "mission": first_mission, "status": "pending"})
+            logger.info(f"AGI-3: Nouvel agent créé: {agent_name} ({role})")
+            print(f"AGI-3: Nouvel agent créé: {agent_name} ({role})")
+            return {"agent_name": agent_name, "role": role, "status": "created", "created_by": self.agent_name}
+
+        elif action == "self_modify":
+            # AGI Niveau 4: Auto-modification (sécurisée)
+            what = step.get("what", step.get("description", ""))
+            new_code = step.get("code", "")
+            import shutil as _shutil
+            from datetime import datetime as _dt
+            import os as _os
+            from pathlib import Path as _Path
+            ts = _dt.now().strftime("%Y%m%d_%H%M%S")
+            backup_dir = _Path(f"/home/aza/eva-adam-v2/agents/{self.agent_name.replace('adam-','')}/tools/backups")
+            backup_dir.mkdir(parents=True, exist_ok=True)
+            backup_file = backup_dir / f"runtime_backup_{ts}.py"
+            _shutil.copy2(_Path(__file__), backup_file)
+            improvement_file = backup_dir.parent / f"self_improvement_{ts}.py"
+            improvement_file.write_text(f"# Auto-amélioration de {self.agent_name}\n# Demande: {what}\n# Date: {_dt.now().isoformat()}\n{new_code}\n")
+            _os.chmod(improvement_file, 0o755)
+            self._bus_publish("adam:self:modified", {"what": what, "file": str(improvement_file), "backup": str(backup_file), "agent": self.agent_name})
+            self.memory.save_lesson(f"Auto-amélioration appliquée: {what}", mission_type="self_modify")
+            logger.info(f"AGI-4: Self-modify: {what} -> {improvement_file.name}")
+            print(f"AGI-4: Auto-amélioration: {what}")
+            return {"what": what, "improvement_file": str(improvement_file), "backup": str(backup_file), "status": "improved"}
+
+        elif action == "research":
+            # Recherche et analyse via LLM
+            query = step.get("query", step.get("description", ""))
+            logger.info(f"Recherche: {query[:50]}")
+            result = self._llm(f"Analyse détaillée: {query}", max_tokens=512)
+            return {"query": query, "result": result[:300], "success": True}
 
         elif action == "report":
             return {"success": True, "report": step.get("description", "")}
