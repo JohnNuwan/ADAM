@@ -163,9 +163,12 @@ def api_stats_full():
             Path("/home/aza/eva-adam-v2"),
         ]
         # Also count from EVA_CORE if accessible
-        eva_core_skills = Path("/data/skills")
-        if eva_core_skills.exists():
-            skills_count = len(list(eva_core_skills.rglob("SKILL.md")))
+        import subprocess as _sp
+        try:
+            r = _sp.run(["find", "/data/skills", "-name", "SKILL.md"], capture_output=True, text=True, timeout=5)
+            skills_count = len([l for l in r.stdout.strip().split("\n") if l.strip()])
+        except:
+            skills_count = 0
         
         # Count tools
         tools_count = 0
