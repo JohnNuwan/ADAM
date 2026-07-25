@@ -23,7 +23,7 @@ def poll_activity():
     # Auto-create sprints from EVA objectives
     def auto_create_sprints():
         try:
-            req = urllib.request.Request(f"{BUS_URL}/api/query?limit=10&topic=eva:objective")
+            req = urllib.request.Request(f"{BUS_URL}/api/query?limit=10&topic=adam:objective")
             with urllib.request.urlopen(req, timeout=3) as resp:
                 data = json.loads(resp.read().decode())
                 events = data if isinstance(data, list) else data.get("events", [])
@@ -120,7 +120,7 @@ def poll_activity():
     while True:
         try:
             # Get all recent events (multiple topics)
-            topics = ["adam:packet", "adam:mission", "adam:mission:done", "adam:heartbeat", "eva:objective"]
+            topics = ["adam:packet", "adam:mission", "adam:mission:done", "adam:heartbeat", "adam:objective"]
             for topic in topics:
                 try:
                     req = urllib.request.Request(f"{BUS_URL}/api/query?limit=20&topic={topic}")
@@ -162,7 +162,7 @@ def classify_event(e):
     payload = e.get("payload", {})
     if not isinstance(payload, dict): payload = {}
     
-    if "objective" in topic:
+    if "objective" in topic or "adam:objective" in topic:
         return "objective"
     elif "mission:done" in topic:
         return "mission_done"

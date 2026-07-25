@@ -421,7 +421,7 @@ def generate_auto_objective(cycle):
     
     # Publier l'objectif sur le Go Bus
     payload = json.dumps({
-        "topic": "eva:objective",
+        "topic": "adam:objective",
         "source": "eva-autonomous",
         "payload": {"objective": obj["objective"], "agents": obj["agents"], "cycle": cycle},
         "priority": 2
