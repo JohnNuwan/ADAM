@@ -223,30 +223,227 @@ def api_packets():
     except Exception as e:
         return jsonify({"packets": [], "error": str(e)})
 
+def _call_qwen(system_prompt, user_msg, max_tokens=512, temperature=0.3):
+    """Call Qwen VLLM and return the text response."""
+    payload = json.dumps({
+        "model": "Qwen2.5-32B-Instruct-AWQ",
+        "messages": [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_msg}
+        ],
+        "max_tokens": max_tokens,
+        "temperature": temperature
+    }).encode()
+    req = urllib.request.Request(f"{VLLM_URL}/v1/chat/completions", data=payload, headers={"Content-Type": "application/json"})
+    with urllib.request.urlopen(req, timeout=60) as resp:
+        data = json.loads(resp.read().decode())
+        return data["choices"][0]["message"]["content"]
+
+
+def _publish_to_bus(topic, source, payload_dict, priority=2):
+    """Publish a message to the Go Bus."""
+    body = json.dumps({"topic": topic, "source": source, "payload": payload_dict, "priority": priority}).encode()
+    req = urllib.request.Request(f"{BUS_URL}/api/publish", data=body, headers={"Content-Type": "application/json"})
+    with urllib.request.urlopen(req, timeout=5) as resp:
+        return json.loads(resp.read().decode())
+
+
+def _parse_json_response(raw):
+    """Try to parse JSON from Qwen response, handling markdown and extra text."""
+    raw = raw.strip()
+    # Try direct parse
+    try:
+        return json.loads(raw)
+    except json.JSONDecodeError:
+        pass
+    # Try extracting from markdown code block
+    m = re.search(r"```(?:json)?\s*([\s\S]*?)```", raw)
+    if m:
+        try:
+            return json.loads(m.group(1).strip())
+        except json.JSONDecodeError:
+            pass
+    # Try finding first {...} block
+    m = re.search(r"\{[^{}]*\}", raw, re.DOTALL)
+    if m:
+        try:
+            return json.loads(m.group(0))
+        except json.JSONDecodeError:
+            pass
+    return None
+
+
 @app.route("/api/eva/chat", methods=["POST"])
 def eva_chat():
     msg = request.json.get("message", "")
     if not msg:
         return jsonify({"error": "no message"})
+
+    # Gather system state for context
     with lock:
-        agents = graph_cache.get("hub", {}).get("agents", []) if graph_cache.get("hub") else []
-    system = f"Tu es EVA, l'assistant orchestrateur du système ADAM. Tu contrôles {len(agents)} agents autonomes sur TheHive. Tu DOIS répondre en français uniquement. Sois concis et utile."
-    payload = json.dumps({
-        "model": "Qwen2.5-32B-Instruct-AWQ",
-        "messages": [
-            {"role": "system", "content": system},
-            {"role": "user", "content": msg}
-        ],
-        "max_tokens": 512,
-        "temperature": 0.7
-    }).encode()
+        hub = graph_cache.get("hub") or {}
+        agents = [a.get("name", str(a.get("id", ""))) for a in hub.get("agents", [])]
+        missions_snapshot = list(missions_cache)
+
+    agent_list = ", ".join(agents) if agents else "aucun agent enregistre"
+
+    # Phase 1: Classify the message with Qwen
+    classify_system = (
+        "Tu es EVA, l'orchestrateur intelligent du systeme ADAM. "
+        f"Tu controles {len(agents)} agents: {agent_list}. "
+        "Analyse la demande de l'utilisateur et classifie-la. "
+        "Reponds UNIQUEMENT avec un objet JSON valide, sans texte supplementaire.\n"
+        "Types possibles:\n"
+        '1. Objectif a decomposer: {"type":"objective","objective":"<description de l objectif>"}\n'
+        '2. Mission directe pour un agent: {"type":"mission","agent":"<nom de l agent>","mission":"<description de la mission>"}\n'
+        '3. Question sur l etat du systeme: {"type":"question"}\n'
+        "Regles:\n"
+        "- Si la demande est un grand objectif qui necessite plusieurs agents ou etapes, utilise 'objective'\n"
+        "- Si la demande cible un agent specifique ou une tache precise pour un agent, utilise 'mission' avec le nom exact de l'agent\n"
+        "- Si c'est une question sur l'etat, les performances, ou une demande d'information, utilise 'question'\n"
+        f"- Les noms d'agents disponibles sont: {agent_list}"
+    )
+
     try:
-        req = urllib.request.Request(f"{VLLM_URL}/v1/chat/completions", data=payload, headers={"Content-Type": "application/json"})
-        with urllib.request.urlopen(req, timeout=60) as resp:
-            data = json.loads(resp.read().decode())
-            return jsonify({"response": data["choices"][0]["message"]["content"], "model": "Qwen2.5-32B"})
+        raw_classify = _call_qwen(classify_system, msg, max_tokens=256, temperature=0.2)
     except Exception as e:
-        return jsonify({"response": f"Erreur LLM: {e}", "model": "error"})
+        return jsonify({"response": f"Erreur LLM (classification): {e}", "model": "error"})
+
+    classification = _parse_json_response(raw_classify)
+    if not classification or "type" not in classification:
+        classification = {"type": "question"}
+
+    msg_type = classification.get("type", "question")
+
+    # Phase 2: Act based on classification
+    if msg_type == "objective":
+        objective = classification.get("objective", msg)
+        # Decompose objective into individual missions using Qwen
+        decompose_system = (
+            "Tu es EVA, l'orchestrateur du systeme ADAM. "
+            f"Tu controles {len(agents)} agents: {agent_list}. "
+            "Decompose l'objectif en missions concretes pour les agents. "
+            "Reponds UNIQUEMENT avec un objet JSON valide: "
+            '{"missions": [{"agent": "<nom exact de l agent>", "mission": "<description claire de la mission>", "priority": 1-3}]}'
+            "\nRegles:\n"
+            "- Utilise uniquement les noms d'agents disponibles\n"
+            "- Chaque mission doit etre actionnable et concrete\n"
+            "- 1 a 5 missions maximum\n"
+            f"- Agents disponibles: {agent_list}"
+        )
+        try:
+            raw_decompose = _call_qwen(decompose_system, objective, max_tokens=512, temperature=0.3)
+        except Exception as e:
+            return jsonify({"response": f"Erreur LLM (decomposition): {e}", "model": "error"})
+
+        decomp = _parse_json_response(raw_decompose)
+        missions_list = []
+        if decomp and "missions" in decomp:
+            missions_list = decomp["missions"]
+
+        if not missions_list:
+            # Fallback: publish as single objective
+            try:
+                _publish_to_bus("eva:objective", "eva-chat", {"objective": objective, "source": "eva-chat"})
+            except Exception:
+                pass
+            return jsonify({
+                "response": f"Objectif publie: \"{objective}\" (decomposition non disponible, objectif envoye tel quel)",
+                "model": "Qwen2.5-32B",
+                "action": {"type": "objective", "topic": "eva:objective", "objective": objective}
+            })
+
+        # Publish each mission to adam:mission on the Go Bus
+        published = []
+        failed = []
+        for m in missions_list:
+            agent = m.get("agent", agents[0] if agents else "adam-recon")
+            mission = m.get("mission", "")
+            priority = m.get("priority", 2)
+            try:
+                _publish_to_bus("adam:mission", "eva-chat",
+                                {"agent": agent, "mission": mission, "status": "pending", "objective": objective},
+                                priority=priority)
+                published.append({"agent": agent, "mission": mission})
+            except Exception as e:
+                failed.append({"agent": agent, "mission": mission, "error": str(e)})
+
+        # Also publish the objective itself for logging
+        try:
+            _publish_to_bus("eva:objective", "eva-chat",
+                            {"objective": objective, "missions_count": len(published), "source": "eva-chat"})
+        except Exception:
+            pass
+
+        summary = f"Objectif: \"{objective}\"\n\n{len(published)} mission(s) envoyee(s) aux agents:"
+        for p in published:
+            summary += f"\n  - {p['agent']}: {p['mission']}"
+        if failed:
+            summary += f"\n\n{len(failed)} echec(s):"
+            for f2 in failed:
+                summary += f"\n  - {f2['agent']}: {f2['error']}"
+
+        return jsonify({
+            "response": summary,
+            "model": "Qwen2.5-32B",
+            "action": {"type": "objective", "objective": objective, "missions": published, "failed": failed}
+        })
+
+    elif msg_type == "mission":
+        agent = classification.get("agent", agents[0] if agents else "adam-recon")
+        mission = classification.get("mission", msg)
+        try:
+            _publish_to_bus("adam:mission", "eva-chat", {"agent": agent, "mission": mission, "status": "pending"})
+            return jsonify({
+                "response": f"Mission envoyee a {agent}: \"{mission}\"\nL'agent va traiter cette mission des que possible.",
+                "model": "Qwen2.5-32B",
+                "action": {"type": "mission", "topic": "adam:mission", "agent": agent, "mission": mission}
+            })
+        except Exception as e:
+            return jsonify({
+                "response": f"Mission identifiee mais erreur de publication sur le Go Bus: {e}",
+                "model": "error",
+                "action": {"type": "mission", "agent": agent, "mission": mission, "error": str(e)}
+            })
+
+    else:  # question
+        # Build context about system state
+        running_missions = []
+        pending_missions = []
+        for m in missions_snapshot:
+            p = m.get("payload", {}) if isinstance(m.get("payload"), dict) else {}
+            status = p.get("status", "unknown")
+            mission_text = p.get("mission", p.get("objective", ""))
+            src = m.get("source", "")
+            if status == "running":
+                running_missions.append(f"  - {src}: {mission_text}")
+            elif status == "pending":
+                pending_missions.append(f"  - {src}: {mission_text}")
+
+        context = (
+            f"Etat du systeme ADAM:\n"
+            f"- Agents actifs: {len(agents)} ({agent_list})\n"
+            f"- Missions totales sur le bus: {len(missions_snapshot)}\n"
+            f"- Missions en cours: {len(running_missions)}\n"
+            f"- Missions en attente: {len(pending_missions)}\n"
+        )
+        if running_missions:
+            context += "Missions running:\n" + "\n".join(running_missions) + "\n"
+        if pending_missions:
+            context += "Missions pending:\n" + "\n".join(pending_missions) + "\n"
+
+        answer_system = (
+            "Tu es EVA, l'orchestrateur du systeme ADAM. "
+            "Tu reponds en francais, de maniere concise et utile. "
+            "Voici l'etat actuel du systeme:\n\n" + context
+        )
+
+        try:
+            answer = _call_qwen(answer_system, msg, max_tokens=512, temperature=0.5)
+            return jsonify({"response": answer, "model": "Qwen2.5-32B", "action": {"type": "question"}})
+        except Exception as e:
+            return jsonify({"response": f"Erreur LLM: {e}", "model": "error"})
+
 
 @app.route("/api/eva/objective", methods=["POST"])
 def submit_objective():
