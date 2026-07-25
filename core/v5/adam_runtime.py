@@ -112,6 +112,31 @@ Outils disponibles:
 {memory_ctx}"""
 
         think_prompt = f"Mission: {mission}\n\nÉlabore un plan d'action en JSON:"
+        # Lire la mémoire pour apprendre du passé
+        lessons_str = ""
+        try:
+            lessons = self.memory.get_relevant_lessons(mission, limit=3)
+            if lessons:
+                lessons_str = "\n\nLeçons apprises:\n"
+                for i, l in enumerate(lessons[:3]):
+                    lessons_str += f"{i+1}. {l.get('lesson', '')}\n"
+        except:
+            pass
+
+        recent_str = ""
+        try:
+            recent = self.memory.get_recent_missions(limit=3)
+            if recent:
+                recent_str = "\nMissions récentes:\n"
+                for m in recent[:3]:
+                    s = m.get('result', {}).get('success', False)
+                    recent_str += f"- {m.get('mission', '')[:50]} -> {'OK' if s else 'KO'}\n"
+        except:
+            pass
+
+        # Injecter la mémoire dans le prompt
+        think_prompt = think_prompt + lessons_str + recent_str + "\nIMPORTANT: Utilise les leçons pour éviter les erreurs. Réutilise les outils existants."
+
         plan_response = self._llm(think_prompt, system=system_prompt, max_tokens=2048)
 
         # 3. Parser le plan
