@@ -6,14 +6,8 @@ from collections import defaultdict
 
 app = Flask(__name__)
 PG_DSN = os.environ.get("PG_DSN", "postgres://adam:***@postgres:5432/adam")
-BUS_URL = "http://go-bus:8086"
+BUS_URL = os.environ.get("BUS_URL", "http://go-bus:8086")
 VLLM_URL = os.environ.get("VLLM_URL", "http://192.168.1.5:8000")
-
-# ─── Data Model ───
-# Hub: {eva: {...}, agents: [...], skills: [...], services: [...], edges: [...]}
-# Activity: {agent_name: {last_thought, timestamp, topic}}
-# Missions: [{agent, mission, status, objective, timestamp}]
-# Tools: {agent_name: {scripts: [...], tools: [...]}}
 
 graph_cache = {"hub": None, "ts": 0}
 activity_cache = {}
@@ -37,19 +31,12 @@ def refresh_graph():
             for row in cur:
                 edges.append({"source": str(row[0]), "target": str(row[1]), "relation": row[2]})
             cur.close(); pg.close()
-
-            # Build clean hub model
             hub = {"eva": None, "agents": [], "skills": [], "services": [], "edges": edges}
             for n in nodes:
-                if n["label"] == "EVA":
-                    hub["eva"] = n
-                elif n["label"] == "Agent":
-                    hub["agents"].append(n)
-                elif n["label"] == "SkillDomain":
-                    hub["skills"].append(n)
-                elif n["label"] == "Service":
-                    hub["services"].append(n)
-
+                if n["label"] == "EVA": hub["eva"] = n
+                elif n["label"] == "Agent": hub["agents"].append(n)
+                elif n["label"] == "SkillDomain": hub["skills"].append(n)
+                elif n["label"] == "Service": hub["services"].append(n)
             with lock:
                 graph_cache["hub"] = hub
                 graph_cache["ts"] = time.time()
@@ -76,7 +63,6 @@ def poll_activity():
                                     "timestamp": p.get("timestamp", ""),
                                     "topic": p.get("topic", "")
                                 }
-                    # Keep last 30
                     if len(activity_cache) > 30:
                         keys = sorted(activity_cache.keys(), key=lambda k: activity_cache[k]["timestamp"], reverse=True)
                         for k in keys[30:]:
@@ -138,25 +124,8 @@ def api_graph():
 
 @app.route("/api/activity")
 def api_activity():
-    try:
-        req = urllib.request.Request(f"{BUS_URL}/api/query?limit=20&topic=adam:packet")
-        with urllib.request.urlopen(req, timeout=3) as resp:
-            data = json.loads(resp.read().decode())
-            pkts = data if isinstance(data, list) else data.get("events", [])
-            activity = {}
-            for p in pkts:
-                src = p.get("source", "")
-                if src:
-                    payload = p.get("payload", {})
-                    thought = payload.get("action", payload.get("status", "")) if isinstance(payload, dict) else ""
-                    activity[src] = {
-                        "thought": str(thought)[:150],
-                        "timestamp": p.get("timestamp", ""),
-                        "topic": p.get("topic", "")
-                    }
-            return jsonify({"activity": activity})
-    except Exception as e:
-        return jsonify({"activity": {}, "error": str(e)})
+    with lock:
+        return jsonify({"activity": activity_cache})
 
 @app.route("/api/missions")
 def api_missions():
@@ -186,7 +155,7 @@ def eva_chat():
         return jsonify({"error": "no message"})
     with lock:
         agents = graph_cache.get("hub", {}).get("agents", []) if graph_cache.get("hub") else []
-    system = f"""Tu es EVA, l'assistant orchestrateur du système ADAM. Tu contrôles {len(agents)} agents autonomes sur TheHive. Réponds en français, concis et utile."""
+    system = f"Tu es EVA, l'assistant orchestrateur du système ADAM. Tu contrôles {len(agents)} agents autonomes sur TheHive. Réponds en français, concis et utile."
     payload = json.dumps({
         "model": "Qwen2.5-32B-Instruct-AWQ",
         "messages": [
@@ -226,8 +195,6 @@ HTML = r"""<!DOCTYPE html>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:#050510;color:#e0e8f0;font-family:'SF Pro Display','Segoe UI',system-ui,sans-serif;overflow:hidden}
-
-/* Top bar */
 #topbar{position:fixed;top:0;left:0;right:0;height:44px;background:linear-gradient(180deg,rgba(5,5,16,0.98),rgba(5,5,16,0.9));display:flex;align-items:center;justify-content:space-between;padding:0 20px;z-index:1000;backdrop-filter:blur(10px);border-bottom:1px solid rgba(68,102,136,0.1)}
 #topbar .logo{display:flex;align-items:center;gap:10px}
 #topbar .logo .dot{width:8px;height:8px;border-radius:50%;background:#00aaff;box-shadow:0 0 12px #00aaff;animation:pulse 2s infinite}
@@ -239,12 +206,10 @@ body{background:#050510;color:#e0e8f0;font-family:'SF Pro Display','Segoe UI',sy
 #topbar .nav button:hover{background:rgba(0,170,255,0.15);color:#00aaff}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
 
-/* Main area */
 #workspace{position:fixed;top:44px;left:0;right:0;bottom:0;display:flex}
 #canvas-area{flex:1;position:relative;background:#050510}
 #canvas-area canvas{display:block}
 
-/* Panels */
 .panel{position:absolute;background:rgba(5,5,16,0.94);border:1px solid rgba(68,102,136,0.2);border-radius:12px;display:flex;flex-direction:column;min-width:280px;max-width:400px;box-shadow:0 8px 32px rgba(0,0,0,0.4);backdrop-filter:blur(10px);z-index:100}
 .panel-header{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid rgba(68,102,136,0.1);cursor:move;user-select:none}
 .panel-header h3{font-size:10px;color:#5577aa;text-transform:uppercase;letter-spacing:0.5px;display:flex;align-items:center;gap:6px}
@@ -261,13 +226,11 @@ body{background:#050510;color:#e0e8f0;font-family:'SF Pro Display','Segoe UI',sy
 .panel.minimized .panel-content{display:none}
 .panel.minimized .panel-header{cursor:pointer}
 
-/* Panel positions (default) */
 #panel-agents{top:20px;left:20px;width:300px}
 #panel-missions{bottom:20px;left:20px;width:340px;max-height:300px}
 #panel-chat{bottom:20px;right:20px;width:380px;max-height:400px}
 #panel-flow{top:20px;right:20px;width:340px;max-height:350px}
 
-/* Cards */
 .card{background:rgba(10,15,25,0.6);border-radius:8px;padding:10px;margin-bottom:8px;border-left:3px solid #00ff88;transition:transform 0.2s}
 .card:hover{transform:translateX(2px)}
 .card.inactive{border-left-color:#446688}
@@ -278,7 +241,6 @@ body{background:#050510;color:#e0e8f0;font-family:'SF Pro Display','Segoe UI',sy
 .card .tools-list{font-size:9px;color:#5577aa;margin-top:6px;padding-top:6px;border-top:1px solid rgba(68,102,136,0.1)}
 .card .tools-list .t{color:#00ff88;font-family:monospace}
 
-/* Mission cards */
 .mission-card{background:rgba(10,15,25,0.6);border-radius:8px;padding:10px;margin-bottom:8px;border-left:3px solid #00aaff}
 .mission-card.running{border-left-color:#00ff88}
 .mission-card.done{border-left-color:#446688}
@@ -289,7 +251,6 @@ body{background:#050510;color:#e0e8f0;font-family:'SF Pro Display','Segoe UI',sy
 .mission-card .status.running{background:#00ff8822;color:#00ff88}
 .mission-card .status.done{background:#44668822;color:#446688}
 
-/* Chat */
 #chat-messages{display:flex;flex-direction:column;gap:8px;padding:10px}
 .chat-msg{background:rgba(10,15,25,0.6);border-radius:8px;padding:10px;max-width:85%;font-size:11px;line-height:1.5}
 .chat-msg.user{align-self:flex-end;background:rgba(0,170,255,0.15);border-left:3px solid #00aaff}
@@ -301,17 +262,14 @@ body{background:#050510;color:#e0e8f0;font-family:'SF Pro Display','Segoe UI',sy
 #chat-input button{background:#00aaff;border:none;border-radius:6px;padding:8px 16px;color:#fff;font-size:11px;font-weight:600;cursor:pointer}
 #chat-input button:hover{background:#0088cc}
 
-/* Flow packets */
 .flow-row{display:flex;align-items:center;gap:5px;padding:4px 0;border-bottom:1px solid rgba(68,102,136,0.06);font-size:10px;font-family:'SF Mono',Menlo,monospace;color:#88aacc}
 .flow-row .t{color:#446688;min-width:55px}
 .flow-row .s{color:#00ff88;font-weight:600;min-width:65px}
 .flow-row .top{color:#aaccff;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .flow-row .st{font-size:8px;padding:1px 4px;border-radius:3px;font-weight:600;text-transform:uppercase}
 
-/* Node labels */
 .node-label{position:absolute;font-size:10px;font-weight:500;text-shadow:0 0 4px #000,0 0 8px #000;background:rgba(5,5,16,0.8);padding:2px 6px;border-radius:4px;pointer-events:none;white-space:nowrap;z-index:5;transform:translate(-50%,-50%)}
 
-/* Info panel (node click) */
 #info-panel{position:fixed;z-index:500;background:rgba(5,5,16,0.95);padding:14px 18px;border-radius:12px;border:1px solid rgba(68,102,136,0.25);max-width:280px;pointer-events:none;opacity:0;transition:all 0.3s;transform:translateY(-5px)}
 #info-panel.visible{opacity:1;transform:translateY(0)}
 #info-panel h3{margin:0 0 2px;font-size:15px;font-weight:600}
@@ -339,7 +297,6 @@ body{background:#050510;color:#e0e8f0;font-family:'SF Pro Display','Segoe UI',sy
     <canvas id="hub-canvas"></canvas>
   </div>
 
-  <!-- Agents Panel -->
   <div class="panel" id="panel-agents">
     <div class="panel-header" onmousedown="dragStart(event,'panel-agents')">
       <h3>Agents <span class="live"></span></h3>
@@ -351,7 +308,6 @@ body{background:#050510;color:#e0e8f0;font-family:'SF Pro Display','Segoe UI',sy
     <div class="panel-content" id="agents-content"></div>
   </div>
 
-  <!-- Missions Panel -->
   <div class="panel" id="panel-missions">
     <div class="panel-header" onmousedown="dragStart(event,'panel-missions')">
       <h3>Missions <span class="live"></span></h3>
@@ -363,7 +319,6 @@ body{background:#050510;color:#e0e8f0;font-family:'SF Pro Display','Segoe UI',sy
     <div class="panel-content" id="missions-content"></div>
   </div>
 
-  <!-- EVA Chat Panel -->
   <div class="panel" id="panel-chat">
     <div class="panel-header" onmousedown="dragStart(event,'panel-chat')">
       <h3>EVA Chat <span class="live"></span></h3>
@@ -381,7 +336,6 @@ body{background:#050510;color:#e0e8f0;font-family:'SF Pro Display','Segoe UI',sy
     </div>
   </div>
 
-  <!-- Flow Panel -->
   <div class="panel" id="panel-flow">
     <div class="panel-header" onmousedown="dragStart(event,'panel-flow')">
       <h3>Flux temps réel <span class="live"></span></h3>
@@ -394,7 +348,6 @@ body{background:#050510;color:#e0e8f0;font-family:'SF Pro Display','Segoe UI',sy
   </div>
 </div>
 
-<!-- Info panel -->
 <div id="info-panel">
   <h3 id="info-name">-</h3>
   <div class="tag" id="info-tag"></div>
@@ -405,43 +358,10 @@ body{background:#050510;color:#e0e8f0;font-family:'SF Pro Display','Segoe UI',sy
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 <script>
-// ─── Panel System ───
-var dragState = {};
-
-function togglePanel(id) {
-  var p = document.getElementById(id);
-  p.classList.toggle('collapsed');
-}
-
-function minimizePanel(id) {
-  var p = document.getElementById(id);
-  p.classList.toggle('minimized');
-}
-
-function dragStart(e, id) {
-  if (e.target.tagName === 'BUTTON') return;
-  dragState = {id: id, offsetX: e.clientX - document.getElementById(id).offsetLeft,
-               offsetY: e.clientY - document.getElementById(id).offsetTop};
-  document.addEventListener('mousemove', dragMove);
-  document.addEventListener('mouseup', dragEnd);
-}
-
-function dragMove(e) {
-  var p = document.getElementById(dragState.id);
-  p.style.left = (e.clientX - dragState.offsetX) + 'px';
-  p.style.top = (e.clientY - dragState.offsetY) + 'px';
-  p.style.bottom = 'auto';
-  p.style.right = 'auto';
-}
-
-function dragEnd() {
-  document.removeEventListener('mousemove', dragMove);
-  document.removeEventListener('mouseup', dragEnd);
-}
-
-// ─── 3D Hub ───
 var scene, camera, renderer, controls;
 var nodes = {};
+var flowParticles = [];
+var raycaster, pointer;
 var selected = null;
 
 function init() {
@@ -478,7 +398,6 @@ function init() {
   dl2.position.set(-10, -5, -10);
   scene.add(dl2);
 
-  // Stars
   var sg = new THREE.BufferGeometry();
   var sp = new Float32Array(4000);
   for (var i = 0; i < 4000; i++) {
@@ -515,33 +434,31 @@ function buildHub(data) {
   var hub = data.hub;
   if (!hub) return;
 
-  // Clear old
   while(scene.children.length > 5) scene.remove(scene.children[scene.children.length - 1]);
   nodes = {};
+  flowParticles = [];
+
+  document.querySelectorAll('.node-label').forEach(function(el) { el.remove(); });
 
   var edges = data.edges || [];
   var nodePositions = {};
 
-  // EVA
   if (hub.eva) {
     nodePositions['eva'] = new THREE.Vector3(0, 0, 0);
   }
 
-  // Services inner ring
   var svcRadius = 2.5;
   for (var i = 0; i < hub.services.length; i++) {
     var angle = (2 * Math.PI * i) / hub.services.length;
     nodePositions[hub.services[i].id] = new THREE.Vector3(Math.cos(angle) * svcRadius, Math.sin(angle) * svcRadius * 0.3, Math.sin(angle) * svcRadius);
   }
 
-  // Agents main ring
   var agentRadius = 5.5;
   for (var i = 0; i < hub.agents.length; i++) {
     var angle = (2 * Math.PI * i) / hub.agents.length - Math.PI / 2;
     nodePositions[hub.agents[i].id] = new THREE.Vector3(Math.cos(angle) * agentRadius, Math.sin(angle * 2) * 0.8, Math.sin(angle) * agentRadius);
   }
 
-  // Skills via Fibonacci around parent agents
   var skillParents = {};
   for (var i = 0; i < edges.length; i++) {
     var e = edges[i];
@@ -564,10 +481,6 @@ function buildHub(data) {
     nodePositions[sid] = new THREE.Vector3(basePos.x + Math.cos(theta) * rad * dist, basePos.y + y * dist * 0.5, basePos.z + Math.sin(theta) * rad * dist);
   }
 
-  // Remove all old labels
-  document.querySelectorAll('.node-label').forEach(function(el) { el.remove(); });
-
-  // Build nodes
   var allNodes = [hub.eva].concat(hub.agents).concat(hub.services).concat(hub.skills);
   for (var i = 0; i < allNodes.length; i++) {
     var n = allNodes[i];
@@ -591,10 +504,7 @@ function buildHub(data) {
       }
     }
 
-    // Remove old label if exists (prevent duplication)
-    if (mesh.userData.labelEl) {
-      mesh.userData.labelEl.remove();
-    }
+    if (mesh.userData.labelEl) { mesh.userData.labelEl.remove(); }
     var l = document.createElement('div');
     l.className = 'node-label';
     l.textContent = n.label === 'SkillDomain' ? n.name.substring(0, 10) : n.name;
@@ -605,7 +515,7 @@ function buildHub(data) {
     mesh.userData.labelEl = l;
   }
 
-  // Edges
+  var edgeCurves = [];
   for (var i = 0; i < edges.length; i++) {
     var e = edges[i];
     if (nodes[e.source] && nodes[e.target]) {
@@ -618,11 +528,11 @@ function buildHub(data) {
         var pts = curve.getPoints(20);
         var opacity = Math.min(0.2, 0.4 - dist * 0.02);
         scene.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), new THREE.LineBasicMaterial({color: 0x446688, transparent: true, opacity: opacity})));
+        edgeCurves.push({source: e.source, target: e.target, curve: curve});
       }
     }
   }
 
-  // Hub rings
   var hubRing = new THREE.Line(new THREE.BufferGeometry().setFromPoints(function() {
     var pts = [];
     for (var i = 0; i < 64; i++) { var a = (i / 64) * Math.PI * 2; pts.push(new THREE.Vector3(Math.cos(a) * 2.2, Math.sin(a) * 2.2 * 0.3, Math.sin(a) * 2.2)); }
@@ -637,7 +547,35 @@ function buildHub(data) {
   }()), new THREE.LineBasicMaterial({color: 0x334466, transparent: true, opacity: 0.06}));
   scene.add(agentRing);
 
-  // Stats
+  // Flow particles
+  function spawnFlows() {
+    var agentKeys = Object.keys(nodes).filter(function(k) { return nodes[k].userData.label === 'Agent'; });
+    var svcKeys = Object.keys(nodes).filter(function(k) { return nodes[k].userData.label === 'Service'; });
+    var allKeys = agentKeys.concat(svcKeys);
+    for (var i = 0; i < 8 && allKeys.length > 1; i++) {
+      var src = allKeys[Math.floor(Math.random() * allKeys.length)];
+      var dst = allKeys[Math.floor(Math.random() * allKeys.length)];
+      if (src !== dst && nodes[src] && nodes[dst]) {
+        var size = 0.04 + Math.random() * 0.04;
+        var color = Math.random() > 0.7 ? 0xff4466 : 0x00ff88;
+        var geom = new THREE.SphereGeometry(size, 8, 8);
+        var mat = new THREE.MeshBasicMaterial({color: color, transparent: true, opacity: 0.8});
+        var mesh = new THREE.Mesh(geom, mat);
+        scene.add(mesh);
+        var curve = new THREE.QuadraticBezierCurve3(nodes[src].position, new THREE.Vector3().addVectors(nodes[src].position, nodes[dst].position).multiplyScalar(0.5), nodes[dst].position);
+        flowParticles.push({
+          mesh: mesh,
+          curve: curve,
+          progress: Math.random(),
+          speed: 0.008 + Math.random() * 0.006,
+          glow: new THREE.Mesh(new THREE.SphereGeometry(size * 2.5, 8, 8), new THREE.MeshBasicMaterial({color: color, transparent: true, opacity: 0.02}))
+        });
+        scene.add(flowParticles[flowParticles.length - 1].glow);
+      }
+    }
+  }
+  spawnFlows();
+
   document.getElementById('stats-bar').innerHTML = '<div>Agents: <span class="val">' + hub.agents.length + '</span></div><div>Skills: <span class="val">' + hub.skills.length + '</span></div><div>Services: <span class="val">' + hub.services.length + '</span></div>';
 }
 
@@ -679,7 +617,6 @@ function onClick(event) {
     var html = '';
     for (var k in p) { html += '<div><span class="k">' + k + '</span> ' + p[k] + '</div>'; }
     document.getElementById('info-props').innerHTML = html || 'Aucune propriete';
-    // Show tools if agent
     var toolsEl = document.getElementById('info-tools');
     if (o.userData.label === 'Agent') {
       toolsEl.style.display = 'block';
@@ -729,12 +666,10 @@ function animate() {
   controls.update();
   updateLabels();
 
-  // Animate flow particles
   for (var i = flowParticles.length - 1; i >= 0; i--) {
     var p = flowParticles[i];
     p.progress += p.speed;
     if (p.progress > 1) {
-      // Respawn
       var agentKeys = Object.keys(nodes).filter(function(k) { return nodes[k].userData.label === 'Agent'; });
       var svcKeys = Object.keys(nodes).filter(function(k) { return nodes[k].userData.label === 'Service'; });
       var allKeys = agentKeys.concat(svcKeys);
@@ -837,6 +772,40 @@ function sendChat() {
     container.appendChild(errDiv);
     container.scrollTop = container.scrollHeight;
   });
+}
+
+// ─── Panel System ───
+function togglePanel(id) {
+  var p = document.getElementById(id);
+  p.classList.toggle('collapsed');
+}
+
+function minimizePanel(id) {
+  var p = document.getElementById(id);
+  p.classList.toggle('minimized');
+}
+
+var dragState = {};
+
+function dragStart(e, id) {
+  if (e.target.tagName === 'BUTTON') return;
+  dragState = {id: id, offsetX: e.clientX - document.getElementById(id).offsetLeft,
+               offsetY: e.clientY - document.getElementById(id).offsetTop};
+  document.addEventListener('mousemove', dragMove);
+  document.addEventListener('mouseup', dragEnd);
+}
+
+function dragMove(e) {
+  var p = document.getElementById(dragState.id);
+  p.style.left = (e.clientX - dragState.offsetX) + 'px';
+  p.style.top = (e.clientY - dragState.offsetY) + 'px';
+  p.style.bottom = 'auto';
+  p.style.right = 'auto';
+}
+
+function dragEnd() {
+  document.removeEventListener('mousemove', dragMove);
+  document.removeEventListener('mouseup', dragEnd);
 }
 
 // ─── Start ───
