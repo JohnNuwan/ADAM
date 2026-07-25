@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""ADAM Agent Daemon — Lance tous les agents et publie en temps réel"""
+"""ADAM Agent Daemon V5 — Lance les agents via Runtime V5 (LLM Qwen2.5-32B)"""
 import subprocess, time, json, urllib.request, sys, os, logging, fcntl
 from pathlib import Path
 from datetime import datetime, timezone
@@ -8,150 +8,149 @@ BASE = Path(os.environ.get("ADAM_V2_DIR", "/home/aza/eva-adam-v2"))
 GO_BUS = os.environ.get("GO_BUS_URL", "http://localhost:8086/api/publish")
 LOG_FILE = Path("/tmp/adam-daemon.log")
 PID_FILE = Path("/tmp/adam-daemon.pid")
-AGENT_TIMEOUT = int(os.environ.get("ADAM_AGENT_TIMEOUT", "60"))  # 60s au lieu de 30s
+LOCK_FILE = Path("/tmp/adam-daemon.lock")
+AGENT_TIMEOUT = int(os.environ.get("ADAM_AGENT_TIMEOUT", "180"))
+VLLM_URL = os.environ.get("VLLM_URL", "http://localhost:8000")
+RUNTIME_V5 = Path("/home/aza/eva-adam-v2/core/v5/adam_runtime.py")
 
-# ── Logging — plus de except: pass, on logge tout ──
 logging.basicConfig(
     level=logging.INFO,
     format="[%(asctime)s] [%(levelname)s] [daemon] %(message)s",
     datefmt="%H:%M:%S",
     handlers=[
         logging.StreamHandler(sys.stdout),
-        logging.FileHandler(str(LOG_FILE)),
-    ],
+        logging.FileHandler(str(LOG_FILE))
+    ]
 )
-log = logging.getLogger("adam-daemon")
+logger = logging.getLogger(__name__)
 
-AGENTS = {
-    "praetor": "agents/praetor/praetor-watch.sh",
-    "sentinel": "agents/sentinel/sentinel-watch.sh",
-    "critic": "agents/critic/critic-review.sh",
-    "scribe": "agents/scribe/scribe-write.sh",
-    "skillsmith": "agents/skillsmith/skillsmith-create.sh",
-    "doctor": "agents/doctor/doctor-watch.sh",
-    "treasurer": "agents/treasurer/treasurer-track.py",
-    "social": "agents/social/social-manage.py",
-    "osint": "agents/osint/osint-handler.py",
-    "researcher": "agents/researcher/researcher-scan.py",
-    "rag": "agents/rag/rag-handler.py",
-    "viz": "agents/viz/viz-checker.py",
-    "ctf": "agents/ctf/adam-ctf.py",
-    "blue-team": "agents/blue-team/blue-watch.sh",
-    "red-team": "agents/red-team/red-watch.sh",
+AGENTS = [
+    "praetor", "sentinel", "critic", "scribe", "skillsmith",
+    "doctor", "treasurer", "social", "osint", "researcher",
+    "rag", "viz", "ctf", "blue-team", "red-team"
+]
+
+MISSIONS = {
+    "praetor": "Vérifie l'état du système et corrige les erreurs",
+    "sentinel": "Scanne les 3 dernières CVE et crée un rapport",
+    "critic": "Audite la qualité du code des agents",
+    "scribe": "Rédige un rapport de l'état du système",
+    "skillsmith": "Crée un nouveau skill pour un domaine manquant",
+    "doctor": "Diagnostique les conteneurs Docker",
+    "treasurer": "Analyse les stratégies pour Freedom24",
+    "social": "Propose 3 posts Instagram pour Maeve.tech",
+    "osint": "Collecte des informations sur une cible",
+    "researcher": "Recherche les dernières publications sur les agents IA",
+    "rag": "Indexe les documents et crée une recherche sémantique",
+    "viz": "Vérifie le dashboard 3D et propose des améliorations",
+    "ctf": "Analyse un challenge CTF et propose une solution",
+    "blue-team": "Analyse les vulnérabilités du serveur",
+    "red-team": "Crée un outil de scan de sécurité"
 }
 
-# Agents qui nécessitent le channel event (rag-handler lit ADAM_EVENT_CHANNEL)
-CHANNEL_AGENTS = {"rag"}
-
-def bus(topic, source, payload):
-    """Publie un event sur le Go Bus — logge les erreurs au lieu de les avaler."""
-    try:
-        d = json.dumps({
-            "topic": topic,
-            "source": source,
-            "payload": payload,
-            "priority": 1,
-        }).encode()
-        req = urllib.request.Request(GO_BUS, data=d, headers={"Content-Type": "application/json"})
-        urllib.request.urlopen(req, timeout=5)
-    except Exception as e:
-        log.warning(f"bus: publish failed on {topic}: {e}")
-
-# ── packet_stream() SUPPRIMÉ — générait du faux trafic avec random.choice ──
-
 def _acquire_lock():
-    """Acquiert un flock exclusif sur PID_FILE pour empêcher les daemons multiples."""
-    lock_file = Path("/tmp/adam-daemon.lock")
-    # Remove stale lock file first
-    try:
-        lock_file.unlink()
-    except FileNotFoundError:
-        pass
-    fd = os.open(str(lock_file), os.O_RDWR | os.O_CREAT, 0o644)
+    if LOCK_FILE.exists():
+        LOCK_FILE.unlink()
+    fd = os.open(str(LOCK_FILE), os.O_CREAT | os.O_RDWR)
     try:
         fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
-    except (BlockingIOError, OSError):
-        os.close(fd)
-        log.warning("Lock occupé, mais on continue quand meme")
-        # Don't exit, just continue
-    return fd
+    except (IOError, OSError):
+        logger.error("Un autre daemon tourne déjà. Arrêt.")
+        sys.exit(1)
 
-def _write_pid():
-    """Écrit le PID courant dans le PID file."""
-    PID_FILE.write_text(str(os.getpid()))
+def publish_packet(agent, exit_code, output, status):
+    payload = json.dumps({
+        "topic": "adam:packet",
+        "source": agent,
+        "payload": {"exit": exit_code, "output": output[:200], "status": status, "time": datetime.now(timezone.utc).isoformat()},
+        "priority": 1
+    }).encode()
+    try:
+        req = urllib.request.Request(GO_BUS, data=payload, headers={"Content-Type": "application/json"})
+        urllib.request.urlopen(req, timeout=3)
+    except:
+        pass
+
+def run_cycle():
+    agent_dir = BASE / "agents"
+    env = dict(os.environ, VLLM_URL=VLLM_URL)
+
+    for agent in AGENTS:
+        if RUNTIME_V5.exists():
+            mission = MISSIONS.get(agent, "")
+            logger.info(f"Lancement {agent} via Runtime V5 (LLM)...")
+
+            try:
+                result = subprocess.run(
+                    ["python3", str(RUNTIME_V5), "adam-" + agent if not agent.startswith("adam-") else agent, "-m", mission],
+                    capture_output=True,
+                    text=True,
+                    timeout=AGENT_TIMEOUT,
+                    env=env
+                )
+                exit_code = result.returncode
+                output = result.stdout.strip()
+                error = result.stderr.strip()
+
+                if exit_code == 0:
+                    logger.info(f"{agent}: OK (LLM) - {output[:100]}")
+                else:
+                    logger.warning(f"{agent}: exit={exit_code} - {error[:200]}")
+
+                publish_packet(agent, exit_code, output[:200], "done" if exit_code == 0 else "failed")
+
+            except subprocess.TimeoutExpired:
+                logger.warning(f"{agent}: timeout après {AGENT_TIMEOUT}s")
+                publish_packet(agent, 124, "", "timeout")
+            except Exception as e:
+                logger.error(f"{agent}: erreur {e}")
+                publish_packet(agent, 1, "", "error")
+        else:
+            # Fallback: script classique
+            script = agent_dir / agent / f"adam-{agent}.py"
+            if not script.exists():
+                script = agent_dir / agent / f"{agent}.py"
+            if not script.exists():
+                script = agent_dir / agent / "watch.py"
+            if not script.exists():
+                continue
+
+            logger.info(f"Lancement {agent} (script)...")
+            try:
+                result = subprocess.run(
+                    ["python3", str(script), "--mission", MISSIONS.get(agent, "")],
+                    capture_output=True, text=True, timeout=60
+                )
+                publish_packet(agent, result.returncode, result.stdout[:200], "done" if result.returncode == 0 else "failed")
+                logger.info(f"{agent}: exit={result.returncode}")
+            except subprocess.TimeoutExpired:
+                publish_packet(agent, 124, "", "timeout")
+                logger.warning(f"{agent}: timeout 60s")
+            except Exception as e:
+                publish_packet(agent, 1, "", "error")
+                logger.error(f"{agent}: {e}")
+
+    # Heartbeat
+    payload = json.dumps({"topic": "adam:heartbeat", "source": "daemon", "payload": {"cycle": "done"}, "priority": 0}).encode()
+    try:
+        req = urllib.request.Request(GO_BUS, data=payload, headers={"Content-Type": "application/json"})
+        urllib.request.urlopen(req, timeout=3)
+    except:
+        pass
 
 def main():
-    fd = _acquire_lock()
-    _write_pid()
-    log.info(f"ADAM Daemon started — PID={os.getpid()} — {len(AGENTS)} agents — timeout={AGENT_TIMEOUT}s")
-    bus("adam:daemon", "system", {"status": "started", "agents": len(AGENTS), "pid": os.getpid()})
+    _acquire_lock()
+    PID_FILE.write_text(str(os.getpid()))
+    logger.info(f"ADAM Daemon V5 — PID={os.getpid()} — {len(AGENTS)} agents — timeout={AGENT_TIMEOUT}s")
+    logger.info(f"Runtime V5: {RUNTIME_V5} ({'OK' if RUNTIME_V5.exists() else 'NOT FOUND'})")
+    logger.info(f"VLLM URL: {VLLM_URL}")
+
     cycle = 0
     while True:
-        log.info(f"--- Cycle {cycle} ---")
-        for name, script in AGENTS.items():
-            path = BASE / script
-            if path.exists():
-                try:
-                    env = {
-                        **os.environ,
-                        "ADAM_V2_DIR": str(BASE),
-                        "GO_BUS_URL": GO_BUS,
-                    }
-                    # Set ADAM_EVENT_CHANNEL pour les agents qui en ont besoin (rag-handler)
-                    if name in CHANNEL_AGENTS:
-                        env["ADAM_EVENT_CHANNEL"] = "rag:query"
-
-                    r = subprocess.run(
-                        [str(path)],
-                        capture_output=True,
-                        text=True,
-                        timeout=AGENT_TIMEOUT,  # 60s au lieu de 30s
-                        env=env,
-                    )
-                    out = (r.stdout + r.stderr)[:200]
-                    bus(f"adam:packet", name, {
-                        "status": "done" if r.returncode == 0 else "failed",
-                        "exit": r.returncode,
-                        "output": out,
-                        "time": datetime.now(timezone.utc).isoformat(),
-                    })
-                    log.info(f"{name}: exit={r.returncode}")
-                except subprocess.TimeoutExpired:
-                    bus(f"adam:packet", name, {"status": "timeout", "limit": AGENT_TIMEOUT})
-                    log.warning(f"{name}: timeout après {AGENT_TIMEOUT}s")
-                except Exception as e:
-                    log.error(f"{name}: erreur inattendue: {e}", exc_info=True)
-                    bus(f"adam:packet", name, {"status": "error", "error": str(e)})
-            time.sleep(1)
-        bus("adam:daemon:tick", "system", {"cycle": cycle, "time": datetime.now(timezone.utc).isoformat()})
+        logger.info(f"--- Cycle {cycle} ---")
+        run_cycle()
         cycle += 1
-        time.sleep(30)
-
-def _cleanup(fd):
-    """Nettoie PID file et lock à l'arrêt."""
-    try:
-        PID_FILE.unlink(missing_ok=True)
-    except Exception:
-        pass
-    try:
-        fcntl.flock(fd, fcntl.LOCK_UN)
-        os.close(fd)
-    except Exception:
-        pass
-    try:
-        os.unlink("/tmp/adam-daemon.lock")
-    except Exception:
-        pass
+        time.sleep(10)
 
 if __name__ == "__main__":
-    fd = _acquire_lock()
-    _write_pid()
-    try:
-        main()
-    except KeyboardInterrupt:
-        log.info("Arrêt demandé (KeyboardInterrupt)")
-        _cleanup(fd)
-    except Exception:
-        log.exception("FATAL — daemon crash")
-        _cleanup(fd)
-        sys.exit(1)
+    main()
