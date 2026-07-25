@@ -9105,6 +9105,454 @@
       ],
       "timestamp": "2026-07-25T22:23:37.005148+00:00",
       "agent": "adam-viz"
+    },
+    {
+      "id": "m_154",
+      "mission": "Ajoute le suivi du P&L dans le dashboard",
+      "result": {
+        "agent": "adam-viz",
+        "mission": "Ajoute le suivi du P&L dans le dashboard",
+        "success": true,
+        "steps": 2,
+        "elapsed_s": 5.5,
+        "results": [
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "pnl_integration",
+              "args": {},
+              "code": "",
+              "target_agent": "",
+              "description": "Utilise l'outil pnl_integration pour intégrer le suivi du P&L dans le dashboard. Avant de procéder, je vais vérifier les configurations et les permissions nécessaires, ainsi que m'assurer que toutes les données nécessaires pour le suivi du P&L sont correctement intégrées et mises à jour dans le système."
+            },
+            "result": {
+              "tool": "pnl_integration",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "manage_infra",
+              "infra_action": "status",
+              "description": "Vérifier la santé des conteneurs Docker"
+            },
+            "result": {
+              "action": "status",
+              "results": [
+                {
+                  "containers": "adam-graphify Up 55 minutes\neva-activity Up 58 minutes\neva-monitor Up 3 hours\nadam-bus Up 14 hours (healthy)\nadam-viz Up 14 hours\nadam-chat Up 16 hours\nadam-postgres Up 16 hours (healthy)\nvllm-mistral Up 13 hours\nkali-pentest Up 36 hours\ngrafana Up 36 hours\nprometheus Up 36 hours\nnode-exporter Up 36"
+                }
+              ],
+              "success": true
+            }
+          }
+        ],
+        "timestamp": "2026-07-25T22:28:07.596892+00:00"
+      },
+      "steps": [
+        {
+          "action": "execute_tool",
+          "tool": "pnl_integration",
+          "args": {},
+          "code": "",
+          "target_agent": "",
+          "description": "Utilise l'outil pnl_integration pour intégrer le suivi du P&L dans le dashboard. Avant de procéder, je vais vérifier les configurations et les permissions nécessaires, ainsi que m'assurer que toutes les données nécessaires pour le suivi du P&L sont correctement intégrées et mises à jour dans le système."
+        },
+        {
+          "action": "manage_infra",
+          "infra_action": "status",
+          "description": "Vérifier la santé des conteneurs Docker"
+        }
+      ],
+      "timestamp": "2026-07-25T22:28:07.596923+00:00",
+      "agent": "adam-viz"
+    },
+    {
+      "id": "m_155",
+      "mission": "Vérifie le dashboard 3D et propose des améliorations",
+      "result": {
+        "agent": "adam-viz",
+        "mission": "Vérifie le dashboard 3D et propose des améliorations",
+        "success": false,
+        "steps": 4,
+        "elapsed_s": 11.86,
+        "results": [
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "dashboard_audit",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Utilise l'outil dashboard_audit pour effectuer une analyse critique du dashboard 3D afin d'identifier les améliorations potentielles. Cela permettra de mieux comprendre le système et d'éviter les erreurs passées."
+            },
+            "result": {
+              "tool": "dashboard_audit",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "dashboard_performance_analyzer",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Analyse les performances du dashboard 3D pour identifier les goulots d'étranglement et les inefficacités. Cette étape est cruciale pour améliorer la maîtrise technique du système et respecter les objectifs d'autonomie financière."
+            },
+            "result": {
+              "tool": "dashboard_performance_analyzer",
+              "exit_code": 1,
+              "stdout": "",
+              "stderr": "Traceback (most recent call last):\n  File \"/home/aza/eva-adam-v2/agents/viz/tools/dashboard_performance_analyzer.py\", line 8, in <module>\n    dashboard_data = dashboard_audit()\n                     ^^^^^^^^^^^^^^^\nNameError: name 'dashboard_audit' is not defined\n",
+              "success": false
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "improvement_proposal",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Crée un outil pour générer des propositions d'amélioration basées sur l'analyse précédente. Ces propositions aideront à améliorer le dashboard et contribueront à atteindre les objectifs d'AGI."
+            },
+            "result": {
+              "tool": "improvement_proposal",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "manage_infra",
+              "infra_action": "status",
+              "description": "Vérifier la santé des conteneurs Docker"
+            },
+            "result": {
+              "action": "status",
+              "results": [
+                {
+                  "containers": "adam-graphify Up About an hour\neva-activity Up About an hour\neva-monitor Up 3 hours\nadam-bus Up 14 hours (healthy)\nadam-viz Up 14 hours\nadam-chat Up 16 hours\nadam-postgres Up 16 hours (healthy)\nvllm-mistral Up 13 hours\nkali-pentest Up 36 hours\ngrafana Up 36 hours\nprometheus Up 36 hours\nnode-exporter"
+                }
+              ],
+              "success": true
+            }
+          }
+        ],
+        "timestamp": "2026-07-25T22:33:34.108109+00:00"
+      },
+      "steps": [
+        {
+          "action": "execute_tool",
+          "tool": "dashboard_audit",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Utilise l'outil dashboard_audit pour effectuer une analyse critique du dashboard 3D afin d'identifier les améliorations potentielles. Cela permettra de mieux comprendre le système et d'éviter les erreurs passées."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "dashboard_performance_analyzer",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Analyse les performances du dashboard 3D pour identifier les goulots d'étranglement et les inefficacités. Cette étape est cruciale pour améliorer la maîtrise technique du système et respecter les objectifs d'autonomie financière."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "improvement_proposal",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Crée un outil pour générer des propositions d'amélioration basées sur l'analyse précédente. Ces propositions aideront à améliorer le dashboard et contribueront à atteindre les objectifs d'AGI."
+        },
+        {
+          "action": "manage_infra",
+          "infra_action": "status",
+          "description": "Vérifier la santé des conteneurs Docker"
+        }
+      ],
+      "timestamp": "2026-07-25T22:33:34.108133+00:00",
+      "agent": "adam-viz"
+    },
+    {
+      "id": "m_156",
+      "mission": "Crée de nouvelles visualisations pour les métriques",
+      "result": {
+        "agent": "adam-viz",
+        "mission": "Crée de nouvelles visualisations pour les métriques",
+        "success": false,
+        "steps": 4,
+        "elapsed_s": 10.95,
+        "results": [
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "metric_visualizer",
+              "args": "P&L",
+              "description": "Utilise l'outil metric_visualizer pour créer une nouvelle visualisation 3D du P&L, en s'appuyant sur les leçons apprises pour bien comprendre les données et choisir les outils appropriés."
+            },
+            "result": {
+              "error": "Fichier /home/aza/eva-adam-v2/agents/viz/tools/metric_visualizer.py introuvable"
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "dashboard_audit",
+              "args": "",
+              "description": "Effectue une analyse critique du dashboard 3D actuel pour identifier les aspects qui pourraient être améliorés et s'assurer que la nouvelle visualisation sera utile et pertinente."
+            },
+            "result": {
+              "tool": "dashboard_audit",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "create_tool",
+              "tool": "improvement_proposal",
+              "code": "Créer un outil basé sur l'analyse précédente pour générer des propositions d'amélioration spécifiques concernant la nouvelle visualisation.",
+              "description": "Sur la base de l'audit du dashboard et de la connaissance des données, crée un outil pour formuler des propositions d'amélioration précises pour la nouvelle visualisation."
+            },
+            "result": {
+              "id": "eb0a57e411a0",
+              "name": "improvement_proposal",
+              "file": "improvement_proposal.py",
+              "status": "created"
+            }
+          },
+          {
+            "step": {
+              "action": "self_modify",
+              "what": "Optimiser la gestion d'erreur des outils",
+              "code": "def safe_exec(func):\n    try: return func()\n    except Exception as e: return {'error': str(e)}"
+            },
+            "result": {
+              "what": "Optimiser la gestion d'erreur des outils",
+              "improvement_file": "/home/aza/eva-adam-v2/agents/viz/tools/self_improvement_20260726_003904.py",
+              "backup": "/home/aza/eva-adam-v2/agents/viz/tools/backups/runtime_backup_20260726_003904.py",
+              "status": "improved"
+            }
+          }
+        ],
+        "timestamp": "2026-07-25T22:39:04.985420+00:00"
+      },
+      "steps": [
+        {
+          "action": "execute_tool",
+          "tool": "metric_visualizer",
+          "args": "P&L",
+          "description": "Utilise l'outil metric_visualizer pour créer une nouvelle visualisation 3D du P&L, en s'appuyant sur les leçons apprises pour bien comprendre les données et choisir les outils appropriés."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "dashboard_audit",
+          "args": "",
+          "description": "Effectue une analyse critique du dashboard 3D actuel pour identifier les aspects qui pourraient être améliorés et s'assurer que la nouvelle visualisation sera utile et pertinente."
+        },
+        {
+          "action": "create_tool",
+          "tool": "improvement_proposal",
+          "code": "Créer un outil basé sur l'analyse précédente pour générer des propositions d'amélioration spécifiques concernant la nouvelle visualisation.",
+          "description": "Sur la base de l'audit du dashboard et de la connaissance des données, crée un outil pour formuler des propositions d'amélioration précises pour la nouvelle visualisation."
+        },
+        {
+          "action": "self_modify",
+          "what": "Optimiser la gestion d'erreur des outils",
+          "code": "def safe_exec(func):\n    try: return func()\n    except Exception as e: return {'error': str(e)}"
+        }
+      ],
+      "timestamp": "2026-07-25T22:39:04.985439+00:00",
+      "agent": "adam-viz"
+    },
+    {
+      "id": "m_157",
+      "mission": "Optimise les performances du dashboard",
+      "result": {
+        "agent": "adam-viz",
+        "mission": "Optimise les performances du dashboard",
+        "success": false,
+        "steps": 4,
+        "elapsed_s": 8.98,
+        "results": [
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "dashboard_performance_analyzer",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Analyser les performances actuelles du dashboard 3D pour identifier les goulots d'étranglement et inefficacités."
+            },
+            "result": {
+              "tool": "dashboard_performance_analyzer",
+              "exit_code": 1,
+              "stdout": "",
+              "stderr": "Traceback (most recent call last):\n  File \"/home/aza/eva-adam-v2/agents/viz/tools/dashboard_performance_analyzer.py\", line 8, in <module>\n    dashboard_data = dashboard_audit()\n                     ^^^^^^^^^^^^^^^\nNameError: name 'dashboard_audit' is not defined\n",
+              "success": false
+            }
+          },
+          {
+            "step": {
+              "action": "create_tool",
+              "tool": "performance_optimization",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Créer un outil pour proposer des modifications spécifiques basées sur l'analyse des performances du dashboard 3D."
+            },
+            "result": {
+              "error": "Pas de code fourni"
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "performance_optimization",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Appliquer les modifications proposées pour optimiser les performances du dashboard 3D."
+            },
+            "result": {
+              "tool": "performance_optimization",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "manage_infra",
+              "infra_action": "status",
+              "description": "Vérifier la santé des conteneurs Docker"
+            },
+            "result": {
+              "action": "status",
+              "results": [
+                {
+                  "containers": "adam-graphify Up About an hour\neva-activity Up About an hour\neva-monitor Up 3 hours\nadam-bus Up 14 hours (healthy)\nadam-viz Up 15 hours\nadam-chat Up 16 hours\nadam-postgres Up 16 hours (healthy)\nvllm-mistral Up 13 hours\nkali-pentest Up 36 hours\ngrafana Up 36 hours\nprometheus Up 36 hours\nnode-exporter"
+                }
+              ],
+              "success": true
+            }
+          }
+        ],
+        "timestamp": "2026-07-25T22:43:46.706765+00:00"
+      },
+      "steps": [
+        {
+          "action": "execute_tool",
+          "tool": "dashboard_performance_analyzer",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Analyser les performances actuelles du dashboard 3D pour identifier les goulots d'étranglement et inefficacités."
+        },
+        {
+          "action": "create_tool",
+          "tool": "performance_optimization",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Créer un outil pour proposer des modifications spécifiques basées sur l'analyse des performances du dashboard 3D."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "performance_optimization",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Appliquer les modifications proposées pour optimiser les performances du dashboard 3D."
+        },
+        {
+          "action": "manage_infra",
+          "infra_action": "status",
+          "description": "Vérifier la santé des conteneurs Docker"
+        }
+      ],
+      "timestamp": "2026-07-25T22:43:46.706791+00:00",
+      "agent": "adam-viz"
+    },
+    {
+      "id": "m_158",
+      "mission": "Optimise l'infrastructure: vérifie les conteneurs et propose des améliorations — Ta contribution en tant que viz",
+      "result": {
+        "agent": "adam-viz",
+        "mission": "Optimise l'infrastructure: vérifie les conteneurs et propose des améliorations — Ta contribution en tant que viz",
+        "success": false,
+        "steps": 2,
+        "elapsed_s": 7.35,
+        "results": [
+          {
+            "step": {
+              "action": "manage_infra",
+              "tool": "dashboard_audit",
+              "args": {},
+              "code": "",
+              "target_agent": "",
+              "description": "Utiliser l'outil dashboard_audit pour analyser les conteneurs de l'infrastructure. Cette étape permettra d'identifier les problèmes et les inefficacités."
+            },
+            "result": {
+              "action": "Utiliser l'outil dashboard_audit pour analyser les conteneurs de l'infrastructure. Cette étape permettra d'identifier les problèmes et les inefficacités.",
+              "results": [],
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "improvement_proposal",
+              "args": {},
+              "code": "",
+              "target_agent": "",
+              "description": "Sur la base de l'audit précédent, utiliser l'outil improvement_proposal pour formuler des propositions d'amélioration spécifiques pour l'infrastructure, en se concentrant sur les conteneurs."
+            },
+            "result": {
+              "tool": "improvement_proposal",
+              "exit_code": 1,
+              "stdout": "",
+              "stderr": "  File \"/home/aza/eva-adam-v2/agents/viz/tools/improvement_proposal.py\", line 1\n    Créer un outil basé sur l'analyse précédente pour générer des propositions d'amélioration spécifiques concernant la nouvelle visualisation.\n          ^^\nSyntaxError: invalid syntax\n",
+              "success": false
+            }
+          }
+        ],
+        "timestamp": "2026-07-25T22:49:07.929537+00:00"
+      },
+      "steps": [
+        {
+          "action": "manage_infra",
+          "tool": "dashboard_audit",
+          "args": {},
+          "code": "",
+          "target_agent": "",
+          "description": "Utiliser l'outil dashboard_audit pour analyser les conteneurs de l'infrastructure. Cette étape permettra d'identifier les problèmes et les inefficacités."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "improvement_proposal",
+          "args": {},
+          "code": "",
+          "target_agent": "",
+          "description": "Sur la base de l'audit précédent, utiliser l'outil improvement_proposal pour formuler des propositions d'amélioration spécifiques pour l'infrastructure, en se concentrant sur les conteneurs."
+        }
+      ],
+      "timestamp": "2026-07-25T22:49:07.929559+00:00",
+      "agent": "adam-viz"
     }
   ]
 }

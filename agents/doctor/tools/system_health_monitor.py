@@ -1,1 +1,1 @@
-system_health_monitor = python(docker_inspect, resource_monitor)
+python

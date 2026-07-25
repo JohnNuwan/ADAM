@@ -1,8 +1,8 @@
 import nmap
-from nmap import PortScanner
+from typing import List, Tuple
 
-def scan_network(ip_range):
-    nm = PortScanner()
+def scan_network(ip_range: str) -> List[Tuple[str, str]]:
+    nm = nmap.PortScanner()
     nm.scan(hosts=ip_range, arguments='-sn')
-    hosts_list = [(x, nm[x]['status']['state']) for x in nm.all_hosts()]
-    return hosts_list
+    active_hosts = [(host, nm[host]['status']['state']) for host in nm.all_hosts()]
+    return active_hosts

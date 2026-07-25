@@ -11344,6 +11344,648 @@
       ],
       "timestamp": "2026-07-25T22:23:23.838850+00:00",
       "agent": "adam-rag"
+    },
+    {
+      "id": "m_151",
+      "mission": "Indexe les leçons apprises pour un accès rapide",
+      "result": {
+        "agent": "adam-rag",
+        "mission": "Indexe les leçons apprises pour un accès rapide",
+        "success": false,
+        "steps": 4,
+        "elapsed_s": 14.87,
+        "results": [
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "DocumentIndexer",
+              "args": {
+                "documents": [
+                  {
+                    "content": "Il est crucial de structurer et de catégoriser méthodiquement les leçons apprises pour faciliter leur accès et leur utilisation future.",
+                    "metadata": {
+                      "category": "méthodologie"
+                    }
+                  },
+                  {
+                    "content": "Il est essentiel de structurer et de catégoriser méthodiquement les leçons apprises pour faciliter leur indexation et leur accès rapide.",
+                    "metadata": {
+                      "category": "indexation"
+                    }
+                  },
+                  {
+                    "content": "Il est essentiel de structurer et de catégoriser méthodiquement les leçons apprises pour faciliter leur indexation et leur accès rapide.",
+                    "metadata": {
+                      "category": "optimisation"
+                    }
+                  }
+                ]
+              },
+              "description": "Indexe les leçons apprises en les catégorisant pour faciliter leur accès rapide."
+            },
+            "result": {
+              "tool": "DocumentIndexer",
+              "error": "'dict' object has no attribute 'split'"
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "SemanticSearchEngine",
+              "args": {},
+              "description": "Initialise le moteur de recherche sémantique pour permettre des recherches efficaces dans les leçons apprises."
+            },
+            "result": {
+              "tool": "SemanticSearchEngine",
+              "exit_code": 1,
+              "stdout": "",
+              "stderr": "Traceback (most recent call last):\n  File \"/home/aza/eva-adam-v2/agents/rag/tools/SemanticSearchEngine.py\", line 1, in <module>\n    from semantic_search import create_engine\nModuleNotFoundError: No module named 'semantic_search'\n",
+              "success": false
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "ParamètresOptimisation",
+              "args": {},
+              "description": "Optimise les paramètres du moteur de recherche pour améliorer la pertinence des résultats lors de la recherche dans les leçons apprises."
+            },
+            "result": {
+              "tool": "ParamètresOptimisation",
+              "exit_code": 1,
+              "stdout": "",
+              "stderr": "  File \"/home/aza/eva-adam-v2/agents/rag/tools/ParamètresOptimisation.py\", line 1\n    Crée un outil pour optimiser les paramètres de la recherche sémantique en se basant sur les données indexées.\n         ^^\nSyntaxError: invalid syntax\n",
+              "success": false
+            }
+          },
+          {
+            "step": {
+              "action": "manage_infra",
+              "infra_action": "status",
+              "description": "Vérifier la santé des conteneurs Docker"
+            },
+            "result": {
+              "action": "status",
+              "results": [
+                {
+                  "containers": "adam-graphify Up 55 minutes\neva-activity Up 58 minutes\neva-monitor Up 3 hours\nadam-bus Up 14 hours (healthy)\nadam-viz Up 14 hours\nadam-chat Up 16 hours\nadam-postgres Up 16 hours (healthy)\nvllm-mistral Up 13 hours\nkali-pentest Up 36 hours\ngrafana Up 36 hours\nprometheus Up 36 hours\nnode-exporter Up 36"
+                }
+              ],
+              "success": true
+            }
+          }
+        ],
+        "timestamp": "2026-07-25T22:28:00.698596+00:00"
+      },
+      "steps": [
+        {
+          "action": "execute_tool",
+          "tool": "DocumentIndexer",
+          "args": {
+            "documents": [
+              {
+                "content": "Il est crucial de structurer et de catégoriser méthodiquement les leçons apprises pour faciliter leur accès et leur utilisation future.",
+                "metadata": {
+                  "category": "méthodologie"
+                }
+              },
+              {
+                "content": "Il est essentiel de structurer et de catégoriser méthodiquement les leçons apprises pour faciliter leur indexation et leur accès rapide.",
+                "metadata": {
+                  "category": "indexation"
+                }
+              },
+              {
+                "content": "Il est essentiel de structurer et de catégoriser méthodiquement les leçons apprises pour faciliter leur indexation et leur accès rapide.",
+                "metadata": {
+                  "category": "optimisation"
+                }
+              }
+            ]
+          },
+          "description": "Indexe les leçons apprises en les catégorisant pour faciliter leur accès rapide."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "SemanticSearchEngine",
+          "args": {},
+          "description": "Initialise le moteur de recherche sémantique pour permettre des recherches efficaces dans les leçons apprises."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "ParamètresOptimisation",
+          "args": {},
+          "description": "Optimise les paramètres du moteur de recherche pour améliorer la pertinence des résultats lors de la recherche dans les leçons apprises."
+        },
+        {
+          "action": "manage_infra",
+          "infra_action": "status",
+          "description": "Vérifier la santé des conteneurs Docker"
+        }
+      ],
+      "timestamp": "2026-07-25T22:28:00.698615+00:00",
+      "agent": "adam-rag"
+    },
+    {
+      "id": "m_152",
+      "mission": "Indexe les nouveaux documents dans PostgreSQL",
+      "result": {
+        "agent": "adam-rag",
+        "mission": "Indexe les nouveaux documents dans PostgreSQL",
+        "success": false,
+        "steps": 3,
+        "elapsed_s": 9.56,
+        "results": [
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "DocumentIndexer",
+              "args": {
+                "documents_path": "path/to/new/documents",
+                "database_config": {
+                  "host": "localhost",
+                  "port": 5432,
+                  "dbname": "adam_db",
+                  "user": "adam_user",
+                  "password": "adam_password"
+                }
+              },
+              "description": "Indexe les nouveaux documents dans PostgreSQL en utilisant l'outil DocumentIndexer."
+            },
+            "result": {
+              "tool": "DocumentIndexer",
+              "error": "'dict' object has no attribute 'split'"
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "ParamètresOptimisation",
+              "args": {
+                "database_config": {
+                  "host": "localhost",
+                  "port": 5432,
+                  "dbname": "adam_db",
+                  "user": "adam_user",
+                  "password": "adam_password"
+                }
+              },
+              "description": "Optimise les paramètres du moteur de recherche pour améliorer la pertinence des résultats après l'indexation des documents."
+            },
+            "result": {
+              "tool": "ParamètresOptimisation",
+              "error": "'dict' object has no attribute 'split'"
+            }
+          },
+          {
+            "step": {
+              "action": "manage_infra",
+              "infra_action": "status",
+              "description": "Vérifier la santé des conteneurs Docker"
+            },
+            "result": {
+              "action": "status",
+              "results": [
+                {
+                  "containers": "adam-graphify Up About an hour\neva-activity Up About an hour\neva-monitor Up 3 hours\nadam-bus Up 14 hours (healthy)\nadam-viz Up 14 hours\nadam-chat Up 16 hours\nadam-postgres Up 16 hours (healthy)\nvllm-mistral Up 13 hours\nkali-pentest Up 36 hours\ngrafana Up 36 hours\nprometheus Up 36 hours\nnode-exporter"
+                }
+              ],
+              "success": true
+            }
+          }
+        ],
+        "timestamp": "2026-07-25T22:33:20.991686+00:00"
+      },
+      "steps": [
+        {
+          "action": "execute_tool",
+          "tool": "DocumentIndexer",
+          "args": {
+            "documents_path": "path/to/new/documents",
+            "database_config": {
+              "host": "localhost",
+              "port": 5432,
+              "dbname": "adam_db",
+              "user": "adam_user",
+              "password": "adam_password"
+            }
+          },
+          "description": "Indexe les nouveaux documents dans PostgreSQL en utilisant l'outil DocumentIndexer."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "ParamètresOptimisation",
+          "args": {
+            "database_config": {
+              "host": "localhost",
+              "port": 5432,
+              "dbname": "adam_db",
+              "user": "adam_user",
+              "password": "adam_password"
+            }
+          },
+          "description": "Optimise les paramètres du moteur de recherche pour améliorer la pertinence des résultats après l'indexation des documents."
+        },
+        {
+          "action": "manage_infra",
+          "infra_action": "status",
+          "description": "Vérifier la santé des conteneurs Docker"
+        }
+      ],
+      "timestamp": "2026-07-25T22:33:20.991708+00:00",
+      "agent": "adam-rag"
+    },
+    {
+      "id": "m_153",
+      "mission": "Améliore la recherche sémantique avec PGVector",
+      "result": {
+        "agent": "adam-rag",
+        "mission": "Améliore la recherche sémantique avec PGVector",
+        "success": false,
+        "steps": 6,
+        "elapsed_s": 33.85,
+        "results": [
+          {
+            "step": {
+              "action": "research",
+              "tool": "ParamètresOptimisation",
+              "args": "PGVector",
+              "description": "Recherche sur les paramètres et configurations optimales pour PGVector afin d'améliorer la recherche sémantique."
+            },
+            "result": {
+              "query": "Recherche sur les paramètres et configurations optimales pour PGVector afin d'améliorer la recherche sémantique.",
+              "result": "Pour améliorer la recherche sémantique avec PGVector (un extension de PostgreSQL qui permet de stocker et rechercher des vecteurs), il est crucial de bien comprendre les paramètres et configurations disponibles. Voici une analyse détaillée des éléments à prendre en compte :\n\n### 1. Configuration de ",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "DocumentIndexer",
+              "args": "nouveaux documents",
+              "description": "Indexe les nouveaux documents pour s'assurer qu'ils sont disponibles pour la recherche sémantique."
+            },
+            "result": {
+              "tool": "DocumentIndexer",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "SemanticSearchEngine",
+              "args": "PGVector",
+              "description": "Utilise le moteur de recherche sémantique avec PGVector pour tester la pertinence des résultats."
+            },
+            "result": {
+              "tool": "SemanticSearchEngine",
+              "exit_code": 1,
+              "stdout": "",
+              "stderr": "Traceback (most recent call last):\n  File \"/home/aza/eva-adam-v2/agents/rag/tools/SemanticSearchEngine.py\", line 1, in <module>\n    from semantic_search import create_engine\nModuleNotFoundError: No module named 'semantic_search'\n",
+              "success": false
+            }
+          },
+          {
+            "step": {
+              "action": "optimize",
+              "tool": "ParamètresOptimisation",
+              "args": "PGVector, SemanticSearchEngine",
+              "description": "Optimise les paramètres du moteur de recherche sémantique en utilisant PGVector pour améliorer la pertinence des résultats."
+            },
+            "result": {
+              "error": "Action inconnue: optimize"
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "RAGPipeline",
+              "args": "connaissances ADAM",
+              "description": "Crée un pipeline RAG pour les connaissances ADAM, en intégrant les leçons apprises et les améliorations apportées au moteur de recherche sémantique."
+            },
+            "result": {
+              "tool": "RAGPipeline",
+              "exit_code": 1,
+              "stdout": "",
+              "stderr": "  File \"/home/aza/eva-adam-v2/agents/rag/tools/RAGPipeline.py\", line 1\n    Crée un pipeline RAG pour les connaissances ADAM, en intégrant les leçons apprises et en garantissant la compatibilité et l'intégration des composants du système.\n                                                                                                                               ^\nSyntaxError: unterminated string literal (detected at line 1)\n",
+              "success": false
+            }
+          },
+          {
+            "step": {
+              "action": "self_modify",
+              "what": "Ajouter un cache aux outils pour éviter les appels dupliqués",
+              "code": "CACHE = {}\ndef cached_call(key, func, *args):\n    if key not in CACHE:\n        CACHE[key] = func(*args)\n    return CACHE[key]"
+            },
+            "result": {
+              "what": "Ajouter un cache aux outils pour éviter les appels dupliqués",
+              "improvement_file": "/home/aza/eva-adam-v2/agents/rag/tools/self_improvement_20260726_003852.py",
+              "backup": "/home/aza/eva-adam-v2/agents/rag/tools/backups/runtime_backup_20260726_003852.py",
+              "status": "improved"
+            }
+          }
+        ],
+        "timestamp": "2026-07-25T22:38:52.174800+00:00"
+      },
+      "steps": [
+        {
+          "action": "research",
+          "tool": "ParamètresOptimisation",
+          "args": "PGVector",
+          "description": "Recherche sur les paramètres et configurations optimales pour PGVector afin d'améliorer la recherche sémantique."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "DocumentIndexer",
+          "args": "nouveaux documents",
+          "description": "Indexe les nouveaux documents pour s'assurer qu'ils sont disponibles pour la recherche sémantique."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "SemanticSearchEngine",
+          "args": "PGVector",
+          "description": "Utilise le moteur de recherche sémantique avec PGVector pour tester la pertinence des résultats."
+        },
+        {
+          "action": "optimize",
+          "tool": "ParamètresOptimisation",
+          "args": "PGVector, SemanticSearchEngine",
+          "description": "Optimise les paramètres du moteur de recherche sémantique en utilisant PGVector pour améliorer la pertinence des résultats."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "RAGPipeline",
+          "args": "connaissances ADAM",
+          "description": "Crée un pipeline RAG pour les connaissances ADAM, en intégrant les leçons apprises et les améliorations apportées au moteur de recherche sémantique."
+        },
+        {
+          "action": "self_modify",
+          "what": "Ajouter un cache aux outils pour éviter les appels dupliqués",
+          "code": "CACHE = {}\ndef cached_call(key, func, *args):\n    if key not in CACHE:\n        CACHE[key] = func(*args)\n    return CACHE[key]"
+        }
+      ],
+      "timestamp": "2026-07-25T22:38:52.174822+00:00",
+      "agent": "adam-rag"
+    },
+    {
+      "id": "m_154",
+      "mission": "Crée un pipeline RAG pour les connaissances ADAM",
+      "result": {
+        "agent": "adam-rag",
+        "mission": "Crée un pipeline RAG pour les connaissances ADAM",
+        "success": false,
+        "steps": 5,
+        "elapsed_s": 12.51,
+        "results": [
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "DocumentIndexer",
+              "args": {},
+              "code": "",
+              "target_agent": "",
+              "description": "Indexer les documents contenant les connaissances ADAM pour faciliter leur accès et traitement."
+            },
+            "result": {
+              "tool": "DocumentIndexer",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "SemanticSearchEngine",
+              "args": {},
+              "code": "",
+              "target_agent": "",
+              "description": "Créer une instance de moteur de recherche sémantique basée sur les documents indexés avec PGVector dans PostgreSQL pour améliorer la pertinence des résultats."
+            },
+            "result": {
+              "tool": "SemanticSearchEngine",
+              "exit_code": 1,
+              "stdout": "",
+              "stderr": "Traceback (most recent call last):\n  File \"/home/aza/eva-adam-v2/agents/rag/tools/SemanticSearchEngine.py\", line 1, in <module>\n    from semantic_search import create_engine\nModuleNotFoundError: No module named 'semantic_search'\n",
+              "success": false
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "ParamètresOptimisation",
+              "args": {},
+              "code": "",
+              "target_agent": "",
+              "description": "Optimiser les paramètres du moteur de recherche pour garantir la meilleure performance possible."
+            },
+            "result": {
+              "tool": "ParamètresOptimisation",
+              "exit_code": 1,
+              "stdout": "",
+              "stderr": "  File \"/home/aza/eva-adam-v2/agents/rag/tools/ParamètresOptimisation.py\", line 1\n    Crée un outil pour optimiser les paramètres de la recherche sémantique en se basant sur les données indexées.\n         ^^\nSyntaxError: invalid syntax\n",
+              "success": false
+            }
+          },
+          {
+            "step": {
+              "action": "create_tool",
+              "tool": "RAGPipeline",
+              "args": {},
+              "code": "",
+              "target_agent": "",
+              "description": "Créer un pipeline RAG pour les connaissances ADAM qui intègre les leçons apprises et utilise les outils existants pour garantir une mise en œuvre minutieuse et une compatibilité entre les composants."
+            },
+            "result": {
+              "error": "Pas de code fourni"
+            }
+          },
+          {
+            "step": {
+              "action": "self_modify",
+              "what": "Ajouter un logging des appels d'outils",
+              "code": "import logging\nlog = logging.getLogger(__name__)\ndef log_call(name, result):\n    log.info(f'Tool {name}: {result}')"
+            },
+            "result": {
+              "what": "Ajouter un logging des appels d'outils",
+              "improvement_file": "/home/aza/eva-adam-v2/agents/rag/tools/self_improvement_20260726_004336.py",
+              "backup": "/home/aza/eva-adam-v2/agents/rag/tools/backups/runtime_backup_20260726_004336.py",
+              "status": "improved"
+            }
+          }
+        ],
+        "timestamp": "2026-07-25T22:43:36.299241+00:00"
+      },
+      "steps": [
+        {
+          "action": "execute_tool",
+          "tool": "DocumentIndexer",
+          "args": {},
+          "code": "",
+          "target_agent": "",
+          "description": "Indexer les documents contenant les connaissances ADAM pour faciliter leur accès et traitement."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "SemanticSearchEngine",
+          "args": {},
+          "code": "",
+          "target_agent": "",
+          "description": "Créer une instance de moteur de recherche sémantique basée sur les documents indexés avec PGVector dans PostgreSQL pour améliorer la pertinence des résultats."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "ParamètresOptimisation",
+          "args": {},
+          "code": "",
+          "target_agent": "",
+          "description": "Optimiser les paramètres du moteur de recherche pour garantir la meilleure performance possible."
+        },
+        {
+          "action": "create_tool",
+          "tool": "RAGPipeline",
+          "args": {},
+          "code": "",
+          "target_agent": "",
+          "description": "Créer un pipeline RAG pour les connaissances ADAM qui intègre les leçons apprises et utilise les outils existants pour garantir une mise en œuvre minutieuse et une compatibilité entre les composants."
+        },
+        {
+          "action": "self_modify",
+          "what": "Ajouter un logging des appels d'outils",
+          "code": "import logging\nlog = logging.getLogger(__name__)\ndef log_call(name, result):\n    log.info(f'Tool {name}: {result}')"
+        }
+      ],
+      "timestamp": "2026-07-25T22:43:36.299258+00:00",
+      "agent": "adam-rag"
+    },
+    {
+      "id": "m_155",
+      "mission": "Indexe les leçons apprises pour un accès rapide",
+      "result": {
+        "agent": "adam-rag",
+        "mission": "Indexe les leçons apprises pour un accès rapide",
+        "success": false,
+        "steps": 4,
+        "elapsed_s": 14.94,
+        "results": [
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "DocumentIndexer",
+              "args": {
+                "documents": [
+                  "Il est crucial de structurer et de catégoriser méthodiquement les leçons apprises pour faciliter leur accès et leur utilisation future.",
+                  "Il est essentiel de structurer et de catégoriser méthodiquement les leçons apprises pour faciliter leur indexation et leur accès rapide.",
+                  "Il est essentiel de structurer et de catégoriser méthodiquement les leçons apprises pour faciliter leur indexation et leur accès rapide."
+                ],
+                "metadata": {
+                  "category": "LessonsLearned"
+                }
+              },
+              "description": "Indexe les leçons apprises dans PostgreSQL pour un accès rapide."
+            },
+            "result": {
+              "tool": "DocumentIndexer",
+              "error": "'dict' object has no attribute 'split'"
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "SemanticSearchEngine",
+              "args": {
+                "index_name": "LessonsLearned",
+                "query": "structurer et catégoriser les leçons apprises",
+                "top_k": 3
+              },
+              "description": "Vérifie que les leçons apprises sont correctement indexées en effectuant une recherche sémantique."
+            },
+            "result": {
+              "tool": "SemanticSearchEngine",
+              "error": "'dict' object has no attribute 'split'"
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "ParamètresOptimisation",
+              "args": {
+                "index_name": "LessonsLearned",
+                "optimization_goal": "relevance"
+              },
+              "description": "Optimise les paramètres du moteur de recherche pour les leçons apprises afin d'améliorer la pertinence des résultats."
+            },
+            "result": {
+              "tool": "ParamètresOptimisation",
+              "error": "'dict' object has no attribute 'split'"
+            }
+          },
+          {
+            "step": {
+              "action": "manage_infra",
+              "infra_action": "status",
+              "description": "Vérifier la santé des conteneurs Docker"
+            },
+            "result": {
+              "action": "status",
+              "results": [
+                {
+                  "containers": "adam-graphify Up About an hour\neva-activity Up About an hour\neva-monitor Up 3 hours\nadam-bus Up 14 hours (healthy)\nadam-viz Up 15 hours\nadam-chat Up 16 hours\nadam-postgres Up 16 hours (healthy)\nvllm-mistral Up 13 hours\nkali-pentest Up 36 hours\ngrafana Up 36 hours\nprometheus Up 36 hours\nnode-exporter"
+                }
+              ],
+              "success": true
+            }
+          }
+        ],
+        "timestamp": "2026-07-25T22:48:59.126402+00:00"
+      },
+      "steps": [
+        {
+          "action": "execute_tool",
+          "tool": "DocumentIndexer",
+          "args": {
+            "documents": [
+              "Il est crucial de structurer et de catégoriser méthodiquement les leçons apprises pour faciliter leur accès et leur utilisation future.",
+              "Il est essentiel de structurer et de catégoriser méthodiquement les leçons apprises pour faciliter leur indexation et leur accès rapide.",
+              "Il est essentiel de structurer et de catégoriser méthodiquement les leçons apprises pour faciliter leur indexation et leur accès rapide."
+            ],
+            "metadata": {
+              "category": "LessonsLearned"
+            }
+          },
+          "description": "Indexe les leçons apprises dans PostgreSQL pour un accès rapide."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "SemanticSearchEngine",
+          "args": {
+            "index_name": "LessonsLearned",
+            "query": "structurer et catégoriser les leçons apprises",
+            "top_k": 3
+          },
+          "description": "Vérifie que les leçons apprises sont correctement indexées en effectuant une recherche sémantique."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "ParamètresOptimisation",
+          "args": {
+            "index_name": "LessonsLearned",
+            "optimization_goal": "relevance"
+          },
+          "description": "Optimise les paramètres du moteur de recherche pour les leçons apprises afin d'améliorer la pertinence des résultats."
+        },
+        {
+          "action": "manage_infra",
+          "infra_action": "status",
+          "description": "Vérifier la santé des conteneurs Docker"
+        }
+      ],
+      "timestamp": "2026-07-25T22:48:59.126426+00:00",
+      "agent": "adam-rag"
     }
   ]
 }

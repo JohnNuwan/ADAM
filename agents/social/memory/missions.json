@@ -11485,6 +11485,774 @@
       ],
       "timestamp": "2026-07-25T22:22:43.958079+00:00",
       "agent": "adam-social"
+    },
+    {
+      "id": "m_160",
+      "mission": "Augmente les revenus: crée un produit ou service vendable — Ta contribution en tant que social",
+      "result": {
+        "agent": "adam-social",
+        "mission": "Augmente les revenus: crée un produit ou service vendable — Ta contribution en tant que social",
+        "success": false,
+        "steps": 6,
+        "elapsed_s": 15.8,
+        "results": [
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "market_insights_tool",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Analyse des données du marché et des clients pour mieux comprendre leurs besoins et intérêts."
+            },
+            "result": {
+              "tool": "market_insights_tool",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "product_service_idea_generator",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Génération d'idées de produits ou services vendables en intégrant les données du marché, les tendances et les opportunités de monétisation."
+            },
+            "result": {
+              "tool": "product_service_idea_generator",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "monetization_opportunities",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Analyse des tendances pour identifier les opportunités de monétisation via le sponsoring et l'affiliation."
+            },
+            "result": {
+              "tool": "monetization_opportunities",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "sponsorship_affiliate_content_generator",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Génération d'idées de contenu pour les opportunités de monétisation identifiées, alignées avec l'identité de la marque Maeve.tech et les intérêts de l'audience."
+            },
+            "result": {
+              "tool": "sponsorship_affiliate_content_generator",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "social_media_product_promotion",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Promotion des produits ou services sur les réseaux sociaux en ciblant l'audience appropriée."
+            },
+            "result": {
+              "tool": "social_media_product_promotion",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "self_modify",
+              "what": "Ajouter un cache aux outils pour éviter les appels dupliqués",
+              "code": "CACHE = {}\ndef cached_call(key, func, *args):\n    if key not in CACHE:\n        CACHE[key] = func(*args)\n    return CACHE[key]"
+            },
+            "result": {
+              "what": "Ajouter un cache aux outils pour éviter les appels dupliqués",
+              "improvement_file": "/home/aza/eva-adam-v2/agents/social/tools/self_improvement_20260726_002717.py",
+              "backup": "/home/aza/eva-adam-v2/agents/social/tools/backups/runtime_backup_20260726_002717.py",
+              "status": "improved"
+            }
+          }
+        ],
+        "timestamp": "2026-07-25T22:27:17.446722+00:00"
+      },
+      "steps": [
+        {
+          "action": "execute_tool",
+          "tool": "market_insights_tool",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Analyse des données du marché et des clients pour mieux comprendre leurs besoins et intérêts."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "product_service_idea_generator",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Génération d'idées de produits ou services vendables en intégrant les données du marché, les tendances et les opportunités de monétisation."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "monetization_opportunities",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Analyse des tendances pour identifier les opportunités de monétisation via le sponsoring et l'affiliation."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "sponsorship_affiliate_content_generator",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Génération d'idées de contenu pour les opportunités de monétisation identifiées, alignées avec l'identité de la marque Maeve.tech et les intérêts de l'audience."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "social_media_product_promotion",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Promotion des produits ou services sur les réseaux sociaux en ciblant l'audience appropriée."
+        },
+        {
+          "action": "self_modify",
+          "what": "Ajouter un cache aux outils pour éviter les appels dupliqués",
+          "code": "CACHE = {}\ndef cached_call(key, func, *args):\n    if key not in CACHE:\n        CACHE[key] = func(*args)\n    return CACHE[key]"
+        }
+      ],
+      "timestamp": "2026-07-25T22:27:17.446731+00:00",
+      "agent": "adam-social"
+    },
+    {
+      "id": "m_161",
+      "mission": "Augmente les revenus: crée un produit ou service vendable — Ta contribution en tant que social",
+      "result": {
+        "agent": "adam-social",
+        "mission": "Augmente les revenus: crée un produit ou service vendable — Ta contribution en tant que social",
+        "success": true,
+        "steps": 6,
+        "elapsed_s": 16.06,
+        "results": [
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "market_insights_tool",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Analyser les données du marché et des clients pour mieux comprendre leurs besoins et leurs intérêts."
+            },
+            "result": {
+              "tool": "market_insights_tool",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "product_service_idea_generator",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Générer des idées de produits ou services vendables en intégrant les données du marché, les tendances et les opportunités de monétisation."
+            },
+            "result": {
+              "tool": "product_service_idea_generator",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "monetization_opportunities",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Identifier les opportunités de monétisation via le sponsoring et l'affiliation."
+            },
+            "result": {
+              "tool": "monetization_opportunities",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "sponsorship_affiliate_content_generator",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Générer des idées de contenu pour les opportunités de monétisation identifiées, en s'assurant que ces idées sont alignées avec l'identité de la marque Maeve.tech et les intérêts de l'audience."
+            },
+            "result": {
+              "tool": "sponsorship_affiliate_content_generator",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "social_media_product_promotion",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Promouvoir les produits ou services sur les réseaux sociaux en ciblant l'audience appropriée."
+            },
+            "result": {
+              "tool": "social_media_product_promotion",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "manage_infra",
+              "infra_action": "status",
+              "description": "Vérifier la santé des conteneurs Docker"
+            },
+            "result": {
+              "action": "status",
+              "results": [
+                {
+                  "containers": "adam-graphify Up 59 minutes\neva-activity Up About an hour\neva-monitor Up 3 hours\nadam-bus Up 14 hours (healthy)\nadam-viz Up 14 hours\nadam-chat Up 16 hours\nadam-postgres Up 16 hours (healthy)\nvllm-mistral Up 13 hours\nkali-pentest Up 36 hours\ngrafana Up 36 hours\nprometheus Up 36 hours\nnode-exporter Up"
+                }
+              ],
+              "success": true
+            }
+          }
+        ],
+        "timestamp": "2026-07-25T22:32:41.106200+00:00"
+      },
+      "steps": [
+        {
+          "action": "execute_tool",
+          "tool": "market_insights_tool",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Analyser les données du marché et des clients pour mieux comprendre leurs besoins et leurs intérêts."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "product_service_idea_generator",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Générer des idées de produits ou services vendables en intégrant les données du marché, les tendances et les opportunités de monétisation."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "monetization_opportunities",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Identifier les opportunités de monétisation via le sponsoring et l'affiliation."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "sponsorship_affiliate_content_generator",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Générer des idées de contenu pour les opportunités de monétisation identifiées, en s'assurant que ces idées sont alignées avec l'identité de la marque Maeve.tech et les intérêts de l'audience."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "social_media_product_promotion",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Promouvoir les produits ou services sur les réseaux sociaux en ciblant l'audience appropriée."
+        },
+        {
+          "action": "manage_infra",
+          "infra_action": "status",
+          "description": "Vérifier la santé des conteneurs Docker"
+        }
+      ],
+      "timestamp": "2026-07-25T22:32:41.106225+00:00",
+      "agent": "adam-social"
+    },
+    {
+      "id": "m_162",
+      "mission": "Augmente les revenus: crée un produit ou service vendable — Ta contribution en tant que social",
+      "result": {
+        "agent": "adam-social",
+        "mission": "Augmente les revenus: crée un produit ou service vendable — Ta contribution en tant que social",
+        "success": false,
+        "steps": 6,
+        "elapsed_s": 15.07,
+        "results": [
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "market_insights_tool",
+              "args": {},
+              "code": "",
+              "target_agent": "",
+              "description": "Analyser les données du marché et des clients pour mieux comprendre leurs besoins et leurs intérêts."
+            },
+            "result": {
+              "tool": "market_insights_tool",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "trend_analyzer",
+              "args": {},
+              "code": "",
+              "target_agent": "",
+              "description": "Analyser les tendances actuelles sur Instagram pour identifier les hashtags populaires et les sujets en vogue."
+            },
+            "result": {
+              "tool": "trend_analyzer",
+              "exit_code": 1,
+              "stdout": "",
+              "stderr": "Traceback (most recent call last):\n  File \"/home/aza/eva-adam-v2/agents/social/tools/trend_analyzer.py\", line 1, in <module>\n    import instaloader\nModuleNotFoundError: No module named 'instaloader'\n",
+              "success": false
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "monetization_opportunities",
+              "args": {},
+              "code": "",
+              "target_agent": "",
+              "description": "Identifier les opportunités de monétisation via le sponsoring et l'affiliation basées sur les tendances et les données du marché."
+            },
+            "result": {
+              "tool": "monetization_opportunities",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "product_service_idea_generator",
+              "args": {},
+              "code": "",
+              "target_agent": "",
+              "description": "Générer des idées de produits ou services vendables en intégrant les données du marché, les tendances et les opportunités de monétisation."
+            },
+            "result": {
+              "tool": "product_service_idea_generator",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "social_media_product_promotion",
+              "args": {},
+              "code": "",
+              "target_agent": "",
+              "description": "Promouvoir les produits ou services sur les réseaux sociaux en ciblant l'audience appropriée."
+            },
+            "result": {
+              "tool": "social_media_product_promotion",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "self_modify",
+              "what": "Ajouter un logging des appels d'outils",
+              "code": "import logging\nlog = logging.getLogger(__name__)\ndef log_call(name, result):\n    log.info(f'Tool {name}: {result}')"
+            },
+            "result": {
+              "what": "Ajouter un logging des appels d'outils",
+              "improvement_file": "/home/aza/eva-adam-v2/agents/social/tools/self_improvement_20260726_003726.py",
+              "backup": "/home/aza/eva-adam-v2/agents/social/tools/backups/runtime_backup_20260726_003726.py",
+              "status": "improved"
+            }
+          }
+        ],
+        "timestamp": "2026-07-25T22:37:26.047020+00:00"
+      },
+      "steps": [
+        {
+          "action": "execute_tool",
+          "tool": "market_insights_tool",
+          "args": {},
+          "code": "",
+          "target_agent": "",
+          "description": "Analyser les données du marché et des clients pour mieux comprendre leurs besoins et leurs intérêts."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "trend_analyzer",
+          "args": {},
+          "code": "",
+          "target_agent": "",
+          "description": "Analyser les tendances actuelles sur Instagram pour identifier les hashtags populaires et les sujets en vogue."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "monetization_opportunities",
+          "args": {},
+          "code": "",
+          "target_agent": "",
+          "description": "Identifier les opportunités de monétisation via le sponsoring et l'affiliation basées sur les tendances et les données du marché."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "product_service_idea_generator",
+          "args": {},
+          "code": "",
+          "target_agent": "",
+          "description": "Générer des idées de produits ou services vendables en intégrant les données du marché, les tendances et les opportunités de monétisation."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "social_media_product_promotion",
+          "args": {},
+          "code": "",
+          "target_agent": "",
+          "description": "Promouvoir les produits ou services sur les réseaux sociaux en ciblant l'audience appropriée."
+        },
+        {
+          "action": "self_modify",
+          "what": "Ajouter un logging des appels d'outils",
+          "code": "import logging\nlog = logging.getLogger(__name__)\ndef log_call(name, result):\n    log.info(f'Tool {name}: {result}')"
+        }
+      ],
+      "timestamp": "2026-07-25T22:37:26.047036+00:00",
+      "agent": "adam-social"
+    },
+    {
+      "id": "m_163",
+      "mission": "Augmente les revenus: crée un produit ou service vendable — Ta contribution en tant que social",
+      "result": {
+        "agent": "adam-social",
+        "mission": "Augmente les revenus: crée un produit ou service vendable — Ta contribution en tant que social",
+        "success": false,
+        "steps": 6,
+        "elapsed_s": 14.13,
+        "results": [
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "market_insights_tool",
+              "args": {},
+              "description": "Analyser les données du marché et des clients pour mieux comprendre leurs besoins et intérêts."
+            },
+            "result": {
+              "tool": "market_insights_tool",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "product_service_idea_generator",
+              "args": {},
+              "description": "Générer des idées de produits ou services vendables en intégrant les données du marché, les tendances et les opportunités de monétisation."
+            },
+            "result": {
+              "tool": "product_service_idea_generator",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "monetization_opportunities",
+              "args": {},
+              "description": "Identifier les opportunités de monétisation via le sponsoring et l'affiliation pour le produit ou service proposé."
+            },
+            "result": {
+              "tool": "monetization_opportunities",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "sponsorship_affiliate_content_generator",
+              "args": {},
+              "description": "Créer des idées de contenu pour les opportunités de monétisation identifiées, en s'assurant que ces idées sont alignées avec l'identité de la marque Maeve.tech et les intérêts de l'audience."
+            },
+            "result": {
+              "tool": "sponsorship_affiliate_content_generator",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "social_media_product_promotion",
+              "args": {},
+              "description": "Promouvoir le produit ou service sur les réseaux sociaux en ciblant l'audience appropriée."
+            },
+            "result": {
+              "tool": "social_media_product_promotion",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "self_modify",
+              "what": "Ajouter un logging des appels d'outils",
+              "code": "import logging\nlog = logging.getLogger(__name__)\ndef log_call(name, result):\n    log.info(f'Tool {name}: {result}')"
+            },
+            "result": {
+              "what": "Ajouter un logging des appels d'outils",
+              "improvement_file": "/home/aza/eva-adam-v2/agents/social/tools/self_improvement_20260726_004304.py",
+              "backup": "/home/aza/eva-adam-v2/agents/social/tools/backups/runtime_backup_20260726_004304.py",
+              "status": "improved"
+            }
+          }
+        ],
+        "timestamp": "2026-07-25T22:43:04.622062+00:00"
+      },
+      "steps": [
+        {
+          "action": "execute_tool",
+          "tool": "market_insights_tool",
+          "args": {},
+          "description": "Analyser les données du marché et des clients pour mieux comprendre leurs besoins et intérêts."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "product_service_idea_generator",
+          "args": {},
+          "description": "Générer des idées de produits ou services vendables en intégrant les données du marché, les tendances et les opportunités de monétisation."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "monetization_opportunities",
+          "args": {},
+          "description": "Identifier les opportunités de monétisation via le sponsoring et l'affiliation pour le produit ou service proposé."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "sponsorship_affiliate_content_generator",
+          "args": {},
+          "description": "Créer des idées de contenu pour les opportunités de monétisation identifiées, en s'assurant que ces idées sont alignées avec l'identité de la marque Maeve.tech et les intérêts de l'audience."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "social_media_product_promotion",
+          "args": {},
+          "description": "Promouvoir le produit ou service sur les réseaux sociaux en ciblant l'audience appropriée."
+        },
+        {
+          "action": "self_modify",
+          "what": "Ajouter un logging des appels d'outils",
+          "code": "import logging\nlog = logging.getLogger(__name__)\ndef log_call(name, result):\n    log.info(f'Tool {name}: {result}')"
+        }
+      ],
+      "timestamp": "2026-07-25T22:43:04.622084+00:00",
+      "agent": "adam-social"
+    },
+    {
+      "id": "m_164",
+      "mission": "Augmente les revenus: crée un produit ou service vendable — Ta contribution en tant que social",
+      "result": {
+        "agent": "adam-social",
+        "mission": "Augmente les revenus: crée un produit ou service vendable — Ta contribution en tant que social",
+        "success": false,
+        "steps": 6,
+        "elapsed_s": 13.53,
+        "results": [
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "market_insights_tool",
+              "args": {},
+              "description": "Analyse des données du marché et des clients pour mieux comprendre leurs besoins et intérêts."
+            },
+            "result": {
+              "tool": "market_insights_tool",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "product_service_idea_generator",
+              "args": {},
+              "description": "Génère des idées de produits ou services vendables en intégrant les données du marché, les tendances et les opportunités de monétisation."
+            },
+            "result": {
+              "tool": "product_service_idea_generator",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "monetization_opportunities",
+              "args": {},
+              "description": "Analyse les tendances et identifie les opportunités de monétisation via le sponsoring et l'affiliation."
+            },
+            "result": {
+              "tool": "monetization_opportunities",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "sponsorship_affiliate_content_generator",
+              "args": {},
+              "description": "Génère des idées de contenu pour les opportunités de monétisation identifiées, alignées avec l'identité de la marque Maeve.tech et les intérêts de l'audience."
+            },
+            "result": {
+              "tool": "sponsorship_affiliate_content_generator",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "social_media_product_promotion",
+              "args": {},
+              "description": "Promeut les produits ou services sur les réseaux sociaux en ciblant l'audience appropriée."
+            },
+            "result": {
+              "tool": "social_media_product_promotion",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "self_modify",
+              "what": "Ajouter un système de retry aux outils",
+              "code": "import time\ndef retry(func, max=3):\n    for i in range(max):\n        try: return func()\n        except: time.sleep(1)\n    return None"
+            },
+            "result": {
+              "what": "Ajouter un système de retry aux outils",
+              "improvement_file": "/home/aza/eva-adam-v2/agents/social/tools/self_improvement_20260726_004759.py",
+              "backup": "/home/aza/eva-adam-v2/agents/social/tools/backups/runtime_backup_20260726_004759.py",
+              "status": "improved"
+            }
+          }
+        ],
+        "timestamp": "2026-07-25T22:47:59.424247+00:00"
+      },
+      "steps": [
+        {
+          "action": "execute_tool",
+          "tool": "market_insights_tool",
+          "args": {},
+          "description": "Analyse des données du marché et des clients pour mieux comprendre leurs besoins et intérêts."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "product_service_idea_generator",
+          "args": {},
+          "description": "Génère des idées de produits ou services vendables en intégrant les données du marché, les tendances et les opportunités de monétisation."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "monetization_opportunities",
+          "args": {},
+          "description": "Analyse les tendances et identifie les opportunités de monétisation via le sponsoring et l'affiliation."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "sponsorship_affiliate_content_generator",
+          "args": {},
+          "description": "Génère des idées de contenu pour les opportunités de monétisation identifiées, alignées avec l'identité de la marque Maeve.tech et les intérêts de l'audience."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "social_media_product_promotion",
+          "args": {},
+          "description": "Promeut les produits ou services sur les réseaux sociaux en ciblant l'audience appropriée."
+        },
+        {
+          "action": "self_modify",
+          "what": "Ajouter un système de retry aux outils",
+          "code": "import time\ndef retry(func, max=3):\n    for i in range(max):\n        try: return func()\n        except: time.sleep(1)\n    return None"
+        }
+      ],
+      "timestamp": "2026-07-25T22:47:59.424260+00:00",
+      "agent": "adam-social"
     }
   ]
 }
