@@ -14,11 +14,11 @@ REMOTE_NAME="origin"
 BRANCH="main"
 COMMIT_MSG="${1:-}"
 
-GREEN='\\033[0;32m'
-YELLOW='\\033[1;33m'
-RED='\\033[0;31m'
-CYAN='\\033[0;36m'
-NC='\\033[0m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+RED='\033[0;31m'
+CYAN='\033[0;36m'
+NC='\033[0m'
 
 info()  { echo -e "${CYAN}[ADAM-GIT]${NC} $1"; }
 ok()    { echo -e "${GREEN}[✓]${NC} $1"; }
@@ -104,4 +104,3 @@ echo "  Remote  : $REMOTE_URL"
 echo "  Branche : $BRANCH"
 echo "  Commit  : $(git rev-parse --short HEAD)"
 echo ""
-
