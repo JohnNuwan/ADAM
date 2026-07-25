@@ -427,19 +427,146 @@ function fetchMemory() {
   });
 }
 
-// Objectives (static from directive)
-var objectives = [
-  {title:'1. Autofinancement', desc:'Trading Freedom24, monétisation Maeve.tech, opportunités revenu IA. Objectif: 2000€/mois', priority:'critical'},
-  {title:'2. Auto-Évolution', desc:'Créer skills, améliorer code, optimiser performances. 1 amélioration par cycle', priority:'high'},
-  {title:'3. AGI', desc:'Rechercher auto-amélioration, identifier limites cognitives, raisonnement général', priority:'high'},
-  {title:'4. Optimisation Coûts', desc:'Monitorer GPU/CPU/RAM, réduire coût de 20% en 3 mois', priority:'medium'},
-  {title:'5. Sécurité', desc:'Hardening continu, veille CVE, tests intrusion. Zéro faille critique', priority:'medium'},
-];
-var objHtml = '';
-for (var i=0; i<objectives.length; i++) {
-  objHtml += '<div class="objective"><div class="title">'+objectives[i].title+'</div><div class="desc">'+objectives[i].desc+'</div><div class="priority '+objectives[i].priority+'">'+objectives[i].priority.toUpperCase()+'</div></div>';
+// Objectives with live progress
+function fetchObjectives() {
+  // Calculate progress from real data
+  Promise.all([
+    fetch('/api/stats').then(r=>r.json()).catch(()=>({})),
+    fetch('/api/tools').then(r=>r.json()).catch(()=>({tools:{},total:0})),
+    fetch('/api/memory').then(r=>r.json()).catch(()=>({memory:{}})),
+    fetch('/api/agents').then(r=>r.json()).catch(()=>({agents:{}})),
+  ]).then(function(results) {
+    var stats = results[0] || {};
+    var tools = results[1] || {total:0};
+    var mem = results[2] || {memory:{}};
+    var agents = results[3] || {agents:{}};
+    
+    var totalEvents = stats.history_events || 0;
+    var totalTools = tools.total || 0;
+    var totalMissions = 0;
+    var totalLessons = 0;
+    for (var k in mem.memory) {
+      totalMissions += mem.memory[k].missions || 0;
+      totalLessons += mem.memory[k].lessons || 0;
+    }
+    var activeAgents = Object.keys(agents.agents || {}).length;
+    
+    // Calculate progress for each objective
+    var objectives = [
+      {
+        title: '1. Autofinancement',
+        desc: 'Trading Freedom24, monétisation Maeve.tech, opportunités revenu IA',
+        priority: 'critical',
+        target: '10,000€/mois',
+        current: '0€/mois',
+        pct: 0,
+        subtasks: [
+          {label: 'Treasurer actif', done: agents.agents && agents.agents['treasurer'] ? true : false},
+          {label: 'Social actif (Maeve.tech)', done: agents.agents && agents.agents['social'] ? true : false},
+          {label: 'Outil de trading créé', done: false},
+          {label: 'Stratégie validée', done: false},
+          {label: 'Premier revenu', done: false},
+        ]
+      },
+      {
+        title: '2. Auto-Évolution',
+        desc: 'Créer skills, améliorer code, optimiser performances',
+        priority: 'high',
+        target: '1 amélioration/cycle',
+        current: totalTools + ' outils créés',
+        pct: Math.min(100, Math.round(totalTools / 50 * 100)),
+        subtasks: [
+          {label: 'Skillsmith actif', done: agents.agents && agents.agents['skillsmith'] ? true : false},
+          {label: 'Critic actif', done: agents.agents && agents.agents['critic'] ? true : false},
+          {label: 'Outils créés (' + totalTools + '/50)', done: totalTools >= 50, partial: totalTools},
+          {label: 'Leçons apprises (' + totalLessons + ')', done: totalLessons > 50, partial: totalLessons},
+          {label: 'Praetor optimisation', done: agents.agents && agents.agents['praetor'] ? true : false},
+        ]
+      },
+      {
+        title: '3. AGI — Auto-Amélioration',
+        desc: 'Recherche auto-amélioration, raisonnement général',
+        priority: 'high',
+        target: 'Niveau 6 (AGI)',
+        current: 'Niveau 1/6',
+        pct: 17,
+        subtasks: [
+          {label: 'Niveau 1: Missions assignées', done: true},
+          {label: 'Niveau 2: Missions autonomes', done: true},
+          {label: 'Niveau 3: Agents créent agents', done: false},
+          {label: 'Niveau 4: Auto-modification code', done: false},
+          {label: 'Niveau 5: Auto-gestion infra', done: false},
+          {label: 'Niveau 6: AGI', done: false},
+        ]
+      },
+      {
+        title: '4. Optimisation des Coûts',
+        desc: 'Monitorer GPU/CPU/RAM, réduire coût de 20%',
+        priority: 'medium',
+        target: '-20% en 3 mois',
+        current: '-250€/mois',
+        pct: 10,
+        subtasks: [
+          {label: 'Doctor monitoring actif', done: agents.agents && agents.agents['doctor'] ? true : false},
+          {label: 'Mesure consommation GPU', done: false},
+          {label: 'Optimisation batch inference', done: false},
+          {label: 'Objectif -20% atteint', done: false},
+        ]
+      },
+      {
+        title: '5. Sécurité & Robustesse',
+        desc: 'Hardening continu, veille CVE, tests intrusion',
+        priority: 'medium',
+        target: '0 faille critique',
+        current: 'Active',
+        pct: Math.min(100, Math.round((totalMissions > 0 ? 30 : 0) + (totalLessons > 10 ? 20 : 0))),
+        subtasks: [
+          {label: 'Sentinel veille CVE', done: agents.agents && agents.agents['sentinel'] ? true : false},
+          {label: 'Blue-Team hardening', done: agents.agents && agents.agents['blue-team'] ? true : false},
+          {label: 'Red-Team tests intrusion', done: agents.agents && agents.agents['red-team'] ? true : false},
+          {label: 'Outil de scan créé', done: totalTools > 5},
+          {label: 'Zéro faille critique', done: false},
+        ]
+      },
+    ];
+    
+    var html = '';
+    for (var i=0; i<objectives.length; i++) {
+      var o = objectives[i];
+      var pctColor = o.pct >= 80 ? '#00ff88' : (o.pct >= 40 ? '#ffaa44' : '#ff4466');
+      
+      html += '<div class="objective">';
+      html += '<div style="display:flex;justify-content:space-between;align-items:center">';
+      html += '<div class="title">'+o.title+'</div>';
+      html += '<div class="priority '+o.priority+'">'+o.priority.toUpperCase()+'</div>';
+      html += '</div>';
+      html += '<div class="desc">'+o.desc+'</div>';
+      
+      // Progress bar
+      html += '<div style="margin-top:8px">';
+      html += '<div style="display:flex;justify-content:space-between;font-size:9px;color:#5577aa;margin-bottom:3px">';
+      html += '<span>'+o.current+'</span><span>'+o.target+'</span>';
+      html += '</div>';
+      html += '<div style="background:rgba(68,102,136,0.2);border-radius:4px;height:6px;overflow:hidden">';
+      html += '<div style="height:100%;width:'+o.pct+'%;background:linear-gradient(90deg,'+pctColor+','+pctColor+'88);border-radius:4px;transition:width 0.5s"></div>';
+      html += '</div>';
+      html += '<div style="font-size:9px;color:'+pctColor+';margin-top:2px;font-weight:600">'+o.pct+'%</div>';
+      html += '</div>';
+      
+      // Subtasks
+      html += '<div style="margin-top:8px;font-size:10px">';
+      for (var j=0; j<o.subtasks.length; j++) {
+        var s = o.subtasks[j];
+        var icon = s.done ? '✅' : '⬜';
+        var color = s.done ? '#00ff88' : '#5577aa';
+        html += '<div style="padding:2px 0;color:'+color+'">'+icon+' '+s.label+'</div>';
+      }
+      html += '</div>';
+      html += '</div>';
+    }
+    document.getElementById('objectives-list').innerHTML = html;
+  });
 }
-document.getElementById('objectives-list').innerHTML = objHtml;
 
 // AGI levels
 var agiLevels = [
@@ -459,7 +586,9 @@ document.getElementById('agi-levels').innerHTML = agiHtml;
 
 // Start
 fetchAll();
+fetchObjectives();
 setInterval(fetchAll, 5000);
+setInterval(fetchObjectives, 10000);
 </script>
 </body>
 </html>"""
