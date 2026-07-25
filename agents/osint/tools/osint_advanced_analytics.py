@@ -1,0 +1,1 @@
+L'outil devra utiliser des techniques avancées d'analyse pour extraire des informations pertinentes et précises des sources OSINT, tout en respectant les principes éthiques et la confidentialité.

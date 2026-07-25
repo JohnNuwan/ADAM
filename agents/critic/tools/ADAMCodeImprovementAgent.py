@@ -1,1 +1,1 @@
-Créer un nouvel agent qui utilise ADAMCodeQualityAuditor pour auditer et améliorer le code existant en se basant sur les leçons apprises.
+Créer un agent spécialisé qui peut continuer à améliorer le code des agents ADAM basé sur les standards de qualité identifiés.

@@ -1,0 +1,1 @@
+Créer un outil qui intègre les nouvelles techniques et approches découvertes pour générer des solutions innovantes aux challenges CTF.
