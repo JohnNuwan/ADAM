@@ -76,6 +76,7 @@ services:
     volumes:
       - ./graphify_server.py:/app/graphify_server.py
       - /home/aza/eva-adam-v2/agents:/data/agents:ro
+      - /home/aza/EVA_CORE/skills:/data/skills:ro
     depends_on:
       postgres:
         condition: service_healthy
@@ -96,6 +97,7 @@ services:
     volumes:
       - ./eva_monitor.py:/app/eva_monitor.py
       - /home/aza/eva-adam-v2/agents:/data/agents:ro
+      - /home/aza/EVA_CORE/skills:/data/skills:ro
       - /home/aza/eva-adam-v2/EVA_DIRECTIVE.md:/home/aza/eva-adam-v2/EVA_DIRECTIVE.md:ro
     depends_on:
       go-bus:
@@ -117,6 +119,7 @@ services:
     volumes:
       - ./eva_activity.py:/app/eva_activity.py
       - /home/aza/eva-adam-v2/agents:/data/agents:ro
+      - /home/aza/EVA_CORE/skills:/data/skills:ro
     depends_on:
       go-bus:
         condition: service_started

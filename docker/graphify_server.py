@@ -150,6 +150,57 @@ threading.Thread(target=poll_activity, daemon=True).start()
 threading.Thread(target=poll_missions, daemon=True).start()
 threading.Thread(target=refresh_tools, daemon=True).start()
 
+@app.route("/api/stats")
+def api_stats_full():
+    """Get real stats including actual SKILL.md count"""
+    try:
+        import os
+        from pathlib import Path
+        # Count real SKILL.md files
+        skills_count = 0
+        skills_paths = [
+            Path("/data/agents"),
+            Path("/home/aza/eva-adam-v2"),
+        ]
+        # Also count from EVA_CORE if accessible
+        eva_core_skills = Path("/home/aza/EVA_CORE/skills")
+        if eva_core_skills.exists():
+            skills_count = len(list(eva_core_skills.rglob("SKILL.md")))
+        
+        # Count tools
+        tools_count = 0
+        agents_dir = Path("/data/agents")
+        if agents_dir.exists():
+            for d in agents_dir.iterdir():
+                if d.is_dir():
+                    tdir = d / "tools"
+                    if tdir.exists():
+                        tools_count += len([f for f in tdir.glob("*.py") if "registry" not in f.name and "backup" not in str(f) and "self_improvement" not in f.name])
+        
+        # Count agents (directories)
+        agents_count = len([d for d in agents_dir.iterdir() if d.is_dir()]) if agents_dir.exists() else 0
+        
+        # Count lessons
+        lessons_count = 0
+        if agents_dir.exists():
+            for d in agents_dir.iterdir():
+                if d.is_dir():
+                    lf = d / "memory" / "lessons.json"
+                    if lf.exists():
+                        try:
+                            import json as _j
+                            lessons_count += len(_j.loads(lf.read_text()).get("lessons", []))
+                        except: pass
+        
+        return jsonify({
+            "skills": skills_count,
+            "tools": tools_count,
+            "agents": agents_count,
+            "lessons": lessons_count
+        })
+    except Exception as e:
+        return jsonify({"skills": 0, "tools": 0, "agents": 0, "lessons": 0, "error": str(e)})
+
 @app.route("/api/graph")
 def api_graph():
     with lock:
@@ -489,29 +540,31 @@ HTML = r"""<!DOCTYPE html>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ADAM — EVA Dashboard</title>
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:#050510;color:#e0e8f0;font-family:'SF Pro Display','Segoe UI',system-ui,sans-serif;overflow:hidden}
-#topbar{position:fixed;top:0;left:0;right:0;height:44px;background:linear-gradient(180deg,rgba(5,5,16,0.98),rgba(5,5,16,0.9));display:flex;align-items:center;justify-content:space-between;padding:0 20px;z-index:1000;backdrop-filter:blur(10px);border-bottom:1px solid rgba(68,102,136,0.1)}
+body{background:#050510;color:#e0e8f0;font-family:'Inter',system-ui,sans-serif;overflow:hidden}
+#topbar{position:fixed;top:0;left:0;right:0;height:50px;background:rgba(5,5,16,0.85);backdrop-filter:blur(20px) saturate(180%);display:flex;align-items:center;justify-content:space-between;padding:0 24px;z-index:1000;border-bottom:1px solid rgba(0,170,255,0.08);box-shadow:0 1px 20px rgba(0,0,0,0.5)}
 #topbar .logo{display:flex;align-items:center;gap:10px}
 #topbar .logo .dot{width:8px;height:8px;border-radius:50%;background:#00aaff;box-shadow:0 0 12px #00aaff;animation:pulse 2s infinite}
-#topbar .logo span{font-size:13px;font-weight:600;letter-spacing:0.5px}
-#topbar .stats{display:flex;gap:20px;font-size:11px;color:#5577aa}
-#topbar .stats .val{color:#e8e8f0;font-weight:600}
+#topbar .logo span{font-size:14px;font-weight:700;letter-spacing:-0.3px;background:linear-gradient(135deg,#00aaff,#00ff88);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+#topbar .stats{display:flex;gap:16px;font-size:11px;color:#5577aa}
+#topbar .stats .val{color:#00aaff;font-weight:700;font-size:13px}
 #topbar .nav{display:flex;gap:8px}
-#topbar .nav button{background:rgba(68,102,136,0.1);border:1px solid rgba(68,102,136,0.2);border-radius:6px;padding:5px 12px;color:#88aacc;font-size:11px;cursor:pointer;transition:all 0.2s}
-#topbar .nav button:hover{background:rgba(0,170,255,0.15);color:#00aaff}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+#topbar .nav button{background:rgba(0,170,255,0.06);border:1px solid rgba(0,170,255,0.12);border-radius:8px;padding:6px 14px;color:#88aacc;font-size:11px;font-weight:500;cursor:pointer;transition:all 0.3s cubic-bezier(0.4,0,0.2,1)}
+#topbar .nav button:hover{background:rgba(0,170,255,0.12);color:#00aaff;border-color:rgba(0,170,255,0.3);transform:translateY(-1px)}
+#topbar .nav button:active{transform:translateY(0)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
 
 #workspace{position:fixed;top:44px;left:0;right:0;bottom:0;display:flex}
 #canvas-area{flex:1;position:relative;background:#050510}
 #canvas-area canvas{display:block}
 
-.panel{position:absolute;background:rgba(5,5,16,0.94);border:1px solid rgba(68,102,136,0.2);border-radius:12px;display:flex;flex-direction:column;min-width:280px;max-width:400px;box-shadow:0 8px 32px rgba(0,0,0,0.4);backdrop-filter:blur(10px);z-index:100}
-.panel-header{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid rgba(68,102,136,0.1);cursor:move;user-select:none}
-.panel-header h3{font-size:10px;color:#5577aa;text-transform:uppercase;letter-spacing:0.5px;display:flex;align-items:center;gap:6px}
+.panel{position:absolute;background:rgba(8,8,20,0.75);border:1px solid rgba(255,255,255,0.06);border-radius:16px;display:flex;flex-direction:column;min-width:280px;max-width:380px;box-shadow:0 8px 40px rgba(0,0,0,0.6),inset 0 1px 0 rgba(255,255,255,0.04);backdrop-filter:blur(24px) saturate(180%);z-index:100;transition:all 0.3s cubic-bezier(0.4,0,0.2,1)}
+.panel-header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid rgba(255,255,255,0.04);cursor:move;user-select:none}
+.panel-header h3{font-size:10px;color:#6688aa;text-transform:uppercase;letter-spacing:1px;font-weight:600;display:flex;align-items:center;gap:6px}
 .panel-header .live{width:5px;height:5px;border-radius:50%;background:#ff4466;animation:pulse 1s infinite}
 .panel-header .controls{display:flex;gap:4px}
-.panel-header .controls button{background:none;border:none;color:#446688;font-size:12px;cursor:pointer;padding:2px 6px;border-radius:4px}
+.panel-header .controls button{background:none;border:none;color:#446688;font-size:14px;cursor:pointer;padding:4px 8px;border-radius:6px;transition:all 0.2s;line-height:1}
 .panel-header .controls button:hover{color:#e8e8f0;background:rgba(68,102,136,0.1)}
 .panel-content{flex:1;overflow-y:auto;padding:10px;min-height:100px;max-height:400px}
 .panel-content::-webkit-scrollbar{width:3px}
@@ -537,7 +590,7 @@ body{background:#050510;color:#e0e8f0;font-family:'SF Pro Display','Segoe UI',sy
 .card .tools-list{font-size:9px;color:#5577aa;margin-top:6px;padding-top:6px;border-top:1px solid rgba(68,102,136,0.1)}
 .card .tools-list .t{color:#00ff88;font-family:monospace}
 
-.mission-card{background:rgba(10,15,25,0.6);border-radius:8px;padding:10px;margin-bottom:8px;border-left:3px solid #00aaff}
+.mission-card{background:rgba(15,20,35,0.5);border-radius:10px;padding:12px;margin-bottom:8px;border-left:3px solid #00aaff}
 .mission-card.running{border-left-color:#00ff88}
 .mission-card.done{border-left-color:#446688}
 .mission-card .objective{font-size:11px;font-weight:500;color:#e8e8f0;margin-bottom:4px}
@@ -553,20 +606,20 @@ body{background:#050510;color:#e0e8f0;font-family:'SF Pro Display','Segoe UI',sy
 .chat-msg.eva{align-self:flex-start;background:rgba(0,255,136,0.08);border-left:3px solid #00ff88}
 .chat-msg .time{font-size:9px;color:#446688;margin-bottom:4px}
 #chat-input{display:flex;gap:8px;padding:10px;border-top:1px solid rgba(68,102,136,0.1)}
-#chat-input input{flex:1;background:rgba(10,15,25,0.6);border:1px solid rgba(68,102,136,0.2);border-radius:6px;padding:8px 12px;color:#e8e8f0;font-size:11px;outline:none}
+#chat-input input{flex:1;background:rgba(15,20,35,0.6);border:1px solid rgba(0,170,255,0.12);border-radius:10px;padding:10px 14px;color:#e8e8f0;font-size:12px;outline:none;transition:all 0.2s}
 #chat-input input:focus{border-color:#00aaff}
-#chat-input button{background:#00aaff;border:none;border-radius:6px;padding:8px 16px;color:#fff;font-size:11px;font-weight:600;cursor:pointer}
+#chat-input button{background:linear-gradient(135deg,#0088cc,#00aaff);border:none;border-radius:10px;padding:10px 18px;color:#fff;font-size:12px;font-weight:600;cursor:pointer;transition:all 0.2s;box-shadow:0 2px 12px rgba(0,170,255,0.2)}
 #chat-input button:hover{background:#0088cc}
 
-.flow-row{display:flex;align-items:center;gap:5px;padding:4px 0;border-bottom:1px solid rgba(68,102,136,0.06);font-size:10px;font-family:'SF Mono',Menlo,monospace;color:#88aacc}
+.flow-row{display:flex;align-items:center;gap:5px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.03);font-size:10px;font-family:'JetBrains Mono','SF Mono',Menlo,monospace;color:#88aacc}
 .flow-row .t{color:#446688;min-width:55px}
 .flow-row .s{color:#00ff88;font-weight:600;min-width:65px}
 .flow-row .top{color:#aaccff;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .flow-row .st{font-size:8px;padding:1px 4px;border-radius:3px;font-weight:600;text-transform:uppercase}
 
-.node-label{position:absolute;font-size:10px;font-weight:500;text-shadow:0 0 4px #000,0 0 8px #000;background:rgba(5,5,16,0.8);padding:2px 6px;border-radius:4px;pointer-events:none;white-space:nowrap;z-index:5;transform:translate(-50%,-50%)}
+.node-label{position:absolute;font-size:10px;font-weight:500;text-shadow:0 0 4px #000,0 0 8px #000;background:rgba(5,5,16,0.85);padding:2px 8px;border-radius:6px;pointer-events:none;white-space:nowrap;z-index:5;transform:translate(-50%,-50%);border:1px solid rgba(255,255,255,0.04)}
 
-#info-panel{position:fixed;z-index:500;background:rgba(5,5,16,0.95);padding:14px 18px;border-radius:12px;border:1px solid rgba(68,102,136,0.25);max-width:280px;pointer-events:none;opacity:0;transition:all 0.3s;transform:translateY(-5px)}
+#info-panel{position:fixed;z-index:500;background:rgba(8,8,20,0.85);padding:16px 20px;border-radius:16px;border:1px solid rgba(255,255,255,0.06);max-width:280px;pointer-events:none;opacity:0;transition:all 0.3s cubic-bezier(0.4,0,0.2,1);transform:translateY(-5px);backdrop-filter:blur(20px);box-shadow:0 8px 40px rgba(0,0,0,0.6)}
 #info-panel.visible{opacity:1;transform:translateY(0)}
 #info-panel h3{margin:0 0 2px;font-size:15px;font-weight:600}
 #info-panel .tag{display:inline-block;font-size:9px;padding:2px 8px;border-radius:10px;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px;font-weight:600}
@@ -1026,7 +1079,16 @@ function buildHub(data) {
     }
   }
 
-  document.getElementById('stats-bar').innerHTML = '<div>Agents: <span class="val">' + hub.agents.length + '</span></div><div>Skills: <span class="val">' + hub.skills.length + '</span></div><div>Services: <span class="val">' + hub.services.length + '</span></div>';
+  // Show real stats (from /api/stats)
+  fetch('/api/stats').then(function(r) { return r.json(); }).then(function(s) {
+    document.getElementById('stats-bar').innerHTML = 
+      '<div>Agents: <span class="val">' + (s.agents || hub.agents.length) + '</span></div>' +
+      '<div>Skills: <span class="val">' + (s.skills || hub.skills.length) + '</span></div>' +
+      '<div>Outils: <span class="val">' + (s.tools || 0) + '</span></div>' +
+      '<div>Leçons: <span class="val">' + (s.lessons || 0) + '</span></div>';
+  }).catch(function() {
+    document.getElementById('stats-bar').innerHTML = '<div>Agents: <span class="val">' + hub.agents.length + '</span></div><div>Skills: <span class="val">' + hub.skills.length + '</span></div><div>Services: <span class="val">' + hub.services.length + '</span></div>';
+  });
 }
 
 function updateLabels() {
