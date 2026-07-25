@@ -713,6 +713,18 @@ function init() {
 }
 
 function loadToolSatellites() {
+  // Clear old tool meshes first
+  if (window._toolMeshes) {
+    for (var k in window._toolMeshes) {
+      var t = window._toolMeshes[k];
+      if (t.parent) t.parent.remove(t);
+      if (t.geometry) t.geometry.dispose();
+      if (t.material) t.material.dispose();
+      if (t.userData.labelEl) t.userData.labelEl.remove();
+    }
+  }
+  window._toolMeshes = {};
+  
   fetch('/api/tools').then(function(r) { return r.json(); }).then(function(td) {
     var toolsData = td.tools || {};
     var toolMeshes = {};
@@ -740,7 +752,8 @@ function loadToolSatellites() {
         scene.add(tMesh);
         toolMeshes[agentKey + '_' + ti] = tMesh;
 
-        // Tool label
+        // Tool label (remove old if exists)
+        if (tMesh.userData.labelEl) { tMesh.userData.labelEl.remove(); }
         var tl = document.createElement('div');
         tl.className = 'node-label';
         tl.textContent = toolName.substring(0, 15);
