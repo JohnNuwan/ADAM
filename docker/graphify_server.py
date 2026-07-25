@@ -774,26 +774,36 @@ function buildHub(data) {
   var hub = data.hub;
   if (!hub) return;
 
-  // Clear EVERYTHING except lights, stars, and camera
-  var toRemove = [];
-  for (var i = 0; i < scene.children.length; i++) {
+  // NUCLEAR CLEAR — remove everything, rebuild from scratch
+  // Save lights and stars
+  var saved = [];
+  for (var i = scene.children.length - 1; i >= 0; i--) {
     var ch = scene.children[i];
-    // Keep: AmbientLight, DirectionalLight, Points (stars)
-    if (ch.isLight || ch.isPoints || ch.isLine && ch.userData && ch.userData.ring) {
-      continue;
+    if (ch.isLight || ch.isPoints) {
+      saved.push(ch);
+      scene.remove(ch);
+    } else {
+      scene.remove(ch);
+      if (ch.geometry) ch.geometry.dispose();
+      if (ch.material) { if (ch.material.length) { ch.material.forEach(function(m){m.dispose();}); } else { ch.material.dispose(); } }
     }
-    toRemove.push(ch);
   }
-  for (var i = 0; i < toRemove.length; i++) {
-    scene.remove(toRemove[i]);
-    if (toRemove[i].geometry) toRemove[i].geometry.dispose();
-    if (toRemove[i].material) toRemove[i].material.dispose();
+  // Clear scene completely
+  while(scene.children.length > 0) {
+    var obj = scene.children[0];
+    scene.remove(obj);
+    if (obj.geometry) obj.geometry.dispose();
+    if (obj.material) { if (obj.material.length) { obj.material.forEach(function(m){m.dispose();}); } else { obj.material.dispose(); } }
+  }
+  // Restore lights and stars
+  for (var i = 0; i < saved.length; i++) {
+    scene.add(saved[i]);
   }
   
   // Clear tool meshes
   window._toolMeshes = {};
   
-  // Clear all labels (node + tool)
+  // Clear all labels
   document.querySelectorAll('.node-label').forEach(function(el) { el.remove(); });
   
   nodes = {};
