@@ -159,7 +159,7 @@ def get_agents_from_db():
         print(f"[ERROR] get_agents_from_db: {e}", file=sys.stderr)
     return agents
 
-def get_recent_events(limit=50):
+def get_recent_events_via_sqlite(limit=50):
     """Récupère les derniers events du bus."""
     events = []
     try:
@@ -193,6 +193,12 @@ def get_recent_events(limit=50):
         print(f"[ERROR] get_recent_events: {e}", file=sys.stderr)
     return events
 
+
+def get_recent_events(limit=50):
+    events = get_bus_events("adam:event", limit)
+    if events:
+        return events
+    return get_recent_events_via_sqlite(limit)
 def get_bus_stats():
     """Statistiques globales du bus."""
     try:
