@@ -41,6 +41,29 @@ def get_graph():
     with lock:
         return jsonify(nodes_cache)
 
+
+@app.route("/api/tools")
+def get_tools():
+    """Liste les outils/scripts de chaque agent"""
+    import os
+    from pathlib import Path
+    base = Path(os.environ.get("ADAM_V2_DIR", "/home/aza/eva-adam-v2"))
+    tools_data = {}
+    adir = base / "agents"
+    if adir.exists():
+        for d in sorted(adir.iterdir()):
+            if d.is_dir():
+                name = "adam-" + d.name
+                scripts = [f.name for f in sorted(d.glob("*.sh")) + sorted(d.glob("*.py"))]
+                tools = []
+                tdir = d / "tools"
+                if tdir.exists():
+                    tools = [f.name for f in sorted(tdir.iterdir()) if f.is_file()]
+                if scripts or tools:
+                    tools_data[name] = {"scripts": scripts[:15], "tools": tools[:15]}
+        return jsonify({"tools": tools_data})
+    return jsonify({"tools": {}})
+
 @app.route("/api/packets")
 def get_packets():
     try:
@@ -132,6 +155,7 @@ body{background:#050510;color:#e0e8f0;font-family:'SF Pro Display','Segoe UI',sa
   <h3 id="info-name">-</h3>
   <div class="tag" id="info-tag"></div>
   <div class="props" id="info-props"></div>
+  <div id="agent-tools" style="margin-top:8px;padding-top:8px;border-top:1px solid rgba(68,102,136,0.15);display:none"></div>
 </div>
 <div id="flow-panel"><h4><span class="live-dot"></span>Flux temps reel</h4></div>
 <div id="legend"><h4>Legende</h4><div id="legend-items"></div></div>
@@ -148,10 +172,10 @@ var animTime = 0;
 var maxFlows = 20;
 
 var NODE_COLORS = {
-  'EVA':         {color: 0x00aaff, clr: '#00aaff', size: 1.8, labelSize: '16px', emissive: 0x0066ff},
-  'Agent':       {color: 0x00ff88, clr: '#00ff88', size: 0.6, labelSize: '11px', emissive: 0x00cc55},
-  'SkillDomain': {color: 0x4488ff, clr: '#4488ff', size: 0.2, labelSize: '8px', emissive: 0x2244aa},
-  'Service':     {color: 0xff8844, clr: '#ff8844', size: 0.5, labelSize: '10px', emissive: 0xcc6622}
+  'EVA':         {color: 0x00aaff, clr: '#00aaff', size: 1.2, labelSize: '16px', emissive: 0x0066ff},
+  'Agent':       {color: 0x00ff88, clr: '#00ff88', size: 0.45, labelSize: '11px', emissive: 0x00cc55},
+  'SkillDomain': {color: 0x4488ff, clr: '#4488ff', size: 0.15, labelSize: '8px', emissive: 0x2244aa},
+  'Service':     {color: 0xff8844, clr: '#ff8844', size: 0.35, labelSize: '10px', emissive: 0xcc6622}
 };
 
 var AGENT_NAMES = {};
