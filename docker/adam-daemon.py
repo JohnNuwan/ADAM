@@ -59,10 +59,52 @@ def _acquire_lock():
         sys.exit(1)
 
 def publish_packet(agent, exit_code, output, status):
+    """Publish packet with real agent output (thoughts, tools, results)"""
+    # Extract real info from output
+    thought = ""
+    tools_created = []
+    mission = ""
+
+    if output:
+        lines = output.strip().split("\n")
+        for line in lines[:5]:
+            if "reçoit la mission:" in line:
+                mission = line.split("mission:")[-1].strip()[:100]
+            if "create_tool" in line:
+                # Extract tool name
+                import re
+                m = re.search(r'"tool":\s*"([^"]+)"', line)
+                if m:
+                    tools_created.append(m.group(1))
+            if "execute_tool" in line:
+                import re
+                m = re.search(r'"tool":\s*"([^"]+)"', line)
+                if m:
+                    tools_created.append("exec:" + m.group(1))
+
+    # Build a meaningful thought
+    parts = []
+    if mission:
+        parts.append(f"Mission: {mission}")
+    if tools_created:
+        parts.append(f"Outils: {', '.join(tools_created[:3])}")
+    if not parts:
+        parts.append(output[:100] if output else status)
+
+    thought = " | ".join(parts)
+
     payload = json.dumps({
         "topic": "adam:packet",
         "source": agent,
-        "payload": {"exit": exit_code, "output": output[:200], "status": status, "time": datetime.now(timezone.utc).isoformat()},
+        "payload": {
+            "exit": exit_code,
+            "thought": thought[:200],
+            "mission": mission[:100],
+            "tools_created": tools_created[:5],
+            "output": output[:300],
+            "status": status,
+            "time": datetime.now(timezone.utc).isoformat()
+        },
         "priority": 1
     }).encode()
     try:
@@ -93,11 +135,12 @@ def run_cycle():
                 error = result.stderr.strip()
 
                 if exit_code == 0:
-                    logger.info(f"{agent}: OK (LLM) - {output[:100]}")
+                    logger.info(f"{agent}: OK (LLM) - {output[:150]}")
                 else:
                     logger.warning(f"{agent}: exit={exit_code} - {error[:200]}")
 
-                publish_packet(agent, exit_code, output[:200], "done" if exit_code == 0 else "failed")
+                # Publish with full output (not truncated)
+                publish_packet(agent, exit_code, output[:500], "done" if exit_code == 0 else "failed")
 
             except subprocess.TimeoutExpired:
                 logger.warning(f"{agent}: timeout après {AGENT_TIMEOUT}s")

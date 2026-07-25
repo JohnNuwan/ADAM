@@ -139,17 +139,42 @@ def api_activity():
         with urllib.request.urlopen(req, timeout=3) as resp:
             data = json.loads(resp.read().decode())
             pkts = data if isinstance(data, list) else data.get("events", [])
+            # Sort by timestamp desc (newest first)
+            pkts.sort(key=lambda x: x.get("timestamp", ""), reverse=True)
+
             activity = {}
             for p in pkts:
                 src = p.get("source", "")
-                if src:
+                if src and src not in activity:  # Only keep latest per agent
                     payload = p.get("payload", {})
-                    thought = payload.get("status", "") if isinstance(payload, dict) else ""
-                    output = payload.get("output", "") if isinstance(payload, dict) else ""
-                    if output:
-                        thought = output[:100]
+                    if not isinstance(payload, dict):
+                        payload = {}
+                    thought = payload.get("thought", "")
+                    if not thought:
+                        output = payload.get("output", "")
+                        thought = output[:100] if output else payload.get("status", "done")
+                    mission = payload.get("mission", "")
+                    tools = payload.get("tools_created", [])
+                    if not mission:
+                        # Try to extract from output
+                        output = payload.get("output", "")
+                        if "mission:" in output.lower():
+                            for line in output.split("\n"):
+                                if "mission:" in line.lower():
+                                    mission = line.split("mission:")[-1].strip()[:80]
+                                    break
+                    if not thought or thought == "done":
+                        if mission:
+                            thought = f"Mission: {mission[:60]}"
+                            if tools:
+                                thought += f" | Outils: {', '.join(tools[:2])}"
+                        else:
+                            output = payload.get("output", "")
+                            thought = output[:100] if output else "En cours..."
                     activity[src] = {
                         "thought": str(thought)[:150],
+                        "mission": mission[:100],
+                        "tools": tools[:5],
                         "timestamp": p.get("timestamp", ""),
                         "topic": p.get("topic", "")
                     }
