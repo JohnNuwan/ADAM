@@ -112,19 +112,40 @@ def get_agents():
     return agents
 
 def get_recent_events(limit=50):
-    events = get_bus_events(limit=limit)
-    result = []
-    for e in events:
-        result.append({
-            "id": e.get("id", ""),
-            "channel": e.get("topic", ""),
-            "source": e.get("source", ""),
-            "status": e.get("status", "done"),
-            "created_at": e.get("created_at", ""),
-            "processed_at": e.get("created_at", ""),
-            "priority": e.get("priority", 1),
-        })
-    return result
+    """Interroge tous les topics du Go Bus et retourne les events recents"""
+    import urllib.request
+    bus = os.environ.get("BUS_URL", "http://192.168.1.5:8086")
+    all_events = []
+    try:
+        req = urllib.request.Request(f"{bus}/api/stats")
+        with urllib.request.urlopen(req, timeout=3) as resp:
+            stats = json.loads(resp.read().decode())
+        for key, count in stats.items():
+            if key.startswith("topic:"):
+                topic = key[6:]
+                try:
+                    q = urllib.request.Request(f"{bus}/api/query?limit=5&topic={topic}")
+                    with urllib.request.urlopen(q, timeout=2) as qresp:
+                        data = json.loads(qresp.read().decode())
+                        if isinstance(data, list):
+                            for e in data:
+                                all_events.append({
+                                    "id": e.get("id", ""),
+                                    "channel": e.get("topic", ""),
+                                    "source": e.get("source", ""),
+                                    "status": e.get("status", "done"),
+                                    "created_at": e.get("timestamp", e.get("created_at", "")),
+                                    "processed_at": e.get("timestamp", ""),
+                                    "priority": e.get("priority", 1),
+                                })
+                        elif isinstance(data, dict) and "events" in data:
+                            for e in data["events"]:
+                                all_events.append(e)
+                except: pass
+    except Exception as e:
+        print(f"[VIZ] Error fetching events: {e}", flush=True)
+    all_events.sort(key=lambda x: x.get("created_at", ""), reverse=True)
+    return all_events[:limit]
 
 def get_daemon_status():
     daemons = {}

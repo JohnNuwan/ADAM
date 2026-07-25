@@ -38,6 +38,21 @@ def bus(topic, source, payload):
         urllib.request.urlopen(req, timeout=5)
     except: pass
 
+import threading
+
+def packet_stream():
+    """Publie un flux continu de paquets pour la visualisation temps reel"""
+    import random
+    actions = ["scan", "analyze", "process", "monitor", "report", "update"]
+    sources = ["blue-team", "sentinel", "praetor", "critic", "doctor", "red-team"]
+    while True:
+        src = random.choice(sources)
+        act = random.choice(actions)
+        bus(f"adam:packet", src, {"action": act, "status": "running", "ts": datetime.now(timezone.utc).isoformat()})
+        time.sleep(3.0)
+
+threading.Thread(target=packet_stream, daemon=True).start()
+
 def main():
     log(f"ADAM Daemon started — {len(AGENTS)} agents")
     bus("adam:daemon", "system", {"status":"started","agents":len(AGENTS)})
