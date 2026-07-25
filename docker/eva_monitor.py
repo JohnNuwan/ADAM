@@ -234,8 +234,8 @@ h1{font-size:22px;font-weight:700;margin-bottom:5px;background:linear-gradient(9
       <div id="agents-list"></div>
     </div>
 
-    <div class="card">
-      <h2><span class="dot"></span>Missions en cours</h2>
+    <div class="card" style="min-height:300px">
+      <h2><span class="dot"></span>Missions en cours (Live)</h2>
       <div id="missions-list"></div>
     </div>
   </div>
@@ -267,12 +267,23 @@ h1{font-size:22px;font-weight:700;margin-bottom:5px;background:linear-gradient(9
         <tr class="total"><td>Total/mois</td><td class="expense">-250€</td><td class="expense">-200€</td></tr>
         <tr><td colspan="3" style="height:8px"></td></tr>
         <tr><th>Revenus & Remboursement</th><th>Actuel</th><th>Objectif</th></tr>
-        <tr><td>Revenus/mois</td><td>0€</td><td class="income">+2000€</td></tr>
-        <tr><td>Remboursement dette/mois</td><td>0€</td><td class="income">-550€</td></tr>
-        <tr><td>Composants/mois</td><td>0€</td><td class="expense">-200€</td></tr>
-        <tr class="total"><td>Bénéfice net/mois</td><td class="expense">-250€</td><td class="income">+1050€</td></tr>
+        <tr><td>Revenus bruts/mois</td><td>0€</td><td class="income">+10000€</td></tr>
+        <tr><td>Impôts (~25%)</td><td>0€</td><td class="expense">-2500€</td></tr>
+        <tr><td>Revenus nets/mois</td><td>0€</td><td class="income">+7500€</td></tr>
+        <tr><td>Coûts mensuels</td><td class="expense">-250€</td><td class="expense">-200€</td></tr>
+        <tr><td>Remboursement dette/mois</td><td>0€</td><td class="expense">-550€</td></tr>
+        <tr><td>Composants/mois</td><td>0€</td><td class="expense">-500€</td></tr>
+        <tr class="total"><td>Bénéfice net/mois</td><td class="expense">-250€</td><td class="income">+6250€</td></tr>
         <tr><td colspan="3" style="height:8px"></td></tr>
-        <tr class="total"><td>Dette restante (mois)</td><td colspan="2" style="color:#ffaa44">4400€ → 0€ en 8 mois</td></tr>
+        <tr class="total"><td>Dette restante</td><td colspan="2" style="color:#ffaa44">4400€ → 0€ en 2 mois</td></tr>
+        <tr><td colspan="3" style="height:8px"></td></tr>
+        <tr><th colspan="3" style="color:#00ff88">PROGRESSION REVENUS</th></tr>
+        <tr><td colspan="3" id="revenue-progress" style="padding:10px">
+          <div style="background:rgba(68,102,136,0.2);border-radius:8px;height:20px;overflow:hidden">
+            <div id="revenue-bar" style="height:100%;width:0%;background:linear-gradient(90deg,#ff4466,#ffaa44,#00ff88);border-radius:8px;transition:width 0.5s"></div>
+          </div>
+          <div style="font-size:10px;color:#5577aa;margin-top:4px"><span id="revenue-current">0€</span> / 10000€ objectif</div>
+        </td></tr>
       </table>
     </div>
 
@@ -313,6 +324,13 @@ function fetchStats() {
   fetch('/api/tools').then(r=>r.json()).then(d=>{
     document.getElementById('stat-tools').textContent = d.total || 0;
   });
+  // Update revenue progress (simulated for now)
+  var revenue = 0; // TODO: connect to real revenue data
+  var pct = Math.min(100, (revenue / 10000) * 100);
+  var bar = document.getElementById('revenue-bar');
+  if (bar) bar.style.width = pct + '%';
+  var cur = document.getElementById('revenue-current');
+  if (cur) cur.textContent = revenue + '€';
 }
 
 function fetchAgents() {
@@ -338,11 +356,35 @@ function fetchMissions() {
     var el = document.getElementById('missions-list');
     var missions = d.missions || [];
     var html = '';
-    for (var i=0; i<Math.min(missions.length,8); i++) {
+    for (var i=0; i<Math.min(missions.length,10); i++) {
       var m = missions[i];
       var p = m.payload || {};
       var st = p.status || 'pending';
-      html += '<div class="agent-row"><div class="status '+st+'"></div><div class="name">'+(p.agent||m.source||'')+'</div><div class="mission">'+(p.mission||p.objective||'').substring(0,50)+'</div><div class="time">'+st+'</div></div>';
+      var agent = (p.agent||m.source||'').replace('adam-','');
+      var mission = (p.mission||p.objective||m.topic||'').substring(0,60);
+      var t = (m.timestamp||'').slice(11,19) || '--:--:--';
+      var stColor = st==='done'?'#00ff88':(st==='failed'?'#ff4466':(st==='running'?'#00aaff':'#ffaa44'));
+      var tools = p.tools_created || [];
+      var thought = p.thought || '';
+      html += '<div style="padding:8px;border-bottom:1px solid rgba(68,102,136,0.08)">';
+      html += '<div style="display:flex;align-items:center;gap:8px">';
+      html += '<div class="status '+st+'" style="width:8px;height:8px;border-radius:50%;min-width:8px;background:'+stColor+'"></div>';
+      html += '<div style="font-size:11px;font-weight:600;color:#00ff88;min-width:80px">'+agent+'</div>';
+      html += '<div style="font-size:10px;color:#88aacc;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+mission+'</div>';
+      html += '<div style="font-size:9px;color:#446688">'+t+'</div>';
+      html += '</div>';
+      if (thought) {
+        html += '<div style="font-size:9px;color:#6688aa;margin-top:3px;margin-left:16px;font-style:italic">'+thought.substring(0,80)+'</div>';
+      }
+      if (tools && tools.length) {
+        html += '<div style="font-size:9px;color:#ffaa00;margin-top:2px;margin-left:16px">🔧 '+tools.join(', ').substring(0,60)+'</div>';
+      }
+      // Progress bar
+      var pct = st==='done'?100:(st==='running'?50:(st==='failed'?100:10));
+      html += '<div style="height:2px;background:rgba(68,102,136,0.15);border-radius:1px;margin-top:4px;margin-left:16px;overflow:hidden">';
+      html += '<div style="height:100%;width:'+pct+'%;background:'+stColor+';border-radius:1px;transition:width 0.3s"></div>';
+      html += '</div>';
+      html += '</div>';
     }
     if (!html) html = '<div style="color:#5577aa;font-size:11px">Aucune mission</div>';
     el.innerHTML = html;
