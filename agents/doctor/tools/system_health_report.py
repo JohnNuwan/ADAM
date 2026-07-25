@@ -1,1 +1,1 @@
-Créer un outil system_health_report qui génère un rapport de santé du système basé sur le rapport de diagnostic.
+python

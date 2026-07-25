@@ -1,1 +1,1 @@
-new_skill_generator
+missing_domain_skill_creation_improvement(domain='autonomie financière et AGI')

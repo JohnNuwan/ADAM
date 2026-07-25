@@ -1,13 +1,16 @@
-import docker
-from resource_monitor import ResourceMonitor
+from existing_modules import docker_inspect, resource_monitor
 
-def identify_unnecessary_containers():
-    client = docker.from_env()
-    containers = client.containers.list()
-    resource_monitor = ResourceMonitor()
-    unnecessary_containers = []
-    for container in containers:
-        usage = resource_monitor.monitor(container)
-        if usage['cpu'] < 5 and usage['memory'] < 5 and usage['gpu'] < 5:
-            unnecessary_containers.append(container)
-    return unnecessary_containers
+class ContainerIdentifier:
+    def __init__(self):
+        self.docker_inspector = docker_inspect.DockerInspect()
+        self.resource_monitor = resource_monitor.ResourceMonitor()
+
+    def identify_unused_containers(self):
+        containers_info = self.docker_inspector.inspect_containers()
+        resources_usage = self.resource_monitor.monitor_resources()
+        unused_containers = self.detect_unused_containers(containers_info, resources_usage)
+        return unused_containers
+
+    def detect_unused_containers(self, containers_info, resources_usage):
+        # Logique de détection des conteneurs inutiles
+        pass

@@ -1,3 +1,1 @@
-from RAGPipeline import create_rag_pipeline
-pipeline = create_rag_pipeline()
-pipeline.initialize(DocumentIndexer, SemanticSearchEngine)
+Crée un pipeline RAG pour les connaissances ADAM, en intégrant les leçons apprises et en garantissant la compatibilité et l'intégration des composants du système.

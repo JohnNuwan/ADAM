@@ -1,3 +1,3 @@
-def schedule_security_audits():
-    # Code pour programmer des audits de sécurité réguliers
-    pass
+def schedule_security_audits(frequency):
+    # Programmer des audits de sécurité réguliers
+    schedule_recurring_task('security_audit', frequency)

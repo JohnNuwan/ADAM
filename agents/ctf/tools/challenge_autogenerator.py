@@ -1,1 +1,3 @@
-Utilise les connaissances acquises lors de la recherche pour développer un outil capable de générer des challenges CTF de manière automatique.
+def generate_challenge(skill_level, complexity):
+    # Génère un challenge basé sur les compétences et la complexité spécifiées
+    pass
