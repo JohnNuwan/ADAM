@@ -147,6 +147,8 @@ var clusterGroups = {};
 var clusterMeshes = [];
 
 var CLUSTER_CONFIG = {
+  EVA:         {color: 0xffaa00, clr: '#ffaa00', size: 1.0, clusterSize: 1.5},
+
   Agent:       {color: 0x00ff88, clr: '#00ff88', size: 0.6, clusterSize: 3.5},
   SkillDomain: {color: 0x4488ff, clr: '#4488ff', size: 0.3, clusterSize: 5.0},
   Service:     {color: 0xff8844, clr: '#ff8844', size: 0.5, clusterSize: 2.5}
@@ -221,21 +223,32 @@ function buildClusters(data) {
   // Place each cluster on a circle around center
   var clusterKeys = Object.keys(groups);
   var numClusters = clusterKeys.length;
-  var clusterRadius = 8 + numClusters * 2;
+  // EVA goes to center, others around it
+  var hasEVA = groups['EVA'] !== undefined;
+  var nonEVAKeys = clusterKeys.filter(function(k) { return k !== 'EVA'; });
+  var numNonEVA = nonEVAKeys.length;
+  var clusterRadius = 10 + numNonEVA * 1.5;
 
   // Build legend
   var leg = document.getElementById('legend-items');
   leg.innerHTML = '';
 
-  for (var ci = 0; ci < clusterKeys.length; ci++) {
-    var label = clusterKeys[ci];
+  var allKeys = hasEVA ? ['EVA'].concat(nonEVAKeys) : nonEVAKeys;
+  for (var ci = 0; ci < allKeys.length; ci++) {
+    var label = allKeys[ci];
     var nodes = groups[label];
     var cfg = CLUSTER_CONFIG[label] || {color: 0x888888, clr: '#888', size: 0.35, clusterSize: 4};
 
     // Cluster center position
-    var ca = (2 * Math.PI * ci) / numClusters;
-    var cx = Math.cos(ca) * clusterRadius;
-    var cz = Math.sin(ca) * clusterRadius;
+    var cx, cz, cy = 0;
+    if (label === 'EVA') {
+      cx = 0; cz = 0;
+    } else {
+      var idx = hasEVA ? ci - 1 : ci;
+      var ca = (2 * Math.PI * idx) / numNonEVA;
+      cx = Math.cos(ca) * clusterRadius;
+      cz = Math.sin(ca) * clusterRadius;
+    }
     var cy = 0;
 
     // Legend entry
