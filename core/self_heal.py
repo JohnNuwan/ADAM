@@ -43,8 +43,8 @@ SCRIPTS_DIR = Path(os.environ.get("HOME", "/home/aza")) / "scripts"
 
 # ─── Configuration ──────────────────────────────────────────────────────────
 
-INTERVALLE = 10           # secondes entre chaque cycle
-HEARTBEAT_INTERVAL = 60   # heartbeat toutes les 60 secondes
+INTERVALLE = 60           # secondes entre chaque cycle (debruité)
+HEARTBEAT_INTERVAL = 300   # heartbeat toutes les 5 minutes
 HANDLER_TIMEOUT = 30      # timeout pour les sous-processus
 
 # Canaux surveillés par la boucle
@@ -1261,6 +1261,20 @@ class SelfHealLoop:
                     if line.startswith("?? ")
                 ]
                 if untracked:
+                    # Debounce: pas d'auto-commit si < 1h depuis dernier commit git
+                    try:
+                        last_commit_ts = subprocess.run(
+                            ["git", "log", "-1", "--format=%ct"],
+                            capture_output=True, text=True, timeout=10
+                        )
+                        if last_commit_ts.returncode == 0 and last_commit_ts.stdout.strip():
+                            last_sec = int(last_commit_ts.stdout.strip())
+                            now_sec = int(time.time())
+                            if now_sec - last_sec < 3600 and len(untracked) < 10:
+                                logger.info(f"[STRUCTURE] Debounce auto-commit: {len(untracked)} fichier(s) mais dernier commit < 1h. Reporte.")
+                                continue
+                    except Exception:
+                        pass
                     logger.warning(
                         f"[STRUCTURE] {len(untracked)} fichier(s) untracked détecté(s) — "
                         f"auto-commit en cours"
