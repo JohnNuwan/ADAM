@@ -60,7 +60,7 @@ def refresh_graph():
 def poll_activity():
     while True:
         try:
-            req = urllib.request.Request(f"{BUS_URL}/api/query?limit=30")
+            req = urllib.request.Request(f"{BUS_URL}/api/query?limit=30&topic=adam:packet")
             with urllib.request.urlopen(req, timeout=3) as resp:
                 data = json.loads(resp.read().decode())
                 pkts = data if isinstance(data, list) else data.get("events", [])
@@ -138,8 +138,25 @@ def api_graph():
 
 @app.route("/api/activity")
 def api_activity():
-    with lock:
-        return jsonify({"activity": activity_cache})
+    try:
+        req = urllib.request.Request(f"{BUS_URL}/api/query?limit=20&topic=adam:packet")
+        with urllib.request.urlopen(req, timeout=3) as resp:
+            data = json.loads(resp.read().decode())
+            pkts = data if isinstance(data, list) else data.get("events", [])
+            activity = {}
+            for p in pkts:
+                src = p.get("source", "")
+                if src:
+                    payload = p.get("payload", {})
+                    thought = payload.get("action", payload.get("status", "")) if isinstance(payload, dict) else ""
+                    activity[src] = {
+                        "thought": str(thought)[:150],
+                        "timestamp": p.get("timestamp", ""),
+                        "topic": p.get("topic", "")
+                    }
+            return jsonify({"activity": activity})
+    except Exception as e:
+        return jsonify({"activity": {}, "error": str(e)})
 
 @app.route("/api/missions")
 def api_missions():
