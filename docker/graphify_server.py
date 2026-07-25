@@ -6,7 +6,7 @@ from collections import defaultdict
 
 app = Flask(__name__)
 PG_DSN = os.environ.get("PG_DSN", "postgres://adam:***@postgres:5432/adam")
-BUS_URL = os.environ.get("BUS_URL", "http://go-bus:8086")
+BUS_URL = "http://go-bus:8086"
 VLLM_URL = os.environ.get("VLLM_URL", "http://192.168.1.5:8000")
 
 # ─── Data Model ───
@@ -171,7 +171,7 @@ def api_tools():
 @app.route("/api/packets")
 def api_packets():
     try:
-        req = urllib.request.Request(f"{BUS_URL}/api/query?limit=15")
+        req = urllib.request.Request(f"{BUS_URL}/api/query?limit=15&topic=adam:packet")
         with urllib.request.urlopen(req, timeout=3) as resp:
             data = json.loads(resp.read().decode())
             pkts = data if isinstance(data, list) else data.get("events", [])
@@ -564,6 +564,9 @@ function buildHub(data) {
     nodePositions[sid] = new THREE.Vector3(basePos.x + Math.cos(theta) * rad * dist, basePos.y + y * dist * 0.5, basePos.z + Math.sin(theta) * rad * dist);
   }
 
+  // Remove all old labels
+  document.querySelectorAll('.node-label').forEach(function(el) { el.remove(); });
+
   // Build nodes
   var allNodes = [hub.eva].concat(hub.agents).concat(hub.services).concat(hub.skills);
   for (var i = 0; i < allNodes.length; i++) {
@@ -588,6 +591,10 @@ function buildHub(data) {
       }
     }
 
+    // Remove old label if exists (prevent duplication)
+    if (mesh.userData.labelEl) {
+      mesh.userData.labelEl.remove();
+    }
     var l = document.createElement('div');
     l.className = 'node-label';
     l.textContent = n.label === 'SkillDomain' ? n.name.substring(0, 10) : n.name;
