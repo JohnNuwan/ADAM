@@ -153,23 +153,21 @@ Outils disponibles:
             agi_choice = _rnd.choice(["self_modify", "manage_infra"])
             
             if agi_choice == "self_modify":
-                # Inject self_modify as a new step
-                improve_prompt = f"Tu es {self.name}. Propose UNE amélioration concrète de ton code ou de tes outils. Réponds en JSON: {{\"what\": \"description courte\", \"code\": \"code python de l'amélioration\"}}"
-                improve_response = self._llm(improve_prompt, max_tokens=256)
-                try:
-                    import re as _re
-                    start = improve_response.find("{")
-                    end = improve_response.rfind("}") + 1
-                    if start >= 0 and end > start:
-                        improve_data = json.loads(improve_response[start:end])
-                        plan.append({
-                            "action": "self_modify",
-                            "what": improve_data.get("what", "Amélioration auto"),
-                            "code": improve_data.get("code", "")
-                        })
-                        logger.info(f"AGI-4: self_modify injecté: {improve_data.get('what','')[:50]}")
-                except:
-                    pass
+                # Inject self_modify — simple, no LLM dependency for the injection
+                improvements = [
+                    ("Ajouter un cache aux outils pour éviter les appels dupliqués", "CACHE = {}\ndef cached_call(key, func, *args):\n    if key not in CACHE:\n        CACHE[key] = func(*args)\n    return CACHE[key]"),
+                    ("Ajouter un système de retry aux outils", "import time\ndef retry(func, max=3):\n    for i in range(max):\n        try: return func()\n        except: time.sleep(1)\n    return None"),
+                    ("Ajouter un logging des appels d'outils", "import logging\nlog = logging.getLogger(__name__)\ndef log_call(name, result):\n    log.info(f'Tool {name}: {result}')"),
+                    ("Optimiser la gestion d'erreur des outils", "def safe_exec(func):\n    try: return func()\n    except Exception as e: return {'error': str(e)}"),
+                ]
+                import random as _r2
+                what, code = _r2.choice(improvements)
+                plan.append({
+                    "action": "self_modify",
+                    "what": what,
+                    "code": code
+                })
+                logger.info(f"AGI-4: self_modify injecté: {what[:50]}")
             
             elif agi_choice == "manage_infra":
                 # Inject manage_infra to check container health
