@@ -774,11 +774,30 @@ function buildHub(data) {
   var hub = data.hub;
   if (!hub) return;
 
-  while(scene.children.length > 5) scene.remove(scene.children[scene.children.length - 1]);
+  // Clear EVERYTHING except lights, stars, and camera
+  var toRemove = [];
+  for (var i = 0; i < scene.children.length; i++) {
+    var ch = scene.children[i];
+    // Keep: AmbientLight, DirectionalLight, Points (stars)
+    if (ch.isLight || ch.isPoints || ch.isLine && ch.userData && ch.userData.ring) {
+      continue;
+    }
+    toRemove.push(ch);
+  }
+  for (var i = 0; i < toRemove.length; i++) {
+    scene.remove(toRemove[i]);
+    if (toRemove[i].geometry) toRemove[i].geometry.dispose();
+    if (toRemove[i].material) toRemove[i].material.dispose();
+  }
+  
+  // Clear tool meshes
+  window._toolMeshes = {};
+  
+  // Clear all labels (node + tool)
+  document.querySelectorAll('.node-label').forEach(function(el) { el.remove(); });
+  
   nodes = {};
   flowParticles = [];
-
-  document.querySelectorAll('.node-label').forEach(function(el) { el.remove(); });
 
   var edges = data.edges || [];
   var nodePositions = {};
@@ -865,8 +884,12 @@ function buildHub(data) {
         var mid = new THREE.Vector3().addVectors(s, t).multiplyScalar(0.5);
         var curve = new THREE.QuadraticBezierCurve3(s, mid, t);
         var pts = curve.getPoints(20);
-        var opacity = Math.min(0.2, 0.4 - dist * 0.02);
-        scene.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), new THREE.LineBasicMaterial({color: 0x446688, transparent: true, opacity: opacity})));
+        var opacity = Math.min(0.3, 0.5 - dist * 0.02);
+        // Highlight agent→skill edges
+        if (e.relation === 'has_skill' && (nodes[e.source].userData.label === 'Agent' || nodes[e.target].userData.label === 'SkillDomain')) {
+          opacity = Math.min(0.35, 0.6 - dist * 0.02);
+        }
+        scene.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), new THREE.LineBasicMaterial({color: (e.relation === 'orchestrates' || e.relation === 'reports_to') ? 0x00aaff : (e.relation === 'has_skill' ? 0x6688cc : 0x446688), transparent: true, opacity: opacity})));
         edgeCurves.push({source: e.source, target: e.target, curve: curve});
       }
     }
@@ -914,6 +937,33 @@ function buildHub(data) {
     }
   }
   spawnFlows();
+  
+  // Spawn skill interaction particles (agent → skill)
+  var skillFlows = [];
+  for (var i = 0; i < 5 && Object.keys(nodes).length > 1; i++) {
+    var agentKeys = Object.keys(nodes).filter(function(k) { return nodes[k].userData.label === 'Agent'; });
+    var skillKeys = Object.keys(nodes).filter(function(k) { return nodes[k].userData.label === 'SkillDomain'; });
+    if (agentKeys.length > 0 && skillKeys.length > 0) {
+      var src = agentKeys[Math.floor(Math.random() * agentKeys.length)];
+      var dst = skillKeys[Math.floor(Math.random() * skillKeys.length)];
+      if (src !== dst && nodes[src] && nodes[dst]) {
+        var size = 0.03;
+        var geom = new THREE.SphereGeometry(size, 6, 6);
+        var mat = new THREE.MeshBasicMaterial({color: 0x6688ff, transparent: true, opacity: 0.6});
+        var mesh = new THREE.Mesh(geom, mat);
+        scene.add(mesh);
+        var curve = new THREE.QuadraticBezierCurve3(nodes[src].position, new THREE.Vector3().addVectors(nodes[src].position, nodes[dst].position).multiplyScalar(0.5), nodes[dst].position);
+        flowParticles.push({
+          mesh: mesh,
+          curve: curve,
+          progress: Math.random(),
+          speed: 0.005 + Math.random() * 0.003,
+          glow: new THREE.Mesh(new THREE.SphereGeometry(size * 2, 6, 6), new THREE.MeshBasicMaterial({color: 0x6688ff, transparent: true, opacity: 0.015}))
+        });
+        scene.add(flowParticles[flowParticles.length - 1].glow);
+      }
+    }
+  }
 
   document.getElementById('stats-bar').innerHTML = '<div>Agents: <span class="val">' + hub.agents.length + '</span></div><div>Skills: <span class="val">' + hub.skills.length + '</span></div><div>Services: <span class="val">' + hub.services.length + '</span></div>';
 }
