@@ -1,3 +1,1 @@
-def optimiser_parametres(engine, data):
-    # Code pour optimiser les paramètres de l'engine avec les données
-    pass
+Crée un outil pour optimiser les paramètres de la recherche sémantique en se basant sur les données indexées.

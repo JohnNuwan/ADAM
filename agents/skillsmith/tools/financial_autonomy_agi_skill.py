@@ -1,0 +1,1 @@
+new_skill_generator(domain_analysis('autonomie financière, AGI'))

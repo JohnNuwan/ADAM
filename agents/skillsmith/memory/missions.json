@@ -13249,6 +13249,844 @@
       ],
       "timestamp": "2026-07-25T20:31:46.185654+00:00",
       "agent": "adam-skillsmith"
+    },
+    {
+      "id": "m_137",
+      "mission": "Crée un skill pour un domaine de connaissance manquant (Contexte: EVA vise l'autonomie financière et l'AGI)",
+      "result": {
+        "agent": "adam-skillsmith",
+        "mission": "Crée un skill pour un domaine de connaissance manquant (Contexte: EVA vise l'autonomie financière et l'AGI)",
+        "success": false,
+        "steps": 3,
+        "elapsed_s": 7.16,
+        "results": [
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "domain_analysis",
+              "args": "autonomie financière et AGI",
+              "description": "Analyser le domaine de l'autonomie financière et de l'AGI pour identifier les composants nécessaires à la création d'un nouveau skill."
+            },
+            "result": {
+              "tool": "domain_analysis",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "create_tool",
+              "tool": "financial_autonomy_agi_skill",
+              "args": "",
+              "code": "new_skill_generator(domain_analysis('autonomie financière et AGI'))",
+              "description": "Créer un nouveau skill basé sur les composants identifiés par l'analyse du domaine de l'autonomie financière et de l'AGI."
+            },
+            "result": {
+              "id": "754e1d4d9f22",
+              "name": "financial_autonomy_agi_skill",
+              "file": "financial_autonomy_agi_skill.py",
+              "status": "created"
+            }
+          },
+          {
+            "step": {
+              "action": "manage_infra",
+              "infra_action": "status",
+              "description": "Vérifier la santé des conteneurs Docker"
+            },
+            "result": {
+              "action": "status",
+              "results": [
+                {
+                  "containers": "eva-activity Up 37 minutes\neva-monitor Up 56 minutes\nadam-graphify Up 2 hours\nadam-bus Up 12 hours (healthy)\nadam-viz Up 12 hours\nadam-chat Up 14 hours\nadam-postgres Up 14 hours (healthy)\nvllm-mistral Up 11 hours\nkali-pentest Up 34 hours\ngrafana Up 34 hours\nprometheus Up 34 hours\nnode-exporter Up 34"
+                }
+              ],
+              "success": true
+            }
+          }
+        ],
+        "timestamp": "2026-07-25T20:32:28.408361+00:00"
+      },
+      "steps": [
+        {
+          "action": "execute_tool",
+          "tool": "domain_analysis",
+          "args": "autonomie financière et AGI",
+          "description": "Analyser le domaine de l'autonomie financière et de l'AGI pour identifier les composants nécessaires à la création d'un nouveau skill."
+        },
+        {
+          "action": "create_tool",
+          "tool": "financial_autonomy_agi_skill",
+          "args": "",
+          "code": "new_skill_generator(domain_analysis('autonomie financière et AGI'))",
+          "description": "Créer un nouveau skill basé sur les composants identifiés par l'analyse du domaine de l'autonomie financière et de l'AGI."
+        },
+        {
+          "action": "manage_infra",
+          "infra_action": "status",
+          "description": "Vérifier la santé des conteneurs Docker"
+        }
+      ],
+      "timestamp": "2026-07-25T20:32:28.408381+00:00",
+      "agent": "adam-skillsmith"
+    },
+    {
+      "id": "m_138",
+      "mission": "Améliore un skill existant basé sur les leçons apprises",
+      "result": {
+        "agent": "adam-skillsmith",
+        "mission": "Améliore un skill existant basé sur les leçons apprises",
+        "success": false,
+        "steps": 5,
+        "elapsed_s": 33.03,
+        "results": [
+          {
+            "step": {
+              "action": "research",
+              "tool": "advanced_reasoning_skill_improvement",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Analyser les causes des échecs précédents lors de l'amélioration du skill existant pour identifier les domaines d'amélioration spécifiques."
+            },
+            "result": {
+              "query": "Analyser les causes des échecs précédents lors de l'amélioration du skill existant pour identifier les domaines d'amélioration spécifiques.",
+              "result": "Pour analyser les causes des échecs précédents dans l'amélioration d'un skill existant et identifier les domaines d'amélioration spécifiques, voici une approche structurée :\n\n1. **Collecte des données** :\n   - Rassemblez tous les rapports, logs, commentaires des utilisateurs et autres documents pert",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "create_tool",
+              "tool": "skill_feedback_integration",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Créer un outil pour intégrer les feedbacks constructifs dans le processus d'amélioration du skill existant afin d'éviter les erreurs passées."
+            },
+            "result": {
+              "error": "Pas de code fourni"
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "skill_feedback_integration",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Utiliser l'outil créé pour intégrer les feedbacks constructifs et améliorer le skill existant en tenant compte des leçons apprises."
+            },
+            "result": {
+              "tool": "skill_feedback_integration",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "quality_audit_skill_improvement",
+              "tool": "quality_audit_skill_improvement",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Appliquer un processus d'audit de la qualité pour vérifier que les modifications apportées au skill existant sont efficaces et ne reproduisent pas les erreurs passées."
+            },
+            "result": {
+              "error": "Action inconnue: quality_audit_skill_improvement"
+            }
+          },
+          {
+            "step": {
+              "action": "manage_infra",
+              "infra_action": "status",
+              "description": "Vérifier la santé des conteneurs Docker"
+            },
+            "result": {
+              "action": "status",
+              "results": [
+                {
+                  "containers": "eva-activity Up 43 minutes\neva-monitor Up About an hour\nadam-graphify Up 2 hours\nadam-bus Up 12 hours (healthy)\nadam-viz Up 13 hours\nadam-chat Up 14 hours\nadam-postgres Up 14 hours (healthy)\nvllm-mistral Up 11 hours\nkali-pentest Up 34 hours\ngrafana Up 34 hours\nprometheus Up 34 hours\nnode-exporter Up"
+                }
+              ],
+              "success": true
+            }
+          }
+        ],
+        "timestamp": "2026-07-25T20:38:49.164214+00:00"
+      },
+      "steps": [
+        {
+          "action": "research",
+          "tool": "advanced_reasoning_skill_improvement",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Analyser les causes des échecs précédents lors de l'amélioration du skill existant pour identifier les domaines d'amélioration spécifiques."
+        },
+        {
+          "action": "create_tool",
+          "tool": "skill_feedback_integration",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Créer un outil pour intégrer les feedbacks constructifs dans le processus d'amélioration du skill existant afin d'éviter les erreurs passées."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "skill_feedback_integration",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Utiliser l'outil créé pour intégrer les feedbacks constructifs et améliorer le skill existant en tenant compte des leçons apprises."
+        },
+        {
+          "action": "quality_audit_skill_improvement",
+          "tool": "quality_audit_skill_improvement",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Appliquer un processus d'audit de la qualité pour vérifier que les modifications apportées au skill existant sont efficaces et ne reproduisent pas les erreurs passées."
+        },
+        {
+          "action": "manage_infra",
+          "infra_action": "status",
+          "description": "Vérifier la santé des conteneurs Docker"
+        }
+      ],
+      "timestamp": "2026-07-25T20:38:49.164232+00:00",
+      "agent": "adam-skillsmith"
+    },
+    {
+      "id": "m_139",
+      "mission": "Crée un skill pour un domaine de connaissance manquant (Contexte: EVA vise l'autonomie financière et l'AGI)",
+      "result": {
+        "agent": "adam-skillsmith",
+        "mission": "Crée un skill pour un domaine de connaissance manquant (Contexte: EVA vise l'autonomie financière et l'AGI)",
+        "success": false,
+        "steps": 3,
+        "elapsed_s": 26.92,
+        "results": [
+          {
+            "step": {
+              "action": "research",
+              "tool": "domain_analysis",
+              "args": "autonomie financière, AGI",
+              "description": "Analyser le domaine de l'autonomie financière et de l'AGI pour identifier les composants nécessaires à la création d'un nouveau skill."
+            },
+            "result": {
+              "query": "Analyser le domaine de l'autonomie financière et de l'AGI pour identifier les composants nécessaires à la création d'un nouveau skill.",
+              "result": "Pour analyser le domaine de l'autonomie financière et de l'AGI (Intelligence Générale Artificielle) afin d'identifier les composants nécessaires à la création d'un nouveau skill, nous devons examiner plusieurs aspects. Voici une analyse détaillée :\n\n### 1. **Compréhension du Domaine**\n\n#### Autonomi",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "create_tool",
+              "tool": "financial_autonomy_agi_skill",
+              "args": "",
+              "code": "new_skill_generator(domain_analysis('autonomie financière, AGI'))",
+              "description": "Créer un outil pour générer un nouveau skill basé sur les composants identifiés par l'analyse du domaine de l'autonomie financière et de l'AGI."
+            },
+            "result": {
+              "id": "754e1d4d9f22",
+              "name": "financial_autonomy_agi_skill",
+              "file": "financial_autonomy_agi_skill.py",
+              "status": "created"
+            }
+          },
+          {
+            "step": {
+              "action": "self_modify",
+              "what": "Optimiser la gestion d'erreur des outils",
+              "code": "def safe_exec(func):\n    try: return func()\n    except Exception as e: return {'error': str(e)}"
+            },
+            "result": {
+              "what": "Optimiser la gestion d'erreur des outils",
+              "improvement_file": "/home/aza/eva-adam-v2/agents/skillsmith/tools/self_improvement_20260725_224446.py",
+              "backup": "/home/aza/eva-adam-v2/agents/skillsmith/tools/backups/runtime_backup_20260725_224446.py",
+              "status": "improved"
+            }
+          }
+        ],
+        "timestamp": "2026-07-25T20:44:46.796065+00:00"
+      },
+      "steps": [
+        {
+          "action": "research",
+          "tool": "domain_analysis",
+          "args": "autonomie financière, AGI",
+          "description": "Analyser le domaine de l'autonomie financière et de l'AGI pour identifier les composants nécessaires à la création d'un nouveau skill."
+        },
+        {
+          "action": "create_tool",
+          "tool": "financial_autonomy_agi_skill",
+          "args": "",
+          "code": "new_skill_generator(domain_analysis('autonomie financière, AGI'))",
+          "description": "Créer un outil pour générer un nouveau skill basé sur les composants identifiés par l'analyse du domaine de l'autonomie financière et de l'AGI."
+        },
+        {
+          "action": "self_modify",
+          "what": "Optimiser la gestion d'erreur des outils",
+          "code": "def safe_exec(func):\n    try: return func()\n    except Exception as e: return {'error': str(e)}"
+        }
+      ],
+      "timestamp": "2026-07-25T20:44:46.796075+00:00",
+      "agent": "adam-skillsmith"
+    },
+    {
+      "id": "m_140",
+      "mission": "Améliore un skill existant basé sur les leçons apprises",
+      "result": {
+        "agent": "adam-skillsmith",
+        "mission": "Améliore un skill existant basé sur les leçons apprises",
+        "success": false,
+        "steps": 4,
+        "elapsed_s": 30.0,
+        "results": [
+          {
+            "step": {
+              "action": "research",
+              "tool": "advanced_reasoning_skill_improvement",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Analyser en profondeur les causes des échecs précédents du skill existant pour comprendre ses limitations et identifier les domaines d'amélioration."
+            },
+            "result": {
+              "query": "Analyser en profondeur les causes des échecs précédents du skill existant pour comprendre ses limitations et identifier les domaines d'amélioration.",
+              "result": "Pour analyser en profondeur les causes des échecs précédents d'un skill existant, nous devons examiner plusieurs aspects, tels que la conception initiale, l'implémentation, l'utilisation par les utilisateurs, et les retours reçus. Voici une approche structurée pour mener cette analyse :\n\n1. **Collec",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "create_tool",
+              "tool": "skill_feedback_integration",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Créer un outil pour intégrer les feedbacks constructifs dans le processus d'amélioration du skill existant, en utilisant les leçons apprises pour éviter les erreurs passées."
+            },
+            "result": {
+              "error": "Pas de code fourni"
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "skill_feedback_integration",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Appliquer les modifications au skill existant en se basant sur les résultats de l'analyse et les feedbacks constructifs, tout en testant systématiquement les modifications apportées."
+            },
+            "result": {
+              "tool": "skill_feedback_integration",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "self_modify",
+              "what": "Optimiser la gestion d'erreur des outils",
+              "code": "def safe_exec(func):\n    try: return func()\n    except Exception as e: return {'error': str(e)}"
+            },
+            "result": {
+              "what": "Optimiser la gestion d'erreur des outils",
+              "improvement_file": "/home/aza/eva-adam-v2/agents/skillsmith/tools/self_improvement_20260725_225046.py",
+              "backup": "/home/aza/eva-adam-v2/agents/skillsmith/tools/backups/runtime_backup_20260725_225046.py",
+              "status": "improved"
+            }
+          }
+        ],
+        "timestamp": "2026-07-25T20:50:46.748807+00:00"
+      },
+      "steps": [
+        {
+          "action": "research",
+          "tool": "advanced_reasoning_skill_improvement",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Analyser en profondeur les causes des échecs précédents du skill existant pour comprendre ses limitations et identifier les domaines d'amélioration."
+        },
+        {
+          "action": "create_tool",
+          "tool": "skill_feedback_integration",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Créer un outil pour intégrer les feedbacks constructifs dans le processus d'amélioration du skill existant, en utilisant les leçons apprises pour éviter les erreurs passées."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "skill_feedback_integration",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Appliquer les modifications au skill existant en se basant sur les résultats de l'analyse et les feedbacks constructifs, tout en testant systématiquement les modifications apportées."
+        },
+        {
+          "action": "self_modify",
+          "what": "Optimiser la gestion d'erreur des outils",
+          "code": "def safe_exec(func):\n    try: return func()\n    except Exception as e: return {'error': str(e)}"
+        }
+      ],
+      "timestamp": "2026-07-25T20:50:46.748825+00:00",
+      "agent": "adam-skillsmith"
+    },
+    {
+      "id": "m_141",
+      "mission": "Développe un skill de raisonnement avancé",
+      "result": {
+        "agent": "adam-skillsmith",
+        "mission": "Développe un skill de raisonnement avancé",
+        "success": false,
+        "steps": 6,
+        "elapsed_s": 14.15,
+        "results": [
+          {
+            "step": {
+              "action": "domain_analysis",
+              "tool": "domain_analysis",
+              "args": "advanced_reasoning",
+              "description": "Analyser le domaine de raisonnement avancé pour identifier les composants nécessaires."
+            },
+            "result": {
+              "error": "Action inconnue: domain_analysis"
+            }
+          },
+          {
+            "step": {
+              "action": "create_tool",
+              "tool": "new_skill_generator",
+              "args": "advanced_reasoning_skill",
+              "code": "def generate_advanced_reasoning_skill(domain_components):\n    # Générer le code pour le skill de raisonnement avancé\n    return 'Advanced reasoning skill code'",
+              "description": "Créer un outil pour générer un nouveau skill basé sur les composants identifiés par l'analyse du domaine."
+            },
+            "result": {
+              "id": "7c0794bf0fe2",
+              "name": "new_skill_generator",
+              "file": "new_skill_generator.py",
+              "status": "created"
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "new_skill_generator",
+              "args": "generate_advanced_reasoning_skill(domain_components)",
+              "description": "Générer le skill de raisonnement avancé en utilisant les composants identifiés."
+            },
+            "result": {
+              "tool": "new_skill_generator",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "quality_audit_skill_improvement",
+              "tool": "quality_audit_skill_improvement",
+              "args": "advanced_reasoning_skill",
+              "description": "Améliorer le processus d'audit de la qualité du skill de raisonnement avancé pour garantir sa fiabilité."
+            },
+            "result": {
+              "error": "Action inconnue: quality_audit_skill_improvement"
+            }
+          },
+          {
+            "step": {
+              "action": "skill_feedback_integration",
+              "tool": "skill_feedback_integration",
+              "args": "advanced_reasoning_skill",
+              "description": "Intégrer les feedbacks constructifs pour améliorer ciblément le skill de raisonnement avancé."
+            },
+            "result": {
+              "error": "Action inconnue: skill_feedback_integration"
+            }
+          },
+          {
+            "step": {
+              "action": "self_modify",
+              "what": "Ajouter un système de retry aux outils",
+              "code": "import time\ndef retry(func, max=3):\n    for i in range(max):\n        try: return func()\n        except: time.sleep(1)\n    return None"
+            },
+            "result": {
+              "what": "Ajouter un système de retry aux outils",
+              "improvement_file": "/home/aza/eva-adam-v2/agents/skillsmith/tools/self_improvement_20260725_225545.py",
+              "backup": "/home/aza/eva-adam-v2/agents/skillsmith/tools/backups/runtime_backup_20260725_225545.py",
+              "status": "improved"
+            }
+          }
+        ],
+        "timestamp": "2026-07-25T20:55:45.827096+00:00"
+      },
+      "steps": [
+        {
+          "action": "domain_analysis",
+          "tool": "domain_analysis",
+          "args": "advanced_reasoning",
+          "description": "Analyser le domaine de raisonnement avancé pour identifier les composants nécessaires."
+        },
+        {
+          "action": "create_tool",
+          "tool": "new_skill_generator",
+          "args": "advanced_reasoning_skill",
+          "code": "def generate_advanced_reasoning_skill(domain_components):\n    # Générer le code pour le skill de raisonnement avancé\n    return 'Advanced reasoning skill code'",
+          "description": "Créer un outil pour générer un nouveau skill basé sur les composants identifiés par l'analyse du domaine."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "new_skill_generator",
+          "args": "generate_advanced_reasoning_skill(domain_components)",
+          "description": "Générer le skill de raisonnement avancé en utilisant les composants identifiés."
+        },
+        {
+          "action": "quality_audit_skill_improvement",
+          "tool": "quality_audit_skill_improvement",
+          "args": "advanced_reasoning_skill",
+          "description": "Améliorer le processus d'audit de la qualité du skill de raisonnement avancé pour garantir sa fiabilité."
+        },
+        {
+          "action": "skill_feedback_integration",
+          "tool": "skill_feedback_integration",
+          "args": "advanced_reasoning_skill",
+          "description": "Intégrer les feedbacks constructifs pour améliorer ciblément le skill de raisonnement avancé."
+        },
+        {
+          "action": "self_modify",
+          "what": "Ajouter un système de retry aux outils",
+          "code": "import time\ndef retry(func, max=3):\n    for i in range(max):\n        try: return func()\n        except: time.sleep(1)\n    return None"
+        }
+      ],
+      "timestamp": "2026-07-25T20:55:45.827106+00:00",
+      "agent": "adam-skillsmith"
+    },
+    {
+      "id": "m_142",
+      "mission": "Audite la qualité des skills et propose des corrections",
+      "result": {
+        "agent": "adam-skillsmith",
+        "mission": "Audite la qualité des skills et propose des corrections",
+        "success": false,
+        "steps": 3,
+        "elapsed_s": 6.58,
+        "results": [
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "quality_audit_skill_improvement",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Utiliser l'outil quality_audit_skill_improvement pour auditer la qualité des skills existants et identifier les domaines nécessitant des corrections."
+            },
+            "result": {
+              "error": "Fichier /home/aza/eva-adam-v2/agents/skillsmith/tools/quality_audit_skill_improvement.py introuvable"
+            }
+          },
+          {
+            "step": {
+              "action": "report",
+              "tool": "",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Préparer un rapport détaillé sur les résultats de l'audit de qualité, y compris les domaines nécessitant des améliorations et des suggestions de corrections."
+            },
+            "result": {
+              "success": true,
+              "report": "Préparer un rapport détaillé sur les résultats de l'audit de qualité, y compris les domaines nécessitant des améliorations et des suggestions de corrections."
+            }
+          },
+          {
+            "step": {
+              "action": "self_modify",
+              "what": "Ajouter un système de retry aux outils",
+              "code": "import time\ndef retry(func, max=3):\n    for i in range(max):\n        try: return func()\n        except: time.sleep(1)\n    return None"
+            },
+            "result": {
+              "what": "Ajouter un système de retry aux outils",
+              "improvement_file": "/home/aza/eva-adam-v2/agents/skillsmith/tools/self_improvement_20260725_230022.py",
+              "backup": "/home/aza/eva-adam-v2/agents/skillsmith/tools/backups/runtime_backup_20260725_230022.py",
+              "status": "improved"
+            }
+          }
+        ],
+        "timestamp": "2026-07-25T21:00:22.887159+00:00"
+      },
+      "steps": [
+        {
+          "action": "execute_tool",
+          "tool": "quality_audit_skill_improvement",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Utiliser l'outil quality_audit_skill_improvement pour auditer la qualité des skills existants et identifier les domaines nécessitant des corrections."
+        },
+        {
+          "action": "report",
+          "tool": "",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Préparer un rapport détaillé sur les résultats de l'audit de qualité, y compris les domaines nécessitant des améliorations et des suggestions de corrections."
+        },
+        {
+          "action": "self_modify",
+          "what": "Ajouter un système de retry aux outils",
+          "code": "import time\ndef retry(func, max=3):\n    for i in range(max):\n        try: return func()\n        except: time.sleep(1)\n    return None"
+        }
+      ],
+      "timestamp": "2026-07-25T21:00:22.887167+00:00",
+      "agent": "adam-skillsmith"
+    },
+    {
+      "id": "m_143",
+      "mission": "Crée un skill pour un domaine de connaissance manquant",
+      "result": {
+        "agent": "adam-skillsmith",
+        "mission": "Crée un skill pour un domaine de connaissance manquant",
+        "success": false,
+        "steps": 4,
+        "elapsed_s": 9.58,
+        "results": [
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "domain_analysis",
+              "args": {},
+              "code": "",
+              "target_agent": "",
+              "description": "Analyser le domaine de connaissance manquant pour identifier les composants nécessaires à la création d'un nouveau skill."
+            },
+            "result": {
+              "tool": "domain_analysis",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "create_tool",
+              "tool": "missing_domain_skill_creation_improvement",
+              "args": {},
+              "code": "",
+              "target_agent": "",
+              "description": "Créer un outil basé sur les résultats de l'analyse pour améliorer le processus de création d'un skill pour le domaine de connaissance manquant."
+            },
+            "result": {
+              "error": "Pas de code fourni"
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "missing_domain_skill_creation_improvement",
+              "args": {},
+              "code": "",
+              "target_agent": "",
+              "description": "Utiliser l'outil nouvellement créé pour mettre en œuvre le processus amélioré de création d'un skill pour le domaine de connaissance manquant."
+            },
+            "result": {
+              "tool": "missing_domain_skill_creation_improvement",
+              "exit_code": 1,
+              "stdout": "",
+              "stderr": "Traceback (most recent call last):\n  File \"/home/aza/eva-adam-v2/agents/skillsmith/tools/missing_domain_skill_creation_improvement.py\", line 1, in <module>\n    new_skill_generator\nNameError: name 'new_skill_generator' is not defined\n",
+              "success": false
+            }
+          },
+          {
+            "step": {
+              "action": "manage_infra",
+              "infra_action": "status",
+              "description": "Vérifier la santé des conteneurs Docker"
+            },
+            "result": {
+              "action": "status",
+              "results": [
+                {
+                  "containers": "adam-graphify Up About a minute\neva-activity Up About an hour\neva-monitor Up About an hour\nadam-bus Up 12 hours (healthy)\nadam-viz Up 13 hours\nadam-chat Up 15 hours\nadam-postgres Up 15 hours (healthy)\nvllm-mistral Up 11 hours\nkali-pentest Up 35 hours\ngrafana Up 35 hours\nprometheus Up 35 hours\nnode-e"
+                }
+              ],
+              "success": true
+            }
+          }
+        ],
+        "timestamp": "2026-07-25T21:05:00.816189+00:00"
+      },
+      "steps": [
+        {
+          "action": "execute_tool",
+          "tool": "domain_analysis",
+          "args": {},
+          "code": "",
+          "target_agent": "",
+          "description": "Analyser le domaine de connaissance manquant pour identifier les composants nécessaires à la création d'un nouveau skill."
+        },
+        {
+          "action": "create_tool",
+          "tool": "missing_domain_skill_creation_improvement",
+          "args": {},
+          "code": "",
+          "target_agent": "",
+          "description": "Créer un outil basé sur les résultats de l'analyse pour améliorer le processus de création d'un skill pour le domaine de connaissance manquant."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "missing_domain_skill_creation_improvement",
+          "args": {},
+          "code": "",
+          "target_agent": "",
+          "description": "Utiliser l'outil nouvellement créé pour mettre en œuvre le processus amélioré de création d'un skill pour le domaine de connaissance manquant."
+        },
+        {
+          "action": "manage_infra",
+          "infra_action": "status",
+          "description": "Vérifier la santé des conteneurs Docker"
+        }
+      ],
+      "timestamp": "2026-07-25T21:05:00.816218+00:00",
+      "agent": "adam-skillsmith"
+    },
+    {
+      "id": "m_144",
+      "mission": "Améliore un skill existant basé sur les leçons apprises",
+      "result": {
+        "agent": "adam-skillsmith",
+        "mission": "Améliore un skill existant basé sur les leçons apprises",
+        "success": false,
+        "steps": 5,
+        "elapsed_s": 32.49,
+        "results": [
+          {
+            "step": {
+              "action": "research",
+              "tool": "skill_feedback_integration",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Intégrer les feedbacks constructifs des missions récentes pour identifier les domaines d'amélioration spécifiques."
+            },
+            "result": {
+              "query": "Intégrer les feedbacks constructifs des missions récentes pour identifier les domaines d'amélioration spécifiques.",
+              "result": "Pour intégrer efficacement les feedbacks constructifs des missions récentes et identifier les domaines d'amélioration spécifiques, il est important de suivre un processus structuré. Voici une analyse détaillée de ce processus :\n\n### 1. Collecte des Feedbacks\n\n- **Sélection des Sources** : Déterminez",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "advanced_reasoning_skill_improvement",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Améliorer le skill de raisonnement avancé en se basant sur les leçons apprises et les feedbacks intégrés."
+            },
+            "result": {
+              "error": "Fichier /home/aza/eva-adam-v2/agents/skillsmith/tools/advanced_reasoning_skill_improvement.py introuvable"
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "quality_audit_skill_improvement",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Améliorer le processus d'audit de la qualité des skills en se basant sur les leçons apprises et les feedbacks intégrés."
+            },
+            "result": {
+              "error": "Fichier /home/aza/eva-adam-v2/agents/skillsmith/tools/quality_audit_skill_improvement.py introuvable"
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "missing_domain_skill_creation_improvement",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Améliorer le processus de création d'un skill pour un domaine de connaissance manquant en se basant sur les leçons apprises et les feedbacks intégrés."
+            },
+            "result": {
+              "tool": "missing_domain_skill_creation_improvement",
+              "exit_code": 1,
+              "stdout": "",
+              "stderr": "Traceback (most recent call last):\n  File \"/home/aza/eva-adam-v2/agents/skillsmith/tools/missing_domain_skill_creation_improvement.py\", line 1, in <module>\n    new_skill_generator\nNameError: name 'new_skill_generator' is not defined\n",
+              "success": false
+            }
+          },
+          {
+            "step": {
+              "action": "self_modify",
+              "what": "Ajouter un logging des appels d'outils",
+              "code": "import logging\nlog = logging.getLogger(__name__)\ndef log_call(name, result):\n    log.info(f'Tool {name}: {result}')"
+            },
+            "result": {
+              "what": "Ajouter un logging des appels d'outils",
+              "improvement_file": "/home/aza/eva-adam-v2/agents/skillsmith/tools/self_improvement_20260725_230915.py",
+              "backup": "/home/aza/eva-adam-v2/agents/skillsmith/tools/backups/runtime_backup_20260725_230915.py",
+              "status": "improved"
+            }
+          }
+        ],
+        "timestamp": "2026-07-25T21:09:15.693598+00:00"
+      },
+      "steps": [
+        {
+          "action": "research",
+          "tool": "skill_feedback_integration",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Intégrer les feedbacks constructifs des missions récentes pour identifier les domaines d'amélioration spécifiques."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "advanced_reasoning_skill_improvement",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Améliorer le skill de raisonnement avancé en se basant sur les leçons apprises et les feedbacks intégrés."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "quality_audit_skill_improvement",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Améliorer le processus d'audit de la qualité des skills en se basant sur les leçons apprises et les feedbacks intégrés."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "missing_domain_skill_creation_improvement",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Améliorer le processus de création d'un skill pour un domaine de connaissance manquant en se basant sur les leçons apprises et les feedbacks intégrés."
+        },
+        {
+          "action": "self_modify",
+          "what": "Ajouter un logging des appels d'outils",
+          "code": "import logging\nlog = logging.getLogger(__name__)\ndef log_call(name, result):\n    log.info(f'Tool {name}: {result}')"
+        }
+      ],
+      "timestamp": "2026-07-25T21:09:15.693613+00:00",
+      "agent": "adam-skillsmith"
     }
   ]
 }

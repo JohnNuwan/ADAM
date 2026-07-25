@@ -1,1 +1,1 @@
-Définir clairement les exigences et s'assurer que toutes les fonctionnalités nécessaires sont prises en compte dès la conception.
+python
