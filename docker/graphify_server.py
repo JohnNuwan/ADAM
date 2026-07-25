@@ -133,8 +133,29 @@ def api_graph():
 
 @app.route("/api/activity")
 def api_activity():
-    with lock:
-        return jsonify({"activity": activity_cache})
+    """Get activity from Go Bus directly"""
+    try:
+        req = urllib.request.Request(f"{BUS_URL}/api/query?limit=20&topic=adam:packet")
+        with urllib.request.urlopen(req, timeout=3) as resp:
+            data = json.loads(resp.read().decode())
+            pkts = data if isinstance(data, list) else data.get("events", [])
+            activity = {}
+            for p in pkts:
+                src = p.get("source", "")
+                if src:
+                    payload = p.get("payload", {})
+                    thought = payload.get("status", "") if isinstance(payload, dict) else ""
+                    output = payload.get("output", "") if isinstance(payload, dict) else ""
+                    if output:
+                        thought = output[:100]
+                    activity[src] = {
+                        "thought": str(thought)[:150],
+                        "timestamp": p.get("timestamp", ""),
+                        "topic": p.get("topic", "")
+                    }
+            return jsonify({"activity": activity})
+    except Exception as e:
+        return jsonify({"activity": {}, "error": str(e)})
 
 @app.route("/api/missions")
 def api_missions():
@@ -184,7 +205,7 @@ def eva_chat():
         return jsonify({"error": "no message"})
     with lock:
         agents = graph_cache.get("hub", {}).get("agents", []) if graph_cache.get("hub") else []
-    system = f"Tu es EVA, l'assistant orchestrateur du système ADAM. Tu contrôles {len(agents)} agents autonomes sur TheHive. Réponds en français, concis et utile."
+    system = f"Tu es EVA, l'assistant orchestrateur du système ADAM. Tu contrôles {len(agents)} agents autonomes sur TheHive. Tu DOIS répondre en français uniquement. Sois concis et utile."
     payload = json.dumps({
         "model": "Qwen2.5-32B-Instruct-AWQ",
         "messages": [
@@ -472,6 +493,16 @@ function loadToolSatellites() {
         tMesh.userData = {name: toolName, label: 'Tool', parent: agentNode, angle: angle, orbitR: orbitR};
         scene.add(tMesh);
         toolMeshes[agentKey + '_' + ti] = tMesh;
+
+        // Tool label
+        var tl = document.createElement('div');
+        tl.className = 'node-label';
+        tl.textContent = toolName.substring(0, 15);
+        tl.style.color = '#ffaa00';
+        tl.style.fontSize = '7px';
+        tl.style.fontWeight = '400';
+        document.body.appendChild(tl);
+        tMesh.userData.labelEl = tl;
       }
     }
     window._toolMeshes = toolMeshes;
@@ -762,6 +793,22 @@ function animate() {
       t.position.z = t.userData.parent.position.z + Math.sin(ang) * r;
       t.position.y = t.userData.parent.position.y + 0.2 + Math.sin(now * 2 + t.userData.angle) * 0.05;
       t.rotation.y += 0.02;
+
+      // Update tool label position
+      if (t.userData.labelEl) {
+        var pos = t.position.clone();
+        pos.project(camera);
+        if (pos.z < 1) {
+          var w = renderer.domElement.clientWidth;
+          var h = renderer.domElement.clientHeight;
+          t.userData.labelEl.style.left = ((pos.x * 0.5 + 0.5) * w) + 'px';
+          t.userData.labelEl.style.top = ((-pos.y * 0.5 + 0.5) * h) + 'px';
+          var dist = camera.position.distanceTo(t.position);
+          t.userData.labelEl.style.display = dist < 12 ? 'block' : 'none';
+        } else {
+          t.userData.labelEl.style.display = 'none';
+        }
+      }
     }
   }
 
