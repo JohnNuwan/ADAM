@@ -710,19 +710,86 @@ body{background:#050510;color:#e0e8f0;font-family:'Inter',system-ui,sans-serif;o
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 <script>
+// ═══════════════════════════════════════════════════════════════
+//  ADAM Dashboard — Premium 3D Scene (Awwwards-grade)
+//  Cinematic lighting · Fake-bloom sprites · MeshStandardMaterial
+//  Layered starfield · Nebula clouds · Tube edges · Grid floor
+//  Smooth camera tween · Pulsing agents · Trail flow particles
+// ═══════════════════════════════════════════════════════════════
 var scene, camera, renderer, controls;
 var nodes = {};
 var flowParticles = [];
 var raycaster, pointer;
 var selected = null;
+var cameraTween = null;          // {startPos,startLook,pos,look,t,duration}
+var bloomSprites = [];           // sprites that pulse
+var activeAgentMeshes = [];      // agents that pulse-scale
+var clock = new THREE.Clock();
 
+// ─── Procedural radial-gradient glow texture (for fake bloom) ───
+function makeGlowTexture(hexColor) {
+  var c = document.createElement('canvas');
+  c.width = c.height = 128;
+  var ctx = c.getContext('2d');
+  var g = ctx.createRadialGradient(64, 64, 0, 64, 64, 64);
+  var col = '#' + ('000000' + hexColor.toString(16)).slice(-6);
+  g.addColorStop(0,    col);
+  g.addColorStop(0.15, col);
+  g.addColorStop(0.5,  'rgba(0,0,0,0)');
+  g.addColorStop(1,    'rgba(0,0,0,0)');
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, 128, 128);
+  var tex = new THREE.CanvasTexture(c);
+  tex.minFilter = THREE.LinearFilter;
+  return tex;
+}
+
+// Add an additive-blended glow sprite at a position
+function addGlow(pos, hexColor, size, opacity) {
+  var mat = new THREE.SpriteMaterial({
+    map: makeGlowTexture(hexColor),
+    color: 0xffffff,
+    transparent: true,
+    opacity: opacity,
+    blending: THREE.AdditiveBlending,
+    depthWrite: false
+  });
+  var spr = new THREE.Sprite(mat);
+  spr.position.copy(pos);
+  spr.scale.set(size, size, 1);
+  scene.add(spr);
+  return spr;
+}
+
+// ─── Premium color palette ────────────────────────────────────
+var NODE_COLORS = {
+  'EVA':         {color: 0x00bbff, clr: '#00bbff', size: 1.2, emissive: 0x0066ff, metalness: 0.3, roughness: 0.25},
+  'Agent':       {color: 0x00ff88, clr: '#00ff88', size: 0.45, emissive: 0x00cc55, metalness: 0.6, roughness: 0.3},
+  'SkillDomain': {color: 0x4488ff, clr: '#4488ff', size: 0.15, emissive: 0x2244aa, metalness: 0.5, roughness: 0.4},
+  'Service':     {color: 0xff8844, clr: '#ff8844', size: 0.35, emissive: 0xcc4422, metalness: 0.7, roughness: 0.25}
+};
+
+// ═════════════════════ INIT ═════════════════════
 function init() {
   var container = document.getElementById('canvas-area');
   var w = container.clientWidth, h = container.clientHeight;
 
   scene = new THREE.Scene();
-  scene.background = new THREE.Color(0x050510);
-  scene.fog = new THREE.FogExp2(0x050510, 0.008);
+
+  // Gradient background (deep-space vertical gradient)
+  var bgC = document.createElement('canvas');
+  bgC.width = 4; bgC.height = 512;
+  var bx = bgC.getContext('2d');
+  var bgG = bx.createLinearGradient(0, 0, 0, 512);
+  bgG.addColorStop(0,   '#020210');
+  bgG.addColorStop(0.35,'#050516');
+  bgG.addColorStop(0.65,'#080820');
+  bgG.addColorStop(1,   '#0b0b1a');
+  bx.fillStyle = bgG; bx.fillRect(0, 0, 4, 512);
+  scene.background = new THREE.CanvasTexture(bgC);
+
+  // Soft exponential fog for depth
+  scene.fog = new THREE.FogExp2(0x070718, 0.006);
 
   camera = new THREE.PerspectiveCamera(55, w/h, 0.1, 500);
   camera.position.set(0, 12, 18);
@@ -730,6 +797,9 @@ function init() {
   renderer = new THREE.WebGLRenderer({antialias: true, canvas: document.getElementById('hub-canvas')});
   renderer.setSize(w, h);
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.outputEncoding = THREE.sRGBEncoding;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.15;
 
   controls = new THREE.OrbitControls(camera, renderer.domElement);
   controls.enableDamping = true;
@@ -742,34 +812,86 @@ function init() {
   raycaster = new THREE.Raycaster();
   pointer = new THREE.Vector2();
 
-  scene.add(new THREE.AmbientLight(0x222244));
-  var dl = new THREE.DirectionalLight(0x4488ff, 0.8);
-  dl.position.set(10, 20, 10);
-  scene.add(dl);
-  var dl2 = new THREE.DirectionalLight(0xff8844, 0.3);
-  dl2.position.set(-10, -5, -10);
-  scene.add(dl2);
+  // ─── Cinematic multi-color point lights ──────────────────────
+  scene.add(new THREE.AmbientLight(0x1a1a2e, 0.5));
 
-  var sg = new THREE.BufferGeometry();
-  var sp = new Float32Array(4000);
-  for (var i = 0; i < 4000; i++) {
-    var r = 50 + Math.random() * 200;
-    var t = Math.random() * Math.PI * 2;
-    var p = Math.acos(2 * Math.random() - 1);
-    sp[i*3] = r * Math.sin(p) * Math.cos(t);
-    sp[i*3+1] = r * Math.sin(p) * Math.sin(t);
-    sp[i*3+2] = r * Math.cos(p);
+  var keyLight = new THREE.PointLight(0x0088ff, 2.8, 70, 1.5);   // blue key
+  keyLight.position.set(14, 20, 14);
+  scene.add(keyLight);
+
+  var fillLight = new THREE.PointLight(0x00ff88, 1.8, 55, 2);    // green fill
+  fillLight.position.set(-14, 6, -10);
+  scene.add(fillLight);
+
+  var rimLight = new THREE.PointLight(0xff6622, 2.2, 55, 1.8);   // orange rim
+  rimLight.position.set(-8, -10, 16);
+  scene.add(rimLight);
+
+  var accentLight = new THREE.PointLight(0x8844ff, 1.2, 45, 2);  // purple accent
+  accentLight.position.set(10, -6, -16);
+  scene.add(accentLight);
+
+  var topLight = new THREE.DirectionalLight(0x88aaff, 0.35);     // cool top
+  topLight.position.set(0, 25, 5);
+  scene.add(topLight);
+
+  // Animate light positions subtly for a living feel
+  window._lights = {key: keyLight, fill: fillLight, rim: rimLight, accent: accentLight};
+
+  // ─── Layered star field (multiple depths / colors) ───────────
+  function addStarLayer(count, minR, maxR, color, size, opacity) {
+    var sg = new THREE.BufferGeometry();
+    var sp = new Float32Array(count * 3);
+    for (var i = 0; i < count; i++) {
+      var r = minR + Math.random() * (maxR - minR);
+      var t = Math.random() * Math.PI * 2;
+      var p = Math.acos(2 * Math.random() - 1);
+      sp[i*3]   = r * Math.sin(p) * Math.cos(t);
+      sp[i*3+1] = r * Math.sin(p) * Math.sin(t);
+      sp[i*3+2] = r * Math.cos(p);
+    }
+    sg.setAttribute('position', new THREE.BufferAttribute(sp, 3));
+    var mat = new THREE.PointsMaterial({color: color, size: size, transparent: true, opacity: opacity, sizeAttenuation: true, depthWrite: false});
+    scene.add(new THREE.Points(sg, mat));
   }
-  sg.setAttribute('position', new THREE.BufferAttribute(sp, 3));
-  scene.add(new THREE.Points(sg, new THREE.PointsMaterial({color: 0x445577, size: 0.3, transparent: true, opacity: 0.6, sizeAttenuation: true})));
+  addStarLayer(3000, 80, 120, 0x88aaff, 0.45, 0.9);   // near bright blue-white
+  addStarLayer(4000, 120, 180, 0xffffff, 0.30, 0.7);  // mid white
+  addStarLayer(3000, 180, 260, 0xffaa66, 0.25, 0.5);  // far warm
+  addStarLayer(2000, 50, 90, 0x66ddff, 0.50, 0.85);   // close cyan sparkle
+
+  // ─── Nebula clouds (soft additive colored particle clouds) ───
+  function addNebula(cx, cy, cz, radius, count, color, opacity) {
+    var sg = new THREE.BufferGeometry();
+    var sp = new Float32Array(count * 3);
+    for (var i = 0; i < count; i++) {
+      var r = Math.random() * radius;
+      var t = Math.random() * Math.PI * 2;
+      var p = Math.acos(2 * Math.random() - 1);
+      sp[i*3]   = cx + r * Math.sin(p) * Math.cos(t);
+      sp[i*3+1] = cy + r * Math.sin(p) * Math.sin(t) * 0.4;
+      sp[i*3+2] = cz + r * Math.cos(p);
+    }
+    sg.setAttribute('position', new THREE.BufferAttribute(sp, 3));
+    var mat = new THREE.PointsMaterial({
+      color: color, size: 3.2, transparent: true, opacity: opacity,
+      sizeAttenuation: true, depthWrite: false,
+      blending: THREE.AdditiveBlending,
+      map: makeGlowTexture(color)
+    });
+    scene.add(new THREE.Points(sg, mat));
+  }
+  addNebula(-32, 6, -26, 22, 500, 0x0044aa, 0.16);   // deep blue nebula
+  addNebula(30, -8, -22, 20, 420, 0xaa0066, 0.13);   // magenta nebula
+  addNebula(12, 14, -38, 24, 460, 0x00aa66, 0.11);   // teal nebula
+  addNebula(-16, -12, 32, 18, 360, 0x6622aa, 0.11);  // purple nebula
 
   renderer.domElement.addEventListener('click', onClick);
   window.addEventListener('resize', onResize);
   loadGraph();
 }
 
+// ═════════════════════ TOOL SATELLITES (standalone loader) ═════════════════════
 function loadToolSatellites() {
-  // Clear old tool meshes first
   if (window._toolMeshes) {
     for (var k in window._toolMeshes) {
       var t = window._toolMeshes[k];
@@ -780,7 +902,7 @@ function loadToolSatellites() {
     }
   }
   window._toolMeshes = {};
-  
+
   fetch('/api/tools').then(function(r) { return r.json(); }).then(function(td) {
     var toolsData = td.tools || {};
     var toolMeshes = {};
@@ -789,27 +911,24 @@ function loadToolSatellites() {
       for (var nk in nodes) {
         var nm = nodes[nk].userData.name || '';
         if (nm.toLowerCase().replace(/^adam-/, '') === agentKey.toLowerCase().replace(/^adam-/, '')) {
-          agentNode = nodes[nk];
-          break;
+          agentNode = nodes[nk]; break;
         }
       }
       if (!agentNode) continue;
-
       var allTools = (toolsData[agentKey].scripts || []).concat(toolsData[agentKey].tools || []);
       for (var ti = 0; ti < Math.min(allTools.length, 8); ti++) {
         var toolName = allTools[ti];
         var angle = (2 * Math.PI * ti) / Math.max(allTools.length, 1);
         var orbitR = 0.6 + (ti % 3) * 0.15;
-        var tGeom = new THREE.OctahedronGeometry(0.06, 0);
-        var tMat = new THREE.MeshPhongMaterial({color: 0xffaa00, emissive: 0xff8800, emissiveIntensity: 0.4});
+        var tGeom = new THREE.OctahedronGeometry(0.07, 0);
+        var tMat = new THREE.MeshStandardMaterial({color: 0xffaa00, emissive: 0xff7722, emissiveIntensity: 0.6, metalness: 0.8, roughness: 0.25});
         var tMesh = new THREE.Mesh(tGeom, tMat);
         tMesh.position.copy(agentNode.position);
         tMesh.userData = {name: toolName, label: 'Tool', parent: agentNode, angle: angle, orbitR: orbitR};
         scene.add(tMesh);
         toolMeshes[agentKey + '_' + ti] = tMesh;
-
-        // Tool label (remove old if exists)
-        if (tMesh.userData.labelEl) { tMesh.userData.labelEl.remove(); }
+        // tiny glow for tool
+        tMesh.userData.glow = addGlow(tMesh.position, 0xff8833, 0.35, 0.35);
         var tl = document.createElement('div');
         tl.className = 'node-label';
         tl.textContent = toolName.substring(0, 15);
@@ -824,6 +943,7 @@ function loadToolSatellites() {
   }).catch(function(e) { console.log('Tools load error:', e); });
 }
 
+// ═════════════════════ LOAD GRAPH ═════════════════════
 function loadGraph() {
   fetch('/api/graph').then(function(r) { return r.json(); }).then(function(data) {
     buildHub(data);
@@ -831,58 +951,37 @@ function loadGraph() {
   });
 }
 
-var NODE_COLORS = {
-  'EVA':         {color: 0x00aaff, clr: '#00aaff', size: 1.2, emissive: 0x0066ff},
-  'Agent':       {color: 0x00ff88, clr: '#00ff88', size: 0.45, emissive: 0x00cc55},
-  'SkillDomain': {color: 0x4488ff, clr: '#4488ff', size: 0.15, emissive: 0x2244aa},
-  'Service':     {color: 0xff8844, clr: '#ff8844', size: 0.35, emissive: 0xcc6622}
-};
-
+// ═════════════════════ BUILD HUB ═════════════════════
 function buildHub(data) {
   var hub = data.hub;
   if (!hub) return;
 
-  // NUCLEAR CLEAR — remove everything, rebuild from scratch
-  // Save lights and stars
+  // NUCLEAR CLEAR — preserve lights + stars/nebula (Points), dispose the rest
   var saved = [];
   for (var i = scene.children.length - 1; i >= 0; i--) {
     var ch = scene.children[i];
-    if (ch.isLight || ch.isPoints) {
-      saved.push(ch);
-      scene.remove(ch);
-    } else {
-      scene.remove(ch);
-      if (ch.geometry) ch.geometry.dispose();
-      if (ch.material) { if (ch.material.length) { ch.material.forEach(function(m){m.dispose();}); } else { ch.material.dispose(); } }
-    }
+    if (ch.isLight || ch.isPoints) { saved.push(ch); scene.remove(ch); }
+    else { scene.remove(ch); if (ch.geometry) ch.geometry.dispose(); if (ch.material) { if (ch.material.length) { ch.material.forEach(function(m){m.dispose();}); } else { ch.material.dispose(); } } }
   }
-  // Clear scene completely
-  while(scene.children.length > 0) {
-    var obj = scene.children[0];
-    scene.remove(obj);
+  while (scene.children.length > 0) {
+    var obj = scene.children[0]; scene.remove(obj);
     if (obj.geometry) obj.geometry.dispose();
     if (obj.material) { if (obj.material.length) { obj.material.forEach(function(m){m.dispose();}); } else { obj.material.dispose(); } }
   }
-  // Restore lights and stars
-  for (var i = 0; i < saved.length; i++) {
-    scene.add(saved[i]);
-  }
-  
-  // Clear tool meshes
+  for (var i = 0; i < saved.length; i++) { scene.add(saved[i]); }
+
   window._toolMeshes = {};
-  
-  // Clear all labels
   document.querySelectorAll('.node-label').forEach(function(el) { el.remove(); });
-  
+
   nodes = {};
   flowParticles = [];
+  bloomSprites = [];
+  activeAgentMeshes = [];
 
   var edges = data.edges || [];
   var nodePositions = {};
 
-  if (hub.eva) {
-    nodePositions['eva'] = new THREE.Vector3(0, 0, 0);
-  }
+  if (hub.eva) { nodePositions['eva'] = new THREE.Vector3(0, 0, 0); }
 
   var svcRadius = 2.5;
   for (var i = 0; i < hub.services.length; i++) {
@@ -897,47 +996,56 @@ function buildHub(data) {
   }
 
   var skillParents = {};
-  for (var i = 0; i < edges.length; i++) {
-    var e = edges[i];
-    if (e.relation === 'has_skill') { skillParents[e.target] = e.source; }
-  }
+  for (var i = 0; i < edges.length; i++) { var e = edges[i]; if (e.relation === 'has_skill') { skillParents[e.target] = e.source; } }
   var skillCount = {};
   for (var sid in skillParents) { var pid = skillParents[sid]; if (!skillCount[pid]) skillCount[pid] = 0; skillCount[pid]++; }
   var skillIdx = {};
   for (var sid in skillParents) {
-    var pid = skillParents[sid];
-    if (!skillIdx[pid]) skillIdx[pid] = 0;
+    var pid = skillParents[sid]; if (!skillIdx[pid]) skillIdx[pid] = 0;
     var basePos = nodePositions[pid] || new THREE.Vector3(Math.random()*3, 0, Math.random()*3);
-    var total = skillCount[pid] || 10;
-    var idx = skillIdx[pid]++;
+    var total = skillCount[pid] || 10; var idx = skillIdx[pid]++;
     var ga = Math.PI * (3 - Math.sqrt(5));
-    var y = 1 - (idx / (total - 1 || 1)) * 2;
-    var rad = Math.sqrt(1 - y * y);
-    var theta = ga * idx;
+    var y = 1 - (idx / (total - 1 || 1)) * 2; var rad = Math.sqrt(1 - y * y); var theta = ga * idx;
     var dist = 0.7 + (y * 0.3 + 0.5) * 0.4;
     nodePositions[sid] = new THREE.Vector3(basePos.x + Math.cos(theta) * rad * dist, basePos.y + y * dist * 0.5, basePos.z + Math.sin(theta) * rad * dist);
   }
 
+  // ─── Nodes with MeshStandardMaterial + bloom sprites ────────
   var allNodes = [hub.eva].concat(hub.agents).concat(hub.services).concat(hub.skills);
   for (var i = 0; i < allNodes.length; i++) {
-    var n = allNodes[i];
-    if (!n) continue;
+    var n = allNodes[i]; if (!n) continue;
     var pos = nodePositions[n.id] || new THREE.Vector3(Math.random()*5-2.5, Math.random()*5-2.5, Math.random()*5-2.5);
     var cfg = NODE_COLORS[n.label] || NODE_COLORS['SkillDomain'];
     var size = cfg.size;
-    var geom = new THREE.SphereGeometry(size, n.label === 'EVA' ? 48 : 20, n.label === 'EVA' ? 48 : 20);
-    var mat = new THREE.MeshPhongMaterial({color: cfg.color, emissive: cfg.emissive || cfg.color, emissiveIntensity: n.label === 'EVA' ? 0.6 : (n.label === 'Agent' ? 0.25 : 0.15), shininess: 60});
+    var geom = new THREE.SphereGeometry(size, n.label === 'EVA' ? 64 : 28, n.label === 'EVA' ? 64 : 28);
+    var mat = new THREE.MeshStandardMaterial({
+      color: cfg.color,
+      emissive: cfg.emissive || cfg.color,
+      emissiveIntensity: n.label === 'EVA' ? 0.7 : (n.label === 'Agent' ? 0.35 : 0.2),
+      metalness: cfg.metalness,
+      roughness: cfg.roughness
+    });
     var mesh = new THREE.Mesh(geom, mat);
     mesh.position.copy(pos);
-    mesh.userData = {id: n.id, name: n.name, label: n.label, props: n.properties};
+    mesh.userData = {id: n.id, name: n.name, label: n.label, props: n.properties, baseScale: 1, baseEmissive: mat.emissiveIntensity};
     scene.add(mesh);
     nodes[n.id] = mesh;
 
+    // Bloom sprites — multi-layer for EVA, single for others
     if (n.label === 'EVA') {
-      // Single subtle glow - no extra spheres
-      var glow = new THREE.Mesh(new THREE.SphereGeometry(size * 1.3, 32, 32), new THREE.MeshBasicMaterial({color: 0x00aaff, transparent: true, opacity: 0.04, side: THREE.BackSide}));
-      glow.position.copy(pos);
-      scene.add(glow);
+      var g1 = addGlow(pos, 0x00bbff, size * 4.5, 0.55);
+      var g2 = addGlow(pos, 0x0066ff, size * 7.0, 0.30);
+      mesh.userData.glow = g1; mesh.userData.glow2 = g2;
+      bloomSprites.push(g1, g2);
+    } else if (n.label === 'Agent') {
+      var ag = addGlow(pos, 0x00ff88, size * 3.5, 0.40);
+      mesh.userData.glow = ag;
+      bloomSprites.push(ag);
+      activeAgentMeshes.push(mesh);
+    } else if (n.label === 'Service') {
+      var sg2 = addGlow(pos, 0xff8844, size * 3.0, 0.30);
+      mesh.userData.glow = sg2;
+      bloomSprites.push(sg2);
     }
 
     if (mesh.userData.labelEl) { mesh.userData.labelEl.remove(); }
@@ -951,70 +1059,83 @@ function buildHub(data) {
     mesh.userData.labelEl = l;
   }
 
+  // ─── Edges as tube geometry (thick premium lines) ───────────
   var edgeCurves = [];
   for (var i = 0; i < edges.length; i++) {
     var e = edges[i];
     if (nodes[e.source] && nodes[e.target]) {
-      var s = nodes[e.source].position;
-      var t = nodes[e.target].position;
+      var s = nodes[e.source].position, t = nodes[e.target].position;
       var dist = s.distanceTo(t);
       if (dist < 15) {
         var mid = new THREE.Vector3().addVectors(s, t).multiplyScalar(0.5);
+        mid.y += dist * 0.08;  // slight arc upward
         var curve = new THREE.QuadraticBezierCurve3(s, mid, t);
-        var pts = curve.getPoints(20);
-        var opacity = Math.min(0.3, 0.5 - dist * 0.02);
-        // Highlight agent→skill edges
-        if (e.relation === 'has_skill' && (nodes[e.source].userData.label === 'Agent' || nodes[e.target].userData.label === 'SkillDomain')) {
-          opacity = Math.min(0.35, 0.6 - dist * 0.02);
-        }
-        scene.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), new THREE.LineBasicMaterial({color: (e.relation === 'orchestrates' || e.relation === 'reports_to') ? 0x00aaff : (e.relation === 'has_skill' ? 0x6688cc : 0x446688), transparent: true, opacity: opacity})));
-        edgeCurves.push({source: e.source, target: e.target, curve: curve});
+        var opacity = Math.min(0.35, 0.5 - dist * 0.02);
+        if (e.relation === 'has_skill') { opacity = Math.min(0.4, 0.6 - dist * 0.02); }
+        var edgeColor = (e.relation === 'orchestrates' || e.relation === 'reports_to') ? 0x00aaff : (e.relation === 'has_skill' ? 0x6688ff : 0x336688);
+        // Tube geometry for thick premium edges
+        var tubeRadius = (e.relation === 'orchestrates' || e.relation === 'reports_to') ? 0.022 : 0.012;
+        var tube = new THREE.TubeGeometry(curve, 24, tubeRadius, 6, false);
+        var tubeMat = new THREE.MeshBasicMaterial({color: edgeColor, transparent: true, opacity: opacity, depthWrite: false});
+        scene.add(new THREE.Mesh(tube, tubeMat));
+        edgeCurves.push({source: e.source, target: e.target, curve: curve, color: edgeColor});
       }
     }
   }
 
-  var hubRing = new THREE.Line(new THREE.BufferGeometry().setFromPoints(function() {
+  // ─── Decorative rings (rebuilt each load) ────────────────────
+  function ringPts(rx, ry, rz, segs) {
     var pts = [];
-    for (var i = 0; i < 64; i++) { var a = (i / 64) * Math.PI * 2; pts.push(new THREE.Vector3(Math.cos(a) * 2.2, Math.sin(a) * 2.2 * 0.3, Math.sin(a) * 2.2)); }
+    for (var i = 0; i < segs; i++) { var a = (i / segs) * Math.PI * 2; pts.push(new THREE.Vector3(Math.cos(a) * rx, Math.sin(a) * ry, Math.sin(a) * rz)); }
     return pts;
-  }()), new THREE.LineBasicMaterial({color: 0x334466, transparent: true, opacity: 0.08}));
+  }
+  var hubRing = new THREE.Line(new THREE.BufferGeometry().setFromPoints(ringPts(2.2, 0.66, 2.2, 96)),
+    new THREE.LineBasicMaterial({color: 0x0044aa, transparent: true, opacity: 0.12}));
   scene.add(hubRing);
-
-  var agentRing = new THREE.Line(new THREE.BufferGeometry().setFromPoints(function() {
-    var pts = [];
-    for (var i = 0; i < 64; i++) { var a = (i / 64) * Math.PI * 2; pts.push(new THREE.Vector3(Math.cos(a) * 5.0, 0, Math.sin(a) * 5.0)); }
-    return pts;
-  }()), new THREE.LineBasicMaterial({color: 0x334466, transparent: true, opacity: 0.06}));
+  var agentRing = new THREE.Line(new THREE.BufferGeometry().setFromPoints(ringPts(5.5, 0.2, 5.5, 128)),
+    new THREE.LineBasicMaterial({color: 0x004466, transparent: true, opacity: 0.08}));
   scene.add(agentRing);
 
-  // Flow particles
+  // ─── Grid floor (subtle spatial reference) ───────────────────
+  var grid = new THREE.GridHelper(40, 40, 0x0044aa, 0x002244);
+  grid.position.y = -6;
+  grid.material.transparent = true;
+  grid.material.opacity = 0.14;
+  scene.add(grid);
+  var grid2 = new THREE.GridHelper(90, 22, 0x002244, 0x001122);
+  grid2.position.y = -6;
+  grid2.material.transparent = true;
+  grid2.material.opacity = 0.06;
+  scene.add(grid2);
+
+  // ═════════════════════ FLOW PARTICLES (with trails) ═════════════════════
   function spawnFlows() {
     var agentKeys = Object.keys(nodes).filter(function(k) { return nodes[k].userData.label === 'Agent'; });
     var svcKeys = Object.keys(nodes).filter(function(k) { return nodes[k].userData.label === 'Service'; });
     var allKeys = agentKeys.concat(svcKeys);
-    for (var i = 0; i < 8 && allKeys.length > 1; i++) {
+    for (var i = 0; i < 10 && allKeys.length > 1; i++) {
       var src = allKeys[Math.floor(Math.random() * allKeys.length)];
       var dst = allKeys[Math.floor(Math.random() * allKeys.length)];
       if (src !== dst && nodes[src] && nodes[dst]) {
-        var size = 0.04 + Math.random() * 0.04;
-        var color = Math.random() > 0.7 ? 0xff4466 : 0x00ff88;
+        var size = 0.05 + Math.random() * 0.04;
+        var color = Math.random() > 0.7 ? 0xff4466 : (Math.random() > 0.5 ? 0x00ff88 : 0x00bbff);
         var geom = new THREE.SphereGeometry(size, 8, 8);
-        var mat = new THREE.MeshBasicMaterial({color: color, transparent: true, opacity: 0.8});
+        var mat = new THREE.MeshBasicMaterial({color: color, transparent: true, opacity: 0.9});
         var mesh = new THREE.Mesh(geom, mat);
         scene.add(mesh);
         var curve = new THREE.QuadraticBezierCurve3(nodes[src].position, new THREE.Vector3().addVectors(nodes[src].position, nodes[dst].position).multiplyScalar(0.5), nodes[dst].position);
+        // Trail: small glow sprite following the particle
+        var trail = addGlow(new THREE.Vector3(), color, size * 8, 0.5);
         flowParticles.push({
-          mesh: mesh,
-          curve: curve,
-          progress: Math.random(),
+          mesh: mesh, curve: curve, progress: Math.random(),
           speed: 0.008 + Math.random() * 0.006,
-          glow: new THREE.Mesh(new THREE.SphereGeometry(size * 2.5, 8, 8), new THREE.MeshBasicMaterial({color: color, transparent: true, opacity: 0.02}))
+          trail: trail, trailGeom: geom
         });
-        scene.add(flowParticles[flowParticles.length - 1].glow);
       }
     }
   }
-  // Load tools as satellites (inline, not separate call)
+
+  // Load tools as satellites (inline)
   fetch('/api/tools').then(function(r) { return r.json(); }).then(function(td) {
     var toolsData = td.tools || {};
     var toolMeshes = {};
@@ -1022,10 +1143,7 @@ function buildHub(data) {
       var agentNode = null;
       for (var nk in nodes) {
         var nm = (nodes[nk].userData.name || '').toLowerCase().replace(/^adam-/, '');
-        if (nm === agentKey.toLowerCase().replace(/^adam-/, '')) {
-          agentNode = nodes[nk];
-          break;
-        }
+        if (nm === agentKey.toLowerCase().replace(/^adam-/, '')) { agentNode = nodes[nk]; break; }
       }
       if (!agentNode) continue;
       var allTools = (toolsData[agentKey].scripts || []).concat(toolsData[agentKey].tools || []);
@@ -1033,11 +1151,12 @@ function buildHub(data) {
         var toolName = allTools[ti];
         var angle = (2 * Math.PI * ti) / Math.max(allTools.length, 1);
         var orbitR = 0.6 + (ti % 3) * 0.15;
-        var tGeom = new THREE.OctahedronGeometry(0.06, 0);
-        var tMat = new THREE.MeshPhongMaterial({color: 0xffaa00, emissive: 0xff8800, emissiveIntensity: 0.4});
+        var tGeom = new THREE.OctahedronGeometry(0.07, 0);
+        var tMat = new THREE.MeshStandardMaterial({color: 0xffaa00, emissive: 0xff7722, emissiveIntensity: 0.6, metalness: 0.8, roughness: 0.25});
         var tMesh = new THREE.Mesh(tGeom, tMat);
         tMesh.position.copy(agentNode.position);
         tMesh.userData = {name: toolName, label: 'Tool', parent: agentNode, angle: angle, orbitR: orbitR};
+        tMesh.userData.glow = addGlow(tMesh.position, 0xff8833, 0.35, 0.35);
         scene.add(tMesh);
         toolMeshes[agentKey + '_' + ti] = tMesh;
         var tl = document.createElement('div');
@@ -1054,37 +1173,30 @@ function buildHub(data) {
   }).catch(function(e) {});
 
   spawnFlows();
-  
-  // Spawn skill interaction particles (agent → skill)
-  var skillFlows = [];
-  for (var i = 0; i < 5 && Object.keys(nodes).length > 1; i++) {
+
+  // Skill interaction particles (agent → skill)
+  for (var i = 0; i < 6 && Object.keys(nodes).length > 1; i++) {
     var agentKeys = Object.keys(nodes).filter(function(k) { return nodes[k].userData.label === 'Agent'; });
     var skillKeys = Object.keys(nodes).filter(function(k) { return nodes[k].userData.label === 'SkillDomain'; });
     if (agentKeys.length > 0 && skillKeys.length > 0) {
       var src = agentKeys[Math.floor(Math.random() * agentKeys.length)];
       var dst = skillKeys[Math.floor(Math.random() * skillKeys.length)];
       if (src !== dst && nodes[src] && nodes[dst]) {
-        var size = 0.03;
+        var size = 0.035;
         var geom = new THREE.SphereGeometry(size, 6, 6);
-        var mat = new THREE.MeshBasicMaterial({color: 0x6688ff, transparent: true, opacity: 0.6});
+        var mat = new THREE.MeshBasicMaterial({color: 0x6688ff, transparent: true, opacity: 0.7});
         var mesh = new THREE.Mesh(geom, mat);
         scene.add(mesh);
         var curve = new THREE.QuadraticBezierCurve3(nodes[src].position, new THREE.Vector3().addVectors(nodes[src].position, nodes[dst].position).multiplyScalar(0.5), nodes[dst].position);
-        flowParticles.push({
-          mesh: mesh,
-          curve: curve,
-          progress: Math.random(),
-          speed: 0.005 + Math.random() * 0.003,
-          glow: new THREE.Mesh(new THREE.SphereGeometry(size * 2, 6, 6), new THREE.MeshBasicMaterial({color: 0x6688ff, transparent: true, opacity: 0.015}))
-        });
-        scene.add(flowParticles[flowParticles.length - 1].glow);
+        var trail = addGlow(new THREE.Vector3(), 0x6688ff, size * 7, 0.4);
+        flowParticles.push({mesh: mesh, curve: curve, progress: Math.random(), speed: 0.005 + Math.random() * 0.003, trail: trail});
       }
     }
   }
 
-  // Show real stats (from /api/stats)
+  // Show real stats
   fetch('/api/stats').then(function(r) { return r.json(); }).then(function(s) {
-    document.getElementById('stats-bar').innerHTML = 
+    document.getElementById('stats-bar').innerHTML =
       '<div>Agents: <span class="val">' + (s.agents || hub.agents.length) + '</span></div>' +
       '<div>Skills: <span class="val">' + (s.skills || hub.skills.length) + '</span></div>' +
       '<div>Outils: <span class="val">' + (s.tools || 0) + '</span></div>' +
@@ -1094,6 +1206,7 @@ function buildHub(data) {
   });
 }
 
+// ═════════════════════ LABELS ═════════════════════
 function updateLabels() {
   for (var key in nodes) {
     var mesh = nodes[key];
@@ -1101,8 +1214,7 @@ function updateLabels() {
       var pos = mesh.position.clone();
       pos.project(camera);
       if (pos.z < 1) {
-        var w = renderer.domElement.clientWidth;
-        var h = renderer.domElement.clientHeight;
+        var w = renderer.domElement.clientWidth, h = renderer.domElement.clientHeight;
         mesh.userData.labelEl.style.left = ((pos.x * 0.5 + 0.5) * w) + 'px';
         mesh.userData.labelEl.style.top = ((-pos.y * 0.5 + 0.5) * h) + 'px';
         var dist = camera.position.distanceTo(mesh.position);
@@ -1114,6 +1226,7 @@ function updateLabels() {
   }
 }
 
+// ═════════════════════ CLICK (with smooth camera tween) ═════════════════════
 function onClick(event) {
   var rect = renderer.domElement.getBoundingClientRect();
   pointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
@@ -1139,31 +1252,39 @@ function onClick(event) {
         var data = td.tools || {};
         var agentName = o.userData.name.toLowerCase().replace(/^adam-/,'');
         var key = null;
-        for (var k in data) {
-          if (k.toLowerCase().includes(agentName) || agentName.includes(k.toLowerCase().replace('adam-',''))) { key = k; break; }
-        }
+        for (var k in data) { if (k.toLowerCase().includes(agentName) || agentName.includes(k.toLowerCase().replace('adam-',''))) { key = k; break; } }
         if (!key) key = 'adam-' + agentName;
         var tools = data[key] || {scripts:[],tools:[]};
         var tHtml = '<div style="margin-bottom:4px;color:#88aacc">Scripts:</div>';
-        for (var si=0;si<Math.min(tools.scripts.length,8);si++) {
-          tHtml += '<div class="t">  ' + tools.scripts[si] + '</div>';
-        }
+        for (var si=0;si<Math.min(tools.scripts.length,8);si++) { tHtml += '<div class="t">  ' + tools.scripts[si] + '</div>'; }
         if (tools.tools.length) {
           tHtml += '<div style="margin-top:4px;margin-bottom:4px;color:#88aacc">Outils:</div>';
-          for (var ti=0;ti<Math.min(tools.tools.length,8);ti++) {
-            tHtml += '<div class="t">  ' + tools.tools[ti] + '</div>';
-          }
+          for (var ti=0;ti<Math.min(tools.tools.length,8);ti++) { tHtml += '<div class="t">  ' + tools.tools[ti] + '</div>'; }
         }
         toolsEl.innerHTML = tHtml || 'Aucun outil';
       });
     } else { toolsEl.style.display = 'none'; }
     document.getElementById('info-panel').classList.add('visible');
-    if (selected) selected.material.emissiveIntensity = 0.2;
+    if (selected) selected.material.emissiveIntensity = selected.userData.baseEmissive;
     selected = o;
-    selected.material.emissiveIntensity = 0.8;
+    selected.material.emissiveIntensity = 0.9;
+
+    // ── Smooth camera tween to the clicked node ──
+    var nodePos = o.position.clone();
+    var dir = new THREE.Vector3().subVectors(camera.position, controls.target).normalize();
+    var zoomDist = (o.userData.label === 'EVA') ? 6 : (o.userData.label === 'Agent' ? 3.5 : 2.5);
+    var targetCamPos = nodePos.clone().add(dir.multiplyScalar(zoomDist));
+    cameraTween = {
+      startPos: camera.position.clone(),
+      startLook: controls.target.clone(),
+      pos: targetCamPos,
+      look: nodePos,
+      t: 0,
+      duration: 1.2
+    };
   } else {
     document.getElementById('info-panel').classList.remove('visible');
-    if (selected) { selected.material.emissiveIntensity = 0.2; selected = null; }
+    if (selected) { selected.material.emissiveIntensity = selected.userData.baseEmissive; selected = null; }
   }
 }
 
@@ -1176,11 +1297,35 @@ function onResize() {
   renderer.setSize(w, h);
 }
 
+// ═════════════════════ ANIMATE ═════════════════════
 function animate() {
   requestAnimationFrame(animate);
+  var delta = clock.getDelta();
+  var elapsed = clock.elapsedTime;
   controls.update();
   updateLabels();
 
+  // ── Smooth camera tween ──
+  if (cameraTween) {
+    cameraTween.t += delta;
+    var k = Math.min(cameraTween.t / cameraTween.duration, 1);
+    var ek = k * k * (3 - 2 * k); // smoothstep
+    camera.position.lerpVectors(cameraTween.startPos, cameraTween.pos, ek);
+    controls.target.lerpVectors(cameraTween.startLook, cameraTween.look, ek);
+    controls.autoRotate = false;
+    if (k >= 1) { cameraTween = null; controls.autoRotate = true; }
+  }
+
+  // ── Subtle light orbit for cinematic feel ──
+  if (window._lights) {
+    window._lights.key.position.x = Math.cos(elapsed * 0.15) * 16;
+    window._lights.key.position.z = Math.sin(elapsed * 0.15) * 16;
+    window._lights.rim.position.x = Math.cos(elapsed * 0.12 + 2) * 14;
+    window._lights.rim.position.z = Math.sin(elapsed * 0.12 + 2) * 14;
+    window._lights.fill.intensity = 1.5 + Math.sin(elapsed * 0.8) * 0.4;
+  }
+
+  // ── Flow particles with trails ──
   for (var i = flowParticles.length - 1; i >= 0; i--) {
     var p = flowParticles[i];
     p.progress += p.speed;
@@ -1199,56 +1344,82 @@ function animate() {
     }
     var pt = p.curve.getPoint(p.progress);
     p.mesh.position.copy(pt);
-    p.glow.position.copy(pt);
-    p.glow.material.opacity = 0.01 + 0.02 * Math.sin(Date.now() * 0.003 + i);
+    if (p.trail) {
+      p.trail.position.copy(pt);
+      // trail fades based on progress (brighter in middle of journey)
+      var fade = Math.sin(p.progress * Math.PI);
+      p.trail.material.opacity = 0.3 * fade;
+      p.trail.scale.setScalar(1 + fade * 0.6);
+    }
   }
 
-  // Animate tool satellites orbiting their agents
-  var tm = window._toolMeshes || {};
-  var now = Date.now() * 0.001;
-  for (var tk in tm) {
-    var t = tm[tk];
-    if (t.userData.parent) {
-      var ang = t.userData.angle + now * 0.5;
-      var r = t.userData.orbitR;
-      t.position.x = t.userData.parent.position.x + Math.cos(ang) * r;
-      t.position.z = t.userData.parent.position.z + Math.sin(ang) * r;
-      t.position.y = t.userData.parent.position.y + 0.2 + Math.sin(now * 2 + t.userData.angle) * 0.05;
-      t.rotation.y += 0.02;
-
-      // Update tool label position
-      if (t.userData.labelEl) {
-        var pos = t.position.clone();
-        pos.project(camera);
-        if (pos.z < 1) {
-          var w = renderer.domElement.clientWidth;
-          var h = renderer.domElement.clientHeight;
-          t.userData.labelEl.style.left = ((pos.x * 0.5 + 0.5) * w) + 'px';
-          t.userData.labelEl.style.top = ((-pos.y * 0.5 + 0.5) * h) + 'px';
-          var dist = camera.position.distanceTo(t.position);
-          t.userData.labelEl.style.display = dist < 12 ? 'block' : 'none';
-        } else {
-          t.userData.labelEl.style.display = 'none';
-        }
+  // ── Pulsing active agents (scale + bloom) ──
+  for (var i = 0; i < activeAgentMeshes.length; i++) {
+    var m = activeAgentMeshes[i];
+    if (m.userData.baseScale) {
+      var pulse = 1 + Math.sin(elapsed * 2 + i * 0.7) * 0.08;
+      m.scale.setScalar(m.userData.baseScale * pulse);
+      if (m.userData.glow) {
+        m.userData.glow.scale.setScalar(m.userData.baseScale * 3.5 * (1 + Math.sin(elapsed * 2 + i * 0.7) * 0.2));
+        m.userData.glow.material.opacity = 0.35 + Math.sin(elapsed * 2 + i * 0.7) * 0.15;
       }
     }
   }
 
-  // Flash random skill nodes to show "skill calls"
-  if (Math.random() < 0.02 && Object.keys(nodes).length > 0) {
+  // ── EVA bloom breathing ──
+  for (var key in nodes) {
+    var nd = nodes[key];
+    if (nd.userData.label === 'EVA' && nd.userData.glow) {
+      var bp = 0.5 + Math.sin(elapsed * 1.2) * 0.12;
+      nd.userData.glow.material.opacity = bp;
+      nd.userData.glow2.material.opacity = bp * 0.5;
+      nd.userData.glow.scale.setScalar(nd.userData.baseScale * 4.5 * (1 + Math.sin(elapsed * 1.2) * 0.06));
+      nd.rotation.y += delta * 0.15;
+    }
+  }
+
+  // ── Tool satellites orbiting ──
+  var tm = window._toolMeshes || {};
+  for (var tk in tm) {
+    var t = tm[tk];
+    if (t.userData.parent) {
+      var ang = t.userData.angle + elapsed * 0.5;
+      var r = t.userData.orbitR;
+      t.position.x = t.userData.parent.position.x + Math.cos(ang) * r;
+      t.position.z = t.userData.parent.position.z + Math.sin(ang) * r;
+      t.position.y = t.userData.parent.position.y + 0.2 + Math.sin(elapsed * 2 + t.userData.angle) * 0.05;
+      t.rotation.y += delta * 1.5;
+      if (t.userData.glow) { t.userData.glow.position.copy(t.position); }
+      if (t.userData.labelEl) {
+        var pos = t.position.clone(); pos.project(camera);
+        if (pos.z < 1) {
+          var w = renderer.domElement.clientWidth, h = renderer.domElement.clientHeight;
+          t.userData.labelEl.style.left = ((pos.x * 0.5 + 0.5) * w) + 'px';
+          t.userData.labelEl.style.top = ((-pos.y * 0.5 + 0.5) * h) + 'px';
+          var dist = camera.position.distanceTo(t.position);
+          t.userData.labelEl.style.display = dist < 12 ? 'block' : 'none';
+        } else { t.userData.labelEl.style.display = 'none'; }
+      }
+    }
+  }
+
+  // ── Flash random skill nodes ──
+  if (Math.random() < 0.025 && Object.keys(nodes).length > 0) {
     var skillKeys = Object.keys(nodes).filter(function(k) { return nodes[k].userData.label === 'SkillDomain'; });
     if (skillKeys.length > 0) {
       var sk = skillKeys[Math.floor(Math.random() * skillKeys.length)];
       var sm = nodes[sk];
-      sm.material.emissiveIntensity = 0.8;
-      setTimeout(function() { if (sm.material) sm.material.emissiveIntensity = 0.15; }, 300);
+      if (sm.material) {
+        sm.material.emissiveIntensity = 0.9;
+        setTimeout(function() { if (sm.material) sm.material.emissiveIntensity = sm.userData.baseEmissive; }, 300);
+      }
     }
   }
 
   renderer.render(scene, camera);
 }
 
-// ─── Data Loading ───
+// ═════════════════════ Data Loading ═════════════════════
 function fetchAgents() {
   fetch('/api/activity').then(function(r) { return r.json(); }).then(function(d) {
     var container = document.getElementById('agents-content');
@@ -1299,7 +1470,7 @@ function fetchPackets() {
   }).catch(function(e) {});
 }
 
-// ─── EVA Chat ───
+// ═════════════════════ EVA Chat ═════════════════════
 function sendChat() {
   var input = document.getElementById('chat-msg');
   var msg = input.value.trim();
@@ -1331,7 +1502,7 @@ function sendChat() {
   });
 }
 
-// ─── Panel System ───
+// ═════════════════════ Panel System ═════════════════════
 function togglePanel(id) {
   var p = document.getElementById(id);
   p.classList.toggle('collapsed');
@@ -1365,7 +1536,7 @@ function dragEnd() {
   document.removeEventListener('mouseup', dragEnd);
 }
 
-// ─── Start ───
+// ═════════════════════ Start ═════════════════════
 init();
 fetchAgents();
 fetchMissions();
@@ -1375,7 +1546,6 @@ setInterval(fetchAgents, 5000);
 setInterval(fetchMissions, 5000);
 setInterval(fetchPackets, 3000);
 setInterval(loadGraph, 30000);
-
 </script>
 </body>
 </html>"""
