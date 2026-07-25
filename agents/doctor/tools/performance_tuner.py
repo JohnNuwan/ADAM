@@ -1,1 +1,1 @@
-python
+Créer un outil qui utilise les données recueillies par docker_inspect et resource_monitor pour ajuster dynamiquement les paramètres de batch et de quantification en fonction des performances des GPU RTX 3090.

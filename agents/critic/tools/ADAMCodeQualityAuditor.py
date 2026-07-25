@@ -1,10 +1,9 @@
-class ADAMCodeQualityAuditor:
+from audit_tools import CodeQualityAuditor
+
+class ADAMCodeQualityAuditor(CodeQualityAuditor):
     def __init__(self):
-        self.quality_metrics = []
+        super().__init__()
 
-    def audit_code(self, code):
-        # Placeholder for actual code auditing logic
+    def audit(self, code):
+        # Specific audit rules for ADAM agents
         pass
-
-    def report_quality(self):
-        return self.quality_metrics

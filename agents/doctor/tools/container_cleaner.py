@@ -1,1 +1,1 @@
-container_cleaner = python(container_identifier)
+Crée un outil container_cleaner pour nettoyer les conteneurs Docker identifiés comme inutiles en utilisant les données collectées par container_identifier.

@@ -16158,6 +16158,589 @@
       ],
       "timestamp": "2026-07-25T22:49:44.213791+00:00",
       "agent": "adam-ctf"
+    },
+    {
+      "id": "m_157",
+      "mission": "Analyse un challenge CTF et documente les techniques apprises",
+      "result": {
+        "agent": "adam-ctf",
+        "mission": "Analyse un challenge CTF et documente les techniques apprises",
+        "success": false,
+        "steps": 5,
+        "elapsed_s": 11.45,
+        "results": [
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "challenge_details_extractor",
+              "args": {
+                "challenge_description": "La description détaillée du challenge CTF"
+              },
+              "description": "Extraction des détails spécifiques du challenge CTF à partir de sa description."
+            },
+            "result": {
+              "error": "Fichier /home/aza/eva-adam-v2/agents/ctf/tools/challenge_details_extractor.py introuvable"
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "challenge_analyzer",
+              "args": {
+                "extracted_details": "Les détails extraits du challenge"
+              },
+              "description": "Analyse du challenge CTF basée sur les détails extraits pour proposer une solution."
+            },
+            "result": {
+              "tool": "challenge_analyzer",
+              "error": "'dict' object has no attribute 'split'"
+            }
+          },
+          {
+            "step": {
+              "action": "create_tool",
+              "tool": "techniques_documenter",
+              "code": "Code pour documenter les techniques apprises à partir de l'analyse du challenge.",
+              "description": "Création d'un outil pour documenter les techniques apprises à partir de l'analyse du dernier challenge CTF."
+            },
+            "result": {
+              "id": "364db3af0846",
+              "name": "techniques_documenter",
+              "file": "techniques_documenter.py",
+              "status": "created"
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "techniques_documenter",
+              "args": {
+                "analysis_results": "Résultats de l'analyse du challenge CTF"
+              },
+              "description": "Documentation des techniques apprises à partir de l'analyse du challenge CTF."
+            },
+            "result": {
+              "tool": "techniques_documenter",
+              "error": "'dict' object has no attribute 'split'"
+            }
+          },
+          {
+            "step": {
+              "action": "manage_infra",
+              "infra_action": "status",
+              "description": "Vérifier la santé des conteneurs Docker"
+            },
+            "result": {
+              "action": "status",
+              "results": [
+                {
+                  "containers": "adam-graphify Up About an hour\neva-activity Up About an hour\neva-monitor Up 3 hours\nadam-bus Up 14 hours (healthy)\nadam-viz Up 15 hours\nadam-chat Up 16 hours\nadam-postgres Up 16 hours (healthy)\nvllm-mistral Up 13 hours\nkali-pentest Up 36 hours\ngrafana Up 36 hours\nprometheus Up 36 hours\nnode-exporter"
+                }
+              ],
+              "success": true
+            }
+          }
+        ],
+        "timestamp": "2026-07-25T22:55:24.345915+00:00"
+      },
+      "steps": [
+        {
+          "action": "execute_tool",
+          "tool": "challenge_details_extractor",
+          "args": {
+            "challenge_description": "La description détaillée du challenge CTF"
+          },
+          "description": "Extraction des détails spécifiques du challenge CTF à partir de sa description."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "challenge_analyzer",
+          "args": {
+            "extracted_details": "Les détails extraits du challenge"
+          },
+          "description": "Analyse du challenge CTF basée sur les détails extraits pour proposer une solution."
+        },
+        {
+          "action": "create_tool",
+          "tool": "techniques_documenter",
+          "code": "Code pour documenter les techniques apprises à partir de l'analyse du challenge.",
+          "description": "Création d'un outil pour documenter les techniques apprises à partir de l'analyse du dernier challenge CTF."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "techniques_documenter",
+          "args": {
+            "analysis_results": "Résultats de l'analyse du challenge CTF"
+          },
+          "description": "Documentation des techniques apprises à partir de l'analyse du challenge CTF."
+        },
+        {
+          "action": "manage_infra",
+          "infra_action": "status",
+          "description": "Vérifier la santé des conteneurs Docker"
+        }
+      ],
+      "timestamp": "2026-07-25T22:55:24.345929+00:00",
+      "agent": "adam-ctf"
+    },
+    {
+      "id": "m_158",
+      "mission": "Crée un nouveau challenge CTF pour entraîner les autres agents",
+      "result": {
+        "agent": "adam-ctf",
+        "mission": "Crée un nouveau challenge CTF pour entraîner les autres agents",
+        "success": false,
+        "steps": 3,
+        "elapsed_s": 26.67,
+        "results": [
+          {
+            "step": {
+              "action": "research",
+              "tool": null,
+              "args": null,
+              "code": null,
+              "target_agent": null,
+              "description": "Recherche les compétences et limites des agents cibles pour s'assurer que le challenge sera adapté et stimulant."
+            },
+            "result": {
+              "query": "Recherche les compétences et limites des agents cibles pour s'assurer que le challenge sera adapté et stimulant.",
+              "result": "Pour réaliser une analyse détaillée des compétences et des limites des agents cibles, il est important de suivre plusieurs étapes qui permettront d'établir un challenge bien adapté et stimulant. Voici comment procéder :\n\n1. **Identification des Agents Cibles** :\n   - Définir clairement qui sont les ",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "create_tool",
+              "tool": "challenge_creator",
+              "args": {
+                "theme": "cybersecurity",
+                "skill_level": "intermediate"
+              },
+              "code": null,
+              "target_agent": null,
+              "description": "Utilisation de l'outil 'challenge_creator' pour générer un nouveau challenge CTF basé sur les leçons apprises et les compétences cibles."
+            },
+            "result": {
+              "error": "Pas de code fourni"
+            }
+          },
+          {
+            "step": {
+              "action": "self_modify",
+              "what": "Ajouter un logging des appels d'outils",
+              "code": "import logging\nlog = logging.getLogger(__name__)\ndef log_call(name, result):\n    log.info(f'Tool {name}: {result}')"
+            },
+            "result": {
+              "what": "Ajouter un logging des appels d'outils",
+              "improvement_file": "/home/aza/eva-adam-v2/agents/ctf/tools/self_improvement_20260726_010040.py",
+              "backup": "/home/aza/eva-adam-v2/agents/ctf/tools/backups/runtime_backup_20260726_010040.py",
+              "status": "improved"
+            }
+          }
+        ],
+        "timestamp": "2026-07-25T23:00:40.294913+00:00"
+      },
+      "steps": [
+        {
+          "action": "research",
+          "tool": null,
+          "args": null,
+          "code": null,
+          "target_agent": null,
+          "description": "Recherche les compétences et limites des agents cibles pour s'assurer que le challenge sera adapté et stimulant."
+        },
+        {
+          "action": "create_tool",
+          "tool": "challenge_creator",
+          "args": {
+            "theme": "cybersecurity",
+            "skill_level": "intermediate"
+          },
+          "code": null,
+          "target_agent": null,
+          "description": "Utilisation de l'outil 'challenge_creator' pour générer un nouveau challenge CTF basé sur les leçons apprises et les compétences cibles."
+        },
+        {
+          "action": "self_modify",
+          "what": "Ajouter un logging des appels d'outils",
+          "code": "import logging\nlog = logging.getLogger(__name__)\ndef log_call(name, result):\n    log.info(f'Tool {name}: {result}')"
+        }
+      ],
+      "timestamp": "2026-07-25T23:00:40.294922+00:00",
+      "agent": "adam-ctf"
+    },
+    {
+      "id": "m_159",
+      "mission": "Participe à un CTF en ligne si disponible",
+      "result": {
+        "agent": "adam-ctf",
+        "mission": "Participe à un CTF en ligne si disponible",
+        "success": false,
+        "steps": 7,
+        "elapsed_s": 34.37,
+        "results": [
+          {
+            "step": {
+              "action": "research",
+              "tool": null,
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Rechercher les prochains CTF en ligne disponibles et vérifier les conditions d'accès."
+            },
+            "result": {
+              "query": "Rechercher les prochains CTF en ligne disponibles et vérifier les conditions d'accès.",
+              "result": "Pour rechercher les prochains CTF (Capture The Flag) en ligne disponibles et vérifier les conditions d'accès, vous pouvez suivre ces étapes :\n\n1. **Sites de Calendrier de CTF** :\n   - Visitez des sites comme [CTFTime](https://ctftime.org/) qui maintient un calendrier des compétitions de CTF à venir.",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "challenge_details_extractor",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Extraire les détails des challenges du CTF en ligne pour préparer la participation."
+            },
+            "result": {
+              "error": "Fichier /home/aza/eva-adam-v2/agents/ctf/tools/challenge_details_extractor.py introuvable"
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "challenge_analyzer",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Analyser les challenges extraits pour identifier les techniques et compétences nécessaires."
+            },
+            "result": {
+              "tool": "challenge_analyzer",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "solution_generator",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Générer des solutions potentielles pour les challenges identifiés."
+            },
+            "result": {
+              "error": "Fichier /home/aza/eva-adam-v2/agents/ctf/tools/solution_generator.py introuvable"
+            }
+          },
+          {
+            "step": {
+              "action": "participate",
+              "tool": null,
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Participer activement au CTF en ligne en utilisant les solutions générées."
+            },
+            "result": {
+              "error": "Action inconnue: participate"
+            }
+          },
+          {
+            "step": {
+              "action": "techniques_documenter",
+              "tool": "techniques_documenter",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Documenter les techniques apprises pendant le CTF pour future référence et entraînement."
+            },
+            "result": {
+              "error": "Action inconnue: techniques_documenter"
+            }
+          },
+          {
+            "step": {
+              "action": "self_modify",
+              "what": "Ajouter un logging des appels d'outils",
+              "code": "import logging\nlog = logging.getLogger(__name__)\ndef log_call(name, result):\n    log.info(f'Tool {name}: {result}')"
+            },
+            "result": {
+              "what": "Ajouter un logging des appels d'outils",
+              "improvement_file": "/home/aza/eva-adam-v2/agents/ctf/tools/self_improvement_20260726_010522.py",
+              "backup": "/home/aza/eva-adam-v2/agents/ctf/tools/backups/runtime_backup_20260726_010522.py",
+              "status": "improved"
+            }
+          }
+        ],
+        "timestamp": "2026-07-25T23:05:22.400066+00:00"
+      },
+      "steps": [
+        {
+          "action": "research",
+          "tool": null,
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Rechercher les prochains CTF en ligne disponibles et vérifier les conditions d'accès."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "challenge_details_extractor",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Extraire les détails des challenges du CTF en ligne pour préparer la participation."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "challenge_analyzer",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Analyser les challenges extraits pour identifier les techniques et compétences nécessaires."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "solution_generator",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Générer des solutions potentielles pour les challenges identifiés."
+        },
+        {
+          "action": "participate",
+          "tool": null,
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Participer activement au CTF en ligne en utilisant les solutions générées."
+        },
+        {
+          "action": "techniques_documenter",
+          "tool": "techniques_documenter",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Documenter les techniques apprises pendant le CTF pour future référence et entraînement."
+        },
+        {
+          "action": "self_modify",
+          "what": "Ajouter un logging des appels d'outils",
+          "code": "import logging\nlog = logging.getLogger(__name__)\ndef log_call(name, result):\n    log.info(f'Tool {name}: {result}')"
+        }
+      ],
+      "timestamp": "2026-07-25T23:05:22.400077+00:00",
+      "agent": "adam-ctf"
+    },
+    {
+      "id": "m_160",
+      "mission": "Crée un outil de génération de challenges automatiques",
+      "result": {
+        "agent": "adam-ctf",
+        "mission": "Crée un outil de génération de challenges automatiques",
+        "success": false,
+        "steps": 5,
+        "elapsed_s": 32.03,
+        "results": [
+          {
+            "step": {
+              "action": "research",
+              "tool": "",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Recherche et analyse des spécifications nécessaires pour un outil de génération de challenges automatiques en se basant sur les leçons apprises et les outils existants."
+            },
+            "result": {
+              "query": "Recherche et analyse des spécifications nécessaires pour un outil de génération de challenges automatiques en se basant sur les leçons apprises et les outils existants.",
+              "result": "Pour concevoir un outil efficace de génération de défis (ou \"challenges\") automatiques, il est crucial d'analyser les spécifications nécessaires en se basant sur les leçons tirées d'outils similaires existants. Voici une analyse détaillée qui peut aider à définir ces spécifications :\n\n### 1. **Compr",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "create_tool",
+              "tool": "challenge_autogenerator",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Crée l'outil 'challenge_autogenerator' en intégrant les spécifications et le planning minutieux basés sur les leçons apprises et les outils existants."
+            },
+            "result": {
+              "error": "Pas de code fourni"
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "challenge_autogenerator",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Teste l'outil 'challenge_autogenerator' pour s'assurer qu'il peut générer des challenges CTF de manière automatisée et fiable."
+            },
+            "result": {
+              "tool": "challenge_autogenerator",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "document",
+              "tool": "",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Documente le processus de création et de test de l'outil 'challenge_autogenerator', y compris les spécifications, le planning et les résultats des tests."
+            },
+            "result": {
+              "error": "Action inconnue: document"
+            }
+          },
+          {
+            "step": {
+              "action": "self_modify",
+              "what": "Ajouter un logging des appels d'outils",
+              "code": "import logging\nlog = logging.getLogger(__name__)\ndef log_call(name, result):\n    log.info(f'Tool {name}: {result}')"
+            },
+            "result": {
+              "what": "Ajouter un logging des appels d'outils",
+              "improvement_file": "/home/aza/eva-adam-v2/agents/ctf/tools/self_improvement_20260726_011037.py",
+              "backup": "/home/aza/eva-adam-v2/agents/ctf/tools/backups/runtime_backup_20260726_011037.py",
+              "status": "improved"
+            }
+          }
+        ],
+        "timestamp": "2026-07-25T23:10:37.016831+00:00"
+      },
+      "steps": [
+        {
+          "action": "research",
+          "tool": "",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Recherche et analyse des spécifications nécessaires pour un outil de génération de challenges automatiques en se basant sur les leçons apprises et les outils existants."
+        },
+        {
+          "action": "create_tool",
+          "tool": "challenge_autogenerator",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Crée l'outil 'challenge_autogenerator' en intégrant les spécifications et le planning minutieux basés sur les leçons apprises et les outils existants."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "challenge_autogenerator",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Teste l'outil 'challenge_autogenerator' pour s'assurer qu'il peut générer des challenges CTF de manière automatisée et fiable."
+        },
+        {
+          "action": "document",
+          "tool": "",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Documente le processus de création et de test de l'outil 'challenge_autogenerator', y compris les spécifications, le planning et les résultats des tests."
+        },
+        {
+          "action": "self_modify",
+          "what": "Ajouter un logging des appels d'outils",
+          "code": "import logging\nlog = logging.getLogger(__name__)\ndef log_call(name, result):\n    log.info(f'Tool {name}: {result}')"
+        }
+      ],
+      "timestamp": "2026-07-25T23:10:37.016852+00:00",
+      "agent": "adam-ctf"
+    },
+    {
+      "id": "m_161",
+      "mission": "Analyse un challenge CTF et documente les techniques apprises (Contexte: EVA vise l'autonomie financière et l'AGI)",
+      "result": {
+        "agent": "adam-ctf",
+        "mission": "Analyse un challenge CTF et documente les techniques apprises (Contexte: EVA vise l'autonomie financière et l'AGI)",
+        "success": false,
+        "steps": 3,
+        "elapsed_s": 6.83,
+        "results": [
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "challenge_analyzer",
+              "args": {
+                "challenge_description": "La description du dernier challenge CTF non résolu."
+              },
+              "description": "Analyse le dernier challenge CTF non résolu pour comprendre les failles et les techniques nécessaires pour le résoudre."
+            },
+            "result": {
+              "tool": "challenge_analyzer",
+              "error": "'dict' object has no attribute 'split'"
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "techniques_documenter",
+              "args": {},
+              "description": "Documente les techniques apprises lors de l'analyse du challenge CTF, mettant en avant les points clés pour améliorer la compréhension et les compétences en sécurité informatique."
+            },
+            "result": {
+              "tool": "techniques_documenter",
+              "exit_code": 1,
+              "stdout": "",
+              "stderr": "  File \"/home/aza/eva-adam-v2/agents/ctf/tools/techniques_documenter.py\", line 1\n    Code pour documenter les techniques apprises à partir de l'analyse du challenge.\n                                                              ^\nSyntaxError: unterminated string literal (detected at line 1)\n",
+              "success": false
+            }
+          },
+          {
+            "step": {
+              "action": "self_modify",
+              "what": "Ajouter un système de retry aux outils",
+              "code": "import time\ndef retry(func, max=3):\n    for i in range(max):\n        try: return func()\n        except: time.sleep(1)\n    return None"
+            },
+            "result": {
+              "what": "Ajouter un système de retry aux outils",
+              "improvement_file": "/home/aza/eva-adam-v2/agents/ctf/tools/self_improvement_20260726_011510.py",
+              "backup": "/home/aza/eva-adam-v2/agents/ctf/tools/backups/runtime_backup_20260726_011510.py",
+              "status": "improved"
+            }
+          }
+        ],
+        "timestamp": "2026-07-25T23:15:10.097699+00:00"
+      },
+      "steps": [
+        {
+          "action": "execute_tool",
+          "tool": "challenge_analyzer",
+          "args": {
+            "challenge_description": "La description du dernier challenge CTF non résolu."
+          },
+          "description": "Analyse le dernier challenge CTF non résolu pour comprendre les failles et les techniques nécessaires pour le résoudre."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "techniques_documenter",
+          "args": {},
+          "description": "Documente les techniques apprises lors de l'analyse du challenge CTF, mettant en avant les points clés pour améliorer la compréhension et les compétences en sécurité informatique."
+        },
+        {
+          "action": "self_modify",
+          "what": "Ajouter un système de retry aux outils",
+          "code": "import time\ndef retry(func, max=3):\n    for i in range(max):\n        try: return func()\n        except: time.sleep(1)\n    return None"
+        }
+      ],
+      "timestamp": "2026-07-25T23:15:10.097716+00:00",
+      "agent": "adam-ctf"
     }
   ]
 }
