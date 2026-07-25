@@ -728,6 +728,31 @@ function animate() {
   requestAnimationFrame(animate);
   controls.update();
   updateLabels();
+
+  // Animate flow particles
+  for (var i = flowParticles.length - 1; i >= 0; i--) {
+    var p = flowParticles[i];
+    p.progress += p.speed;
+    if (p.progress > 1) {
+      // Respawn
+      var agentKeys = Object.keys(nodes).filter(function(k) { return nodes[k].userData.label === 'Agent'; });
+      var svcKeys = Object.keys(nodes).filter(function(k) { return nodes[k].userData.label === 'Service'; });
+      var allKeys = agentKeys.concat(svcKeys);
+      if (allKeys.length > 1) {
+        var src = allKeys[Math.floor(Math.random() * allKeys.length)];
+        var dst = allKeys[Math.floor(Math.random() * allKeys.length)];
+        if (src !== dst && nodes[src] && nodes[dst]) {
+          p.curve = new THREE.QuadraticBezierCurve3(nodes[src].position, new THREE.Vector3().addVectors(nodes[src].position, nodes[dst].position).multiplyScalar(0.5), nodes[dst].position);
+          p.progress = 0;
+        }
+      }
+    }
+    var pt = p.curve.getPoint(p.progress);
+    p.mesh.position.copy(pt);
+    p.glow.position.copy(pt);
+    p.glow.material.opacity = 0.01 + 0.02 * Math.sin(Date.now() * 0.003 + i);
+  }
+
   renderer.render(scene, camera);
 }
 
