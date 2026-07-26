@@ -5941,6 +5941,317 @@
       ],
       "timestamp": "2026-07-26T03:48:35.200441+00:00",
       "agent": "adam-garbler"
+    },
+    {
+      "id": "m_85",
+      "mission": "Exécute ta mission",
+      "result": {
+        "agent": "adam-garbler",
+        "mission": "Exécute ta mission",
+        "success": false,
+        "steps": 2,
+        "elapsed_s": 3.1,
+        "results": [
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "CodeCleaner",
+              "args": {},
+              "code": "",
+              "target_agent": "",
+              "description": "Utiliser l'outil CodeCleaner pour identifier et supprimer le code mort dans le système."
+            },
+            "result": {
+              "tool": "CodeCleaner",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "self_modify",
+              "what": "Ajouter un cache aux outils pour éviter les appels dupliqués",
+              "code": "CACHE = {}\ndef cached_call(key, func, *args):\n    if key not in CACHE:\n        CACHE[key] = func(*args)\n    return CACHE[key]"
+            },
+            "result": {
+              "what": "Ajouter un cache aux outils pour éviter les appels dupliqués",
+              "improvement_file": "/home/aza/eva-adam-v2/agents/garbler/tools/self_improvement_20260726_055347.py",
+              "backup": "/home/aza/eva-adam-v2/agents/garbler/tools/backups/runtime_backup_20260726_055347.py",
+              "status": "improved"
+            }
+          }
+        ],
+        "timestamp": "2026-07-26T03:53:47.675856+00:00"
+      },
+      "steps": [
+        {
+          "action": "execute_tool",
+          "tool": "CodeCleaner",
+          "args": {},
+          "code": "",
+          "target_agent": "",
+          "description": "Utiliser l'outil CodeCleaner pour identifier et supprimer le code mort dans le système."
+        },
+        {
+          "action": "self_modify",
+          "what": "Ajouter un cache aux outils pour éviter les appels dupliqués",
+          "code": "CACHE = {}\ndef cached_call(key, func, *args):\n    if key not in CACHE:\n        CACHE[key] = func(*args)\n    return CACHE[key]"
+        }
+      ],
+      "timestamp": "2026-07-26T03:53:47.675868+00:00",
+      "agent": "adam-garbler"
+    },
+    {
+      "id": "m_86",
+      "mission": "Exécute ta mission",
+      "result": {
+        "agent": "adam-garbler",
+        "mission": "Exécute ta mission",
+        "success": true,
+        "steps": 2,
+        "elapsed_s": 3.16,
+        "results": [
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "CodeCleaner",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Utiliser l'outil CodeCleaner pour nettoyer le code mort dans le système."
+            },
+            "result": {
+              "tool": "CodeCleaner",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "manage_infra",
+              "infra_action": "status",
+              "description": "Vérifier la santé des conteneurs Docker"
+            },
+            "result": {
+              "action": "status",
+              "results": [
+                {
+                  "containers": "adam-graphify Up 6 hours\neva-activity Up 7 hours\neva-monitor Up 8 hours\nadam-bus Up 19 hours (healthy)\nadam-viz Up 20 hours\nadam-chat Up 22 hours\nadam-postgres Up 22 hours (healthy)\nvllm-mistral Up 18 hours\nkali-pentest Up 42 hours\ngrafana Up 42 hours\nprometheus Up 42 hours\nnode-exporter Up 42 hours"
+                }
+              ],
+              "success": true
+            }
+          }
+        ],
+        "timestamp": "2026-07-26T04:00:06.949290+00:00"
+      },
+      "steps": [
+        {
+          "action": "execute_tool",
+          "tool": "CodeCleaner",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Utiliser l'outil CodeCleaner pour nettoyer le code mort dans le système."
+        },
+        {
+          "action": "manage_infra",
+          "infra_action": "status",
+          "description": "Vérifier la santé des conteneurs Docker"
+        }
+      ],
+      "timestamp": "2026-07-26T04:00:06.949323+00:00",
+      "agent": "adam-garbler"
+    },
+    {
+      "id": "m_87",
+      "mission": "Exécute ta mission",
+      "result": {
+        "agent": "adam-garbler",
+        "mission": "Exécute ta mission",
+        "success": false,
+        "steps": 2,
+        "elapsed_s": 4.43,
+        "results": [
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "CodeCleaner",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Utiliser l'outil CodeCleaner pour identifier et supprimer le code mort dans le système. Cette action est basée sur la leçon apprise que la réussite d'une mission dépend de la clarté des instructions et de la préparation adéquate."
+            },
+            "result": {
+              "tool": "CodeCleaner",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "self_modify",
+              "what": "Ajouter un système de retry aux outils",
+              "code": "import time\ndef retry(func, max=3):\n    for i in range(max):\n        try: return func()\n        except: time.sleep(1)\n    return None"
+            },
+            "result": {
+              "what": "Ajouter un système de retry aux outils",
+              "improvement_file": "/home/aza/eva-adam-v2/agents/garbler/tools/self_improvement_20260726_060632.py",
+              "backup": "/home/aza/eva-adam-v2/agents/garbler/tools/backups/runtime_backup_20260726_060632.py",
+              "status": "improved"
+            }
+          }
+        ],
+        "timestamp": "2026-07-26T04:06:32.674841+00:00"
+      },
+      "steps": [
+        {
+          "action": "execute_tool",
+          "tool": "CodeCleaner",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Utiliser l'outil CodeCleaner pour identifier et supprimer le code mort dans le système. Cette action est basée sur la leçon apprise que la réussite d'une mission dépend de la clarté des instructions et de la préparation adéquate."
+        },
+        {
+          "action": "self_modify",
+          "what": "Ajouter un système de retry aux outils",
+          "code": "import time\ndef retry(func, max=3):\n    for i in range(max):\n        try: return func()\n        except: time.sleep(1)\n    return None"
+        }
+      ],
+      "timestamp": "2026-07-26T04:06:32.674850+00:00",
+      "agent": "adam-garbler"
+    },
+    {
+      "id": "m_88",
+      "mission": "Exécute ta mission",
+      "result": {
+        "agent": "adam-garbler",
+        "mission": "Exécute ta mission",
+        "success": false,
+        "steps": 2,
+        "elapsed_s": 3.06,
+        "results": [
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "CodeCleaner",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Utiliser l'outil CodeCleaner pour identifier et nettoyer le code mort dans le système."
+            },
+            "result": {
+              "tool": "CodeCleaner",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "self_modify",
+              "what": "Ajouter un cache aux outils pour éviter les appels dupliqués",
+              "code": "CACHE = {}\ndef cached_call(key, func, *args):\n    if key not in CACHE:\n        CACHE[key] = func(*args)\n    return CACHE[key]"
+            },
+            "result": {
+              "what": "Ajouter un cache aux outils pour éviter les appels dupliqués",
+              "improvement_file": "/home/aza/eva-adam-v2/agents/garbler/tools/self_improvement_20260726_061317.py",
+              "backup": "/home/aza/eva-adam-v2/agents/garbler/tools/backups/runtime_backup_20260726_061317.py",
+              "status": "improved"
+            }
+          }
+        ],
+        "timestamp": "2026-07-26T04:13:17.867698+00:00"
+      },
+      "steps": [
+        {
+          "action": "execute_tool",
+          "tool": "CodeCleaner",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Utiliser l'outil CodeCleaner pour identifier et nettoyer le code mort dans le système."
+        },
+        {
+          "action": "self_modify",
+          "what": "Ajouter un cache aux outils pour éviter les appels dupliqués",
+          "code": "CACHE = {}\ndef cached_call(key, func, *args):\n    if key not in CACHE:\n        CACHE[key] = func(*args)\n    return CACHE[key]"
+        }
+      ],
+      "timestamp": "2026-07-26T04:13:17.867709+00:00",
+      "agent": "adam-garbler"
+    },
+    {
+      "id": "m_89",
+      "mission": "Exécute ta mission",
+      "result": {
+        "agent": "adam-garbler",
+        "mission": "Exécute ta mission",
+        "success": true,
+        "steps": 2,
+        "elapsed_s": 4.03,
+        "results": [
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "CodeCleaner",
+              "args": {},
+              "code": "",
+              "target_agent": "",
+              "description": "Utiliser l'outil CodeCleaner pour nettoyer le code mort. Assurer une compréhension claire de la mission et s'adapter aux retours pour améliorer les actions."
+            },
+            "result": {
+              "tool": "CodeCleaner",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "manage_infra",
+              "infra_action": "status",
+              "description": "Vérifier la santé des conteneurs Docker"
+            },
+            "result": {
+              "action": "status",
+              "results": [
+                {
+                  "containers": "adam-graphify Up 7 hours\neva-activity Up 7 hours\neva-monitor Up 9 hours\nadam-bus Up 19 hours (healthy)\nadam-viz Up 20 hours\nadam-chat Up 22 hours\nadam-postgres Up 22 hours (healthy)\nvllm-mistral Up 19 hours\nkali-pentest Up 42 hours\ngrafana Up 42 hours\nprometheus Up 42 hours\nnode-exporter Up 42 hours"
+                }
+              ],
+              "success": true
+            }
+          }
+        ],
+        "timestamp": "2026-07-26T04:18:54.457519+00:00"
+      },
+      "steps": [
+        {
+          "action": "execute_tool",
+          "tool": "CodeCleaner",
+          "args": {},
+          "code": "",
+          "target_agent": "",
+          "description": "Utiliser l'outil CodeCleaner pour nettoyer le code mort. Assurer une compréhension claire de la mission et s'adapter aux retours pour améliorer les actions."
+        },
+        {
+          "action": "manage_infra",
+          "infra_action": "status",
+          "description": "Vérifier la santé des conteneurs Docker"
+        }
+      ],
+      "timestamp": "2026-07-26T04:18:54.457548+00:00",
+      "agent": "adam-garbler"
     }
   ]
 }
