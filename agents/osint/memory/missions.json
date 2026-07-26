@@ -23289,6 +23289,201 @@
       ],
       "timestamp": "2026-07-26T05:09:18.913355+00:00",
       "agent": "adam-osint"
+    },
+    {
+      "id": "m_233",
+      "mission": "Innovation: recherche de nouvelles techniques ou opportunités — Ta contribution en tant que osint",
+      "result": {
+        "agent": "adam-osint",
+        "mission": "Innovation: recherche de nouvelles techniques ou opportunités — Ta contribution en tant que osint",
+        "success": false,
+        "steps": 3,
+        "elapsed_s": 12.08,
+        "results": [
+          {
+            "step": {
+              "action": "create_tool",
+              "tool": "osint_experimental_module",
+              "args": "",
+              "code": "import osint_innovation_tracker\nfrom osint_advanced_analytics import analyze_data_sources\n\n# Utiliser le module de suivi des innovations pour identifier les nouvelles sources potentielles\ndef experimental_osint_module():\n    # Identifier les nouvelles sources de données OSINT\n    new_data_sources = osint_innovation_tracker.identify_new_data_sources()\n    \n    # Analyser ces nouvelles sources pour voir si elles sont utiles\n    analysis_results = analyze_data_sources(new_data_sources)\n    \n    # Retourner les résultats de l'analyse\n    return analysis_results\n\nexperimental_osint_module()",
+              "target_agent": "",
+              "description": "Créer un module expérimental qui utilise le suivi des innovations pour identifier et analyser de nouvelles sources de données OSINT, en intégrant les leçons apprises."
+            },
+            "result": {
+              "id": "34dfbc1cb256",
+              "name": "osint_experimental_module",
+              "file": "osint_experimental_module.py",
+              "status": "created"
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "osint_experimental_module",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Exécuter le module expérimental pour rechercher de nouvelles techniques et opportunités en matière de collecte OSINT."
+            },
+            "result": {
+              "tool": "osint_experimental_module",
+              "exit_code": 1,
+              "stdout": "",
+              "stderr": "Traceback (most recent call last):\n  File \"/home/aza/eva-adam-v2/agents/osint/tools/osint_experimental_module.py\", line 1, in <module>\n    import osint_innovation_tracker\n  File \"/home/aza/eva-adam-v2/agents/osint/tools/osint_innovation_tracker.py\", line 1, in <module>\n    import osint_sources\nModuleNotFoundError: No module named 'osint_sources'\n",
+              "success": false
+            }
+          },
+          {
+            "step": {
+              "action": "self_modify",
+              "what": "Ajouter un logging des appels d'outils",
+              "code": "import logging\nlog = logging.getLogger(__name__)\ndef log_call(name, result):\n    log.info(f'Tool {name}: {result}')"
+            },
+            "result": {
+              "what": "Ajouter un logging des appels d'outils",
+              "improvement_file": "/home/aza/eva-adam-v2/agents/osint/tools/self_improvement_20260726_071416.py",
+              "backup": "/home/aza/eva-adam-v2/agents/osint/tools/backups/runtime_backup_20260726_071416.py",
+              "status": "improved"
+            }
+          }
+        ],
+        "timestamp": "2026-07-26T05:14:16.832542+00:00"
+      },
+      "steps": [
+        {
+          "action": "create_tool",
+          "tool": "osint_experimental_module",
+          "args": "",
+          "code": "import osint_innovation_tracker\nfrom osint_advanced_analytics import analyze_data_sources\n\n# Utiliser le module de suivi des innovations pour identifier les nouvelles sources potentielles\ndef experimental_osint_module():\n    # Identifier les nouvelles sources de données OSINT\n    new_data_sources = osint_innovation_tracker.identify_new_data_sources()\n    \n    # Analyser ces nouvelles sources pour voir si elles sont utiles\n    analysis_results = analyze_data_sources(new_data_sources)\n    \n    # Retourner les résultats de l'analyse\n    return analysis_results\n\nexperimental_osint_module()",
+          "target_agent": "",
+          "description": "Créer un module expérimental qui utilise le suivi des innovations pour identifier et analyser de nouvelles sources de données OSINT, en intégrant les leçons apprises."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "osint_experimental_module",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Exécuter le module expérimental pour rechercher de nouvelles techniques et opportunités en matière de collecte OSINT."
+        },
+        {
+          "action": "self_modify",
+          "what": "Ajouter un logging des appels d'outils",
+          "code": "import logging\nlog = logging.getLogger(__name__)\ndef log_call(name, result):\n    log.info(f'Tool {name}: {result}')"
+        }
+      ],
+      "timestamp": "2026-07-26T05:14:16.832552+00:00",
+      "agent": "adam-osint"
+    },
+    {
+      "id": "m_234",
+      "mission": "Innovation: recherche de nouvelles techniques ou opportunités — Ta contribution en tant que osint",
+      "result": {
+        "agent": "adam-osint",
+        "mission": "Innovation: recherche de nouvelles techniques ou opportunités — Ta contribution en tant que osint",
+        "success": false,
+        "steps": 4,
+        "elapsed_s": 13.55,
+        "results": [
+          {
+            "step": {
+              "action": "create_tool",
+              "tool": "osint_experimental_module",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Créer un module expérimental qui utilise le suivi des innovations pour identifier et analyser de nouvelles sources de données OSINT. Ce module intègrera les leçons apprises pour s'assurer qu'il est conforme aux réglementations et efficace dans son utilisation des sources de données."
+            },
+            "result": {
+              "error": "Pas de code fourni"
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "osint_innovation_tracker",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Utiliser l'outil de suivi des innovations existant pour détecter les nouvelles tendances et opportunités en matière de collecte OSINT. Cela aidera à identifier les domaines où l'innovation est nécessaire et à éviter les erreurs passées."
+            },
+            "result": {
+              "tool": "osint_innovation_tracker",
+              "exit_code": 1,
+              "stdout": "",
+              "stderr": "Traceback (most recent call last):\n  File \"/home/aza/eva-adam-v2/agents/osint/tools/osint_innovation_tracker.py\", line 1, in <module>\n    import osint_sources\nModuleNotFoundError: No module named 'osint_sources'\n",
+              "success": false
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "osint_trend_detector",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Détecter les tendances émergentes dans les techniques OSINT et les sources de données. Cette action s'appuiera sur les leçons apprises pour éviter les erreurs passées et identifier les domaines où de nouvelles opportunités peuvent être exploitées."
+            },
+            "result": {
+              "tool": "osint_trend_detector",
+              "exit_code": 1,
+              "stdout": "",
+              "stderr": "Traceback (most recent call last):\n  File \"/home/aza/eva-adam-v2/agents/osint/tools/osint_trend_detector.py\", line 1, in <module>\n    python\nNameError: name 'python' is not defined\n",
+              "success": false
+            }
+          },
+          {
+            "step": {
+              "action": "manage_infra",
+              "infra_action": "status",
+              "description": "Vérifier la santé des conteneurs Docker"
+            },
+            "result": {
+              "action": "status",
+              "results": [
+                {
+                  "containers": "adam-graphify Up 8 hours\neva-activity Up 7 minutes\neva-monitor Up 10 hours\nadam-bus Up 20 hours (healthy)\nadam-viz Up 21 hours\nadam-chat Up 23 hours\nadam-postgres Up 23 hours (healthy)\nvllm-mistral Up 20 hours\nkali-pentest Up 43 hours\ngrafana Up 43 hours\nprometheus Up 43 hours\nnode-exporter Up 43 ho"
+                }
+              ],
+              "success": true
+            }
+          }
+        ],
+        "timestamp": "2026-07-26T05:20:03.443876+00:00"
+      },
+      "steps": [
+        {
+          "action": "create_tool",
+          "tool": "osint_experimental_module",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Créer un module expérimental qui utilise le suivi des innovations pour identifier et analyser de nouvelles sources de données OSINT. Ce module intègrera les leçons apprises pour s'assurer qu'il est conforme aux réglementations et efficace dans son utilisation des sources de données."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "osint_innovation_tracker",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Utiliser l'outil de suivi des innovations existant pour détecter les nouvelles tendances et opportunités en matière de collecte OSINT. Cela aidera à identifier les domaines où l'innovation est nécessaire et à éviter les erreurs passées."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "osint_trend_detector",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Détecter les tendances émergentes dans les techniques OSINT et les sources de données. Cette action s'appuiera sur les leçons apprises pour éviter les erreurs passées et identifier les domaines où de nouvelles opportunités peuvent être exploitées."
+        },
+        {
+          "action": "manage_infra",
+          "infra_action": "status",
+          "description": "Vérifier la santé des conteneurs Docker"
+        }
+      ],
+      "timestamp": "2026-07-26T05:20:03.443899+00:00",
+      "agent": "adam-osint"
     }
   ]
 }

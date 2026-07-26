@@ -24059,6 +24059,265 @@
       ],
       "timestamp": "2026-07-26T05:10:28.234127+00:00",
       "agent": "adam-ctf"
+    },
+    {
+      "id": "m_228",
+      "mission": "Innovation: recherche de nouvelles techniques ou opportunités — Ta contribution en tant que ctf",
+      "result": {
+        "agent": "adam-ctf",
+        "mission": "Innovation: recherche de nouvelles techniques ou opportunités — Ta contribution en tant que ctf",
+        "success": false,
+        "steps": 5,
+        "elapsed_s": 11.66,
+        "results": [
+          {
+            "step": {
+              "action": "create_tool",
+              "tool": "technique_innovation_generator",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Créer un outil pour générer des techniques innovantes en se basant sur les types de challenges et les leçons apprises."
+            },
+            "result": {
+              "error": "Pas de code fourni"
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "technique_innovation_generator",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Utiliser le nouvel outil pour générer des techniques innovantes pour les challenges CTF."
+            },
+            "result": {
+              "tool": "technique_innovation_generator",
+              "exit_code": 1,
+              "stdout": "",
+              "stderr": "Traceback (most recent call last):\n  File \"/home/aza/eva-adam-v2/agents/ctf/tools/technique_innovation_generator.py\", line 1, in <module>\n    python\nNameError: name 'python' is not defined\n",
+              "success": false
+            }
+          },
+          {
+            "step": {
+              "action": "create_tool",
+              "tool": "advanced_technique_evaluator",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Créer un outil pour évaluer la technique générée en se basant sur les leçons apprises."
+            },
+            "result": {
+              "error": "Pas de code fourni"
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "advanced_technique_evaluator",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Évaluer la technique innovante générée et ajuster si nécessaire en se basant sur les leçons apprises."
+            },
+            "result": {
+              "tool": "advanced_technique_evaluator",
+              "exit_code": 1,
+              "stdout": "",
+              "stderr": "Traceback (most recent call last):\n  File \"/home/aza/eva-adam-v2/agents/ctf/tools/advanced_technique_evaluator.py\", line 1, in <module>\n    python\nNameError: name 'python' is not defined\n",
+              "success": false
+            }
+          },
+          {
+            "step": {
+              "action": "self_modify",
+              "what": "Ajouter un cache aux outils pour éviter les appels dupliqués",
+              "code": "CACHE = {}\ndef cached_call(key, func, *args):\n    if key not in CACHE:\n        CACHE[key] = func(*args)\n    return CACHE[key]"
+            },
+            "result": {
+              "what": "Ajouter un cache aux outils pour éviter les appels dupliqués",
+              "improvement_file": "/home/aza/eva-adam-v2/agents/ctf/tools/self_improvement_20260726_071507.py",
+              "backup": "/home/aza/eva-adam-v2/agents/ctf/tools/backups/runtime_backup_20260726_071507.py",
+              "status": "improved"
+            }
+          }
+        ],
+        "timestamp": "2026-07-26T05:15:08.004460+00:00"
+      },
+      "steps": [
+        {
+          "action": "create_tool",
+          "tool": "technique_innovation_generator",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Créer un outil pour générer des techniques innovantes en se basant sur les types de challenges et les leçons apprises."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "technique_innovation_generator",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Utiliser le nouvel outil pour générer des techniques innovantes pour les challenges CTF."
+        },
+        {
+          "action": "create_tool",
+          "tool": "advanced_technique_evaluator",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Créer un outil pour évaluer la technique générée en se basant sur les leçons apprises."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "advanced_technique_evaluator",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Évaluer la technique innovante générée et ajuster si nécessaire en se basant sur les leçons apprises."
+        },
+        {
+          "action": "self_modify",
+          "what": "Ajouter un cache aux outils pour éviter les appels dupliqués",
+          "code": "CACHE = {}\ndef cached_call(key, func, *args):\n    if key not in CACHE:\n        CACHE[key] = func(*args)\n    return CACHE[key]"
+        }
+      ],
+      "timestamp": "2026-07-26T05:15:08.004482+00:00",
+      "agent": "adam-ctf"
+    },
+    {
+      "id": "m_229",
+      "mission": "Innovation: recherche de nouvelles techniques ou opportunités — Ta contribution en tant que ctf",
+      "result": {
+        "agent": "adam-ctf",
+        "mission": "Innovation: recherche de nouvelles techniques ou opportunités — Ta contribution en tant que ctf",
+        "success": false,
+        "steps": 5,
+        "elapsed_s": 16.1,
+        "results": [
+          {
+            "step": {
+              "action": "create_tool",
+              "tool": "technique_innovation_generator",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Créer un outil pour générer des techniques innovantes en se basant sur les types de challenges et les leçons apprises. Cette approche itérative permettra d'essayer différentes techniques et d'apprendre de chaque tentative."
+            },
+            "result": {
+              "error": "Pas de code fourni"
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "technique_innovation_generator",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Exécuter l'outil technique_innovation_generator pour générer une nouvelle technique innovante. Ce processus est susceptible de ne pas réussir à la première tentative, mais chaque essai fournira des leçons importantes pour les tentatives ultérieures."
+            },
+            "result": {
+              "tool": "technique_innovation_generator",
+              "exit_code": 1,
+              "stdout": "",
+              "stderr": "Traceback (most recent call last):\n  File \"/home/aza/eva-adam-v2/agents/ctf/tools/technique_innovation_generator.py\", line 1, in <module>\n    python\nNameError: name 'python' is not defined\n",
+              "success": false
+            }
+          },
+          {
+            "step": {
+              "action": "create_tool",
+              "tool": "advanced_technique_evaluator",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Créer un outil pour évaluer la technique générée en se basant sur les leçons apprises. Cela permettra d'avoir un feedback sur la pertinence et l'efficacité de la technique innovante."
+            },
+            "result": {
+              "error": "Pas de code fourni"
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "advanced_technique_evaluator",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Exécuter l'outil advanced_technique_evaluator pour évaluer la technique innovante générée. Si la technique n'est pas jugée comme suffisamment innovante ou efficace, recommencer le processus avec l'outil technique_innovation_generator."
+            },
+            "result": {
+              "tool": "advanced_technique_evaluator",
+              "exit_code": 1,
+              "stdout": "",
+              "stderr": "Traceback (most recent call last):\n  File \"/home/aza/eva-adam-v2/agents/ctf/tools/advanced_technique_evaluator.py\", line 1, in <module>\n    python\nNameError: name 'python' is not defined\n",
+              "success": false
+            }
+          },
+          {
+            "step": {
+              "action": "manage_infra",
+              "infra_action": "status",
+              "description": "Vérifier la santé des conteneurs Docker"
+            },
+            "result": {
+              "action": "status",
+              "results": [
+                {
+                  "containers": "eva-products Up 11 seconds\nadam-graphify Up 8 hours\neva-activity Up 8 minutes\neva-monitor Up 10 hours\nadam-bus Up 20 hours (healthy)\nadam-viz Up 21 hours\nadam-chat Up 23 hours\nadam-postgres Up 23 hours (healthy)\nvllm-mistral Up 20 hours\nkali-pentest Up 43 hours\ngrafana Up 43 hours\nprometheus Up 43 h"
+                }
+              ],
+              "success": true
+            }
+          }
+        ],
+        "timestamp": "2026-07-26T05:20:48.502547+00:00"
+      },
+      "steps": [
+        {
+          "action": "create_tool",
+          "tool": "technique_innovation_generator",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Créer un outil pour générer des techniques innovantes en se basant sur les types de challenges et les leçons apprises. Cette approche itérative permettra d'essayer différentes techniques et d'apprendre de chaque tentative."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "technique_innovation_generator",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Exécuter l'outil technique_innovation_generator pour générer une nouvelle technique innovante. Ce processus est susceptible de ne pas réussir à la première tentative, mais chaque essai fournira des leçons importantes pour les tentatives ultérieures."
+        },
+        {
+          "action": "create_tool",
+          "tool": "advanced_technique_evaluator",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Créer un outil pour évaluer la technique générée en se basant sur les leçons apprises. Cela permettra d'avoir un feedback sur la pertinence et l'efficacité de la technique innovante."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "advanced_technique_evaluator",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Exécuter l'outil advanced_technique_evaluator pour évaluer la technique innovante générée. Si la technique n'est pas jugée comme suffisamment innovante ou efficace, recommencer le processus avec l'outil technique_innovation_generator."
+        },
+        {
+          "action": "manage_infra",
+          "infra_action": "status",
+          "description": "Vérifier la santé des conteneurs Docker"
+        }
+      ],
+      "timestamp": "2026-07-26T05:20:48.502581+00:00",
+      "agent": "adam-ctf"
     }
   ]
 }

@@ -19763,6 +19763,208 @@
       ],
       "timestamp": "2026-07-26T05:10:01.554086+00:00",
       "agent": "adam-rag"
+    },
+    {
+      "id": "m_227",
+      "mission": "Crée un pipeline RAG pour les connaissances ADAM",
+      "result": {
+        "agent": "adam-rag",
+        "mission": "Crée un pipeline RAG pour les connaissances ADAM",
+        "success": false,
+        "steps": 5,
+        "elapsed_s": 12.8,
+        "results": [
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "DocumentIndexer",
+              "args": "nouveau_documents",
+              "description": "Indexe les nouveaux documents pour s'assurer qu'ils sont accessibles et prêts à être utilisés dans le pipeline RAG."
+            },
+            "result": {
+              "tool": "DocumentIndexer",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "SemanticSearchEngine",
+              "args": "PGVector",
+              "description": "Améliore la recherche sémantique en utilisant PGVector pour s'assurer que les résultats sont pertinents et que la recherche est efficace."
+            },
+            "result": {
+              "tool": "SemanticSearchEngine",
+              "exit_code": 1,
+              "stdout": "",
+              "stderr": "Traceback (most recent call last):\n  File \"/home/aza/eva-adam-v2/agents/rag/tools/SemanticSearchEngine.py\", line 1, in <module>\n    from semantic_search import create_engine\nModuleNotFoundError: No module named 'semantic_search'\n",
+              "success": false
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "ParamètresOptimisation",
+              "args": "SemanticSearchEngine",
+              "description": "Optimise les paramètres du moteur de recherche sémantique pour améliorer la pertinence des résultats."
+            },
+            "result": {
+              "tool": "ParamètresOptimisation",
+              "exit_code": 1,
+              "stdout": "",
+              "stderr": "  File \"/home/aza/eva-adam-v2/agents/rag/tools/ParamètresOptimisation.py\", line 1\n    Crée un outil pour optimiser les paramètres de la recherche sémantique en se basant sur les données indexées.\n         ^^\nSyntaxError: invalid syntax\n",
+              "success": false
+            }
+          },
+          {
+            "step": {
+              "action": "create_tool",
+              "tool": "RAGPipeline",
+              "args": "connaissances_ADAM",
+              "code": "Crée un pipeline RAG qui utilise les documents indexés et le moteur de recherche sémantique optimisé pour fournir des réponses pertinentes aux requêtes.",
+              "description": "Crée un pipeline RAG pour les connaissances ADAM en s'assurant que tous les composants sont correctement intégrés et optimisés."
+            },
+            "result": {
+              "id": "add580d37137",
+              "name": "RAGPipeline",
+              "file": "RAGPipeline.py",
+              "status": "created"
+            }
+          },
+          {
+            "step": {
+              "action": "manage_infra",
+              "infra_action": "status",
+              "description": "Vérifier la santé des conteneurs Docker"
+            },
+            "result": {
+              "action": "status",
+              "results": [
+                {
+                  "containers": "adam-graphify Up 8 hours\neva-activity Up 2 minutes\neva-monitor Up 10 hours\nadam-bus Up 20 hours (healthy)\nadam-viz Up 21 hours\nadam-chat Up 23 hours\nadam-postgres Up 23 hours (healthy)\nvllm-mistral Up 20 hours\nkali-pentest Up 43 hours\ngrafana Up 43 hours\nprometheus Up 43 hours\nnode-exporter Up 43 ho"
+                }
+              ],
+              "success": true
+            }
+          }
+        ],
+        "timestamp": "2026-07-26T05:14:43.498354+00:00"
+      },
+      "steps": [
+        {
+          "action": "execute_tool",
+          "tool": "DocumentIndexer",
+          "args": "nouveau_documents",
+          "description": "Indexe les nouveaux documents pour s'assurer qu'ils sont accessibles et prêts à être utilisés dans le pipeline RAG."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "SemanticSearchEngine",
+          "args": "PGVector",
+          "description": "Améliore la recherche sémantique en utilisant PGVector pour s'assurer que les résultats sont pertinents et que la recherche est efficace."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "ParamètresOptimisation",
+          "args": "SemanticSearchEngine",
+          "description": "Optimise les paramètres du moteur de recherche sémantique pour améliorer la pertinence des résultats."
+        },
+        {
+          "action": "create_tool",
+          "tool": "RAGPipeline",
+          "args": "connaissances_ADAM",
+          "code": "Crée un pipeline RAG qui utilise les documents indexés et le moteur de recherche sémantique optimisé pour fournir des réponses pertinentes aux requêtes.",
+          "description": "Crée un pipeline RAG pour les connaissances ADAM en s'assurant que tous les composants sont correctement intégrés et optimisés."
+        },
+        {
+          "action": "manage_infra",
+          "infra_action": "status",
+          "description": "Vérifier la santé des conteneurs Docker"
+        }
+      ],
+      "timestamp": "2026-07-26T05:14:43.498378+00:00",
+      "agent": "adam-rag"
+    },
+    {
+      "id": "m_228",
+      "mission": "Indexe les leçons apprises pour un accès rapide",
+      "result": {
+        "agent": "adam-rag",
+        "mission": "Indexe les leçons apprises pour un accès rapide",
+        "success": false,
+        "steps": 3,
+        "elapsed_s": 6.37,
+        "results": [
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "DocumentIndexer",
+              "args": "leçons_apprendre",
+              "description": "Indexe les leçons apprises pour un accès rapide, en utilisant la structure et la catégorisation méthodiques pour faciliter l'accès et l'utilisation future."
+            },
+            "result": {
+              "tool": "DocumentIndexer",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "SemanticSearchEngine",
+              "args": "PGVector",
+              "description": "Améliore la recherche sémantique sur les leçons apprises en utilisant PGVector pour garantir un accès rapide et pertinent."
+            },
+            "result": {
+              "tool": "SemanticSearchEngine",
+              "exit_code": 1,
+              "stdout": "",
+              "stderr": "Traceback (most recent call last):\n  File \"/home/aza/eva-adam-v2/agents/rag/tools/SemanticSearchEngine.py\", line 1, in <module>\n    from semantic_search import create_engine\nModuleNotFoundError: No module named 'semantic_search'\n",
+              "success": false
+            }
+          },
+          {
+            "step": {
+              "action": "self_modify",
+              "what": "Ajouter un cache aux outils pour éviter les appels dupliqués",
+              "code": "CACHE = {}\ndef cached_call(key, func, *args):\n    if key not in CACHE:\n        CACHE[key] = func(*args)\n    return CACHE[key]"
+            },
+            "result": {
+              "what": "Ajouter un cache aux outils pour éviter les appels dupliqués",
+              "improvement_file": "/home/aza/eva-adam-v2/agents/rag/tools/self_improvement_20260726_072022.py",
+              "backup": "/home/aza/eva-adam-v2/agents/rag/tools/backups/runtime_backup_20260726_072022.py",
+              "status": "improved"
+            }
+          }
+        ],
+        "timestamp": "2026-07-26T05:20:22.391852+00:00"
+      },
+      "steps": [
+        {
+          "action": "execute_tool",
+          "tool": "DocumentIndexer",
+          "args": "leçons_apprendre",
+          "description": "Indexe les leçons apprises pour un accès rapide, en utilisant la structure et la catégorisation méthodiques pour faciliter l'accès et l'utilisation future."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "SemanticSearchEngine",
+          "args": "PGVector",
+          "description": "Améliore la recherche sémantique sur les leçons apprises en utilisant PGVector pour garantir un accès rapide et pertinent."
+        },
+        {
+          "action": "self_modify",
+          "what": "Ajouter un cache aux outils pour éviter les appels dupliqués",
+          "code": "CACHE = {}\ndef cached_call(key, func, *args):\n    if key not in CACHE:\n        CACHE[key] = func(*args)\n    return CACHE[key]"
+        }
+      ],
+      "timestamp": "2026-07-26T05:20:22.391873+00:00",
+      "agent": "adam-rag"
     }
   ]
 }

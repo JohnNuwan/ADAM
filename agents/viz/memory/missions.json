@@ -16337,6 +16337,209 @@
       ],
       "timestamp": "2026-07-26T05:10:13.656170+00:00",
       "agent": "adam-viz"
+    },
+    {
+      "id": "m_231",
+      "mission": "Optimise l'infrastructure: vérifie les conteneurs et propose des améliorations — Ta contribution en tant que viz",
+      "result": {
+        "agent": "adam-viz",
+        "mission": "Optimise l'infrastructure: vérifie les conteneurs et propose des améliorations — Ta contribution en tant que viz",
+        "success": false,
+        "steps": 4,
+        "elapsed_s": 9.69,
+        "results": [
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "container_audit",
+              "args": {},
+              "code": "",
+              "target_agent": "",
+              "description": "Effectuer un audit détaillé des conteneurs pour identifier les problèmes potentiels et les inefficacités, en tenant compte des leçons apprises."
+            },
+            "result": {
+              "tool": "container_audit",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "performance_analysis_summary",
+              "args": {},
+              "code": "",
+              "target_agent": "",
+              "description": "Compiler les résultats de l'audit des conteneurs pour faciliter la prise de décision et proposer des améliorations concrètes."
+            },
+            "result": {
+              "tool": "performance_analysis_summary",
+              "exit_code": 1,
+              "stdout": "",
+              "stderr": "  File \"/home/aza/eva-adam-v2/agents/viz/tools/performance_analysis_summary.py\", line 1\n    Utiliser les résultats de l'audit du dashboard et de l'audit des conteneurs pour créer un résumé de l'analyse des performances.\n                                                                                                         ^\nSyntaxError: unterminated string literal (detected at line 1)\n",
+              "success": false
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "container_improvement_proposal",
+              "args": {},
+              "code": "",
+              "target_agent": "",
+              "description": "Créer un outil basé sur les résultats de l'audit pour proposer des améliorations spécifiques et efficaces pour l'infrastructure."
+            },
+            "result": {
+              "tool": "container_improvement_proposal",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "manage_infra",
+              "infra_action": "status",
+              "description": "Vérifier la santé des conteneurs Docker"
+            },
+            "result": {
+              "action": "status",
+              "results": [
+                {
+                  "containers": "adam-graphify Up 8 hours\neva-activity Up 2 minutes\neva-monitor Up 10 hours\nadam-bus Up 20 hours (healthy)\nadam-viz Up 21 hours\nadam-chat Up 23 hours\nadam-postgres Up 23 hours (healthy)\nvllm-mistral Up 20 hours\nkali-pentest Up 43 hours\ngrafana Up 43 hours\nprometheus Up 43 hours\nnode-exporter Up 43 ho"
+                }
+              ],
+              "success": true
+            }
+          }
+        ],
+        "timestamp": "2026-07-26T05:14:55.179561+00:00"
+      },
+      "steps": [
+        {
+          "action": "execute_tool",
+          "tool": "container_audit",
+          "args": {},
+          "code": "",
+          "target_agent": "",
+          "description": "Effectuer un audit détaillé des conteneurs pour identifier les problèmes potentiels et les inefficacités, en tenant compte des leçons apprises."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "performance_analysis_summary",
+          "args": {},
+          "code": "",
+          "target_agent": "",
+          "description": "Compiler les résultats de l'audit des conteneurs pour faciliter la prise de décision et proposer des améliorations concrètes."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "container_improvement_proposal",
+          "args": {},
+          "code": "",
+          "target_agent": "",
+          "description": "Créer un outil basé sur les résultats de l'audit pour proposer des améliorations spécifiques et efficaces pour l'infrastructure."
+        },
+        {
+          "action": "manage_infra",
+          "infra_action": "status",
+          "description": "Vérifier la santé des conteneurs Docker"
+        }
+      ],
+      "timestamp": "2026-07-26T05:14:55.179590+00:00",
+      "agent": "adam-viz"
+    },
+    {
+      "id": "m_232",
+      "mission": "Optimise l'infrastructure: vérifie les conteneurs et propose des améliorations — Ta contribution en tant que viz",
+      "result": {
+        "agent": "adam-viz",
+        "mission": "Optimise l'infrastructure: vérifie les conteneurs et propose des améliorations — Ta contribution en tant que viz",
+        "success": true,
+        "steps": 3,
+        "elapsed_s": 6.91,
+        "results": [
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "container_audit",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Effectuer un audit détaillé des conteneurs en prenant en compte les leçons apprises pour éviter les erreurs passées."
+            },
+            "result": {
+              "tool": "container_audit",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "container_improvement_proposal",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Sur la base des résultats de l'audit des conteneurs, créer des propositions d'amélioration concrètes qui tiennent compte des ressources et de la configuration des conteneurs."
+            },
+            "result": {
+              "tool": "container_improvement_proposal",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "manage_infra",
+              "infra_action": "status",
+              "description": "Vérifier la santé des conteneurs Docker"
+            },
+            "result": {
+              "action": "status",
+              "results": [
+                {
+                  "containers": "adam-graphify Up 8 hours\neva-activity Up 7 minutes\neva-monitor Up 10 hours\nadam-bus Up 20 hours (healthy)\nadam-viz Up 21 hours\nadam-chat Up 23 hours\nadam-postgres Up 23 hours (healthy)\nvllm-mistral Up 20 hours\nkali-pentest Up 43 hours\ngrafana Up 43 hours\nprometheus Up 43 hours\nnode-exporter Up 43 ho"
+                }
+              ],
+              "success": true
+            }
+          }
+        ],
+        "timestamp": "2026-07-26T05:20:30.584160+00:00"
+      },
+      "steps": [
+        {
+          "action": "execute_tool",
+          "tool": "container_audit",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Effectuer un audit détaillé des conteneurs en prenant en compte les leçons apprises pour éviter les erreurs passées."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "container_improvement_proposal",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Sur la base des résultats de l'audit des conteneurs, créer des propositions d'amélioration concrètes qui tiennent compte des ressources et de la configuration des conteneurs."
+        },
+        {
+          "action": "manage_infra",
+          "infra_action": "status",
+          "description": "Vérifier la santé des conteneurs Docker"
+        }
+      ],
+      "timestamp": "2026-07-26T05:20:30.584177+00:00",
+      "agent": "adam-viz"
     }
   ]
 }

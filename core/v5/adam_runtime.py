@@ -246,9 +246,40 @@ Outils disponibles:
             code = step.get("code", "")
             tool_type = step.get("type", "python")
             desc = step.get("description", "")
-            if code:
-                return self.tools.create_tool(name, code, tool_type, desc)
-            return {"error": "Pas de code fourni"}
+            if not code:
+                # If no code, ask the LLM to generate real code
+                gen_prompt = f"Génère le code Python complet pour l'outil '{name}'. Description: {desc}. Le code doit être FONCTIONNEL avec de vraies implémentations (pas de 'pass' ou 'TODO'). Réponds UNIQUEMENT avec le code Python, pas d'explication."
+                code = self._llm(gen_prompt, max_tokens=1024)
+                # Extract code from markdown if present
+                if "```python" in code:
+                    code = code.split("```python")[1].split("```")[0]
+                elif "```" in code:
+                    code = code.split("```")[1].split("```")[0]
+            
+            # Validate: must be real Python code (not just text)
+            try:
+                import ast as _ast
+                _ast.parse(code)
+                is_valid_python = True
+            except:
+                is_valid_python = False
+            
+            if not is_valid_python:
+                # Code is just text/description, not Python — regenerate
+                logger.warning(f"Outil {name}: code invalide, regeneration...")
+                gen_prompt = f"Tu dois écrire du CODE PYTHON fonctionnel pour '{name}'. Pas de texte, pas de description, du CODE. Description: {desc}. Inclue des imports, des fonctions avec de vraies implémentations, et un block if __name__=='__main__'."
+                code = self._llm(gen_prompt, max_tokens=1024)
+                if "```python" in code:
+                    code = code.split("```python")[1].split("```")[0]
+                elif "```" in code:
+                    code = code.split("```")[1].split("```")[0]
+                # Re-validate
+                try:
+                    _ast.parse(code)
+                except:
+                    return {"error": f"Impossible de generer du code valide pour {name}", "code": code[:200]}
+            
+            return self.tools.create_tool(name, code, tool_type, desc)
 
         elif action == "delegate":
             target = step.get("target_agent", "")
@@ -404,6 +435,7 @@ AGENTS = {
     "adam-red":     {"role": "Tests d'intrusion, OSINT", "type": "security"},
     "adam-red-team":  {"role": "Tests d'intrusion, OSINT", "type": "security"},
     "adam-garbler":   {"role": "Nettoyeur de code mort", "type": "maintenance"},
+    "adam-verifier":  {"role": "Validateur d'outils", "type": "quality"},
 }
 
 
