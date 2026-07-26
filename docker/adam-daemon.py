@@ -316,7 +316,19 @@ def fetch_mission_from_bus(agent):
                     status = payload.get("status", "")
                     # Case-insensitive matching
                     if target_agent == agent_lower or target_agent == agent_short or target_agent == agent.lower():
-                        if status == "pending" and mission:
+                        if status in ("pending",) and mission:
+                            # Mark as assigned by publishing an update
+                            try:
+                                update_payload = json.dumps({
+                                    "topic": "adam:mission",
+                                    "source": "daemon",
+                                    "payload": {"agent": target_agent, "mission": mission, "status": "assigned", "original_id": eid},
+                                    "priority": 2
+                                }).encode()
+                                update_req = urllib.request.Request(GO_BUS, data=update_payload, headers={"Content-Type": "application/json"})
+                                urllib.request.urlopen(update_req, timeout=3)
+                            except:
+                                pass
                             logger.info(f"Mission du bus pour {agent}: {mission[:80]}")
                             return mission
     except Exception as e:
