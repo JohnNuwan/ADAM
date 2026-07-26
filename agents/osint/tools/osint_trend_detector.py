@@ -1,0 +1,1 @@
+Créer un outil qui détecte les tendances émergentes dans les techniques OSINT et les sources de données, en se basant sur l'analyse des données collectées par osint_innovation_tracker et osint_advanced_analytics.

@@ -18209,6 +18209,608 @@
       ],
       "timestamp": "2026-07-26T00:37:01.730797+00:00",
       "agent": "adam-skillsmith"
+    },
+    {
+      "id": "m_184",
+      "mission": "MÉTA: Évalue si le système a besoin d'un nouvel agent spécialisé, d'une auto-modification, ou d'une action d'infrastructure. Propose et exécute une action AGI (create_agent, self_modify, ou manage_infra).",
+      "result": {
+        "agent": "adam-skillsmith",
+        "mission": "MÉTA: Évalue si le système a besoin d'un nouvel agent spécialisé, d'une auto-modification, ou d'une action d'infrastructure. Propose et exécute une action AGI (create_agent, self_modify, ou manage_infra).",
+        "success": false,
+        "steps": 2,
+        "elapsed_s": 25.36,
+        "results": [
+          {
+            "step": {
+              "action": "research",
+              "tool": null,
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Analyser les performances actuelles du système et identifier les domaines où un nouvel agent spécialisé pourrait être bénéfique."
+            },
+            "result": {
+              "query": "Analyser les performances actuelles du système et identifier les domaines où un nouvel agent spécialisé pourrait être bénéfique.",
+              "result": "Pour effectuer une analyse détaillée des performances actuelles d'un système et identifier les domaines où un nouvel agent spécialisé pourrait être bénéfique, il est important de suivre plusieurs étapes. Voici un guide étape par étape pour cette analyse :\n\n### 1. **Évaluation des Performances Actuel",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "create_agent",
+              "tool": "new_agent_specialist_generator",
+              "args": "domaine_identifie",
+              "code": "",
+              "target_agent": "",
+              "description": "Créer un nouvel agent spécialisé dans le domaine identifié comme nécessitant une expertise supplémentaire, en utilisant les leçons apprises pour garantir une meilleure intégration et performance."
+            },
+            "result": {
+              "agent_name": "adam-new",
+              "role": "Créer un nouvel agent spécialisé dans le domaine identifié comme nécessitant une expertise supplémentaire, en utilisant les leçons apprises pour garantir une meilleure intégration et performance.",
+              "status": "created",
+              "created_by": "adam-skillsmith"
+            }
+          }
+        ],
+        "timestamp": "2026-07-26T00:40:17.273799+00:00"
+      },
+      "steps": [
+        {
+          "action": "research",
+          "tool": null,
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Analyser les performances actuelles du système et identifier les domaines où un nouvel agent spécialisé pourrait être bénéfique."
+        },
+        {
+          "action": "create_agent",
+          "tool": "new_agent_specialist_generator",
+          "args": "domaine_identifie",
+          "code": "",
+          "target_agent": "",
+          "description": "Créer un nouvel agent spécialisé dans le domaine identifié comme nécessitant une expertise supplémentaire, en utilisant les leçons apprises pour garantir une meilleure intégration et performance."
+        }
+      ],
+      "timestamp": "2026-07-26T00:40:17.273833+00:00",
+      "agent": "adam-skillsmith"
+    },
+    {
+      "id": "m_185",
+      "mission": "Évolue le système: crée un nouvel agent spécialisé ou améliore le code existant — Ta contribution en tant que skillsmith",
+      "result": {
+        "agent": "adam-skillsmith",
+        "mission": "Évolue le système: crée un nouvel agent spécialisé ou améliore le code existant — Ta contribution en tant que skillsmith",
+        "success": false,
+        "steps": 6,
+        "elapsed_s": 33.77,
+        "results": [
+          {
+            "step": {
+              "action": "research",
+              "tool": "domain_analysis",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Analyser le domaine pour comprendre les besoins et les exigences avant de décider de créer un nouvel agent spécialisé ou d'améliorer le code existant."
+            },
+            "result": {
+              "query": "Analyser le domaine pour comprendre les besoins et les exigences avant de décider de créer un nouvel agent spécialisé ou d'améliorer le code existant.",
+              "result": "Pour analyser en détail un domaine avant de prendre une décision concernant la création d'un nouvel agent spécialisé ou l'amélioration du code existant, voici les étapes que vous pouvez suivre :\n\n1. **Identification des besoins et des exigences** :\n   - **Interviews et sondages** : Interrogez les ut",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "create_tool",
+              "tool": "new_agent_specialist_generator",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Créer un outil pour générer un nouvel agent spécialisé basé sur les résultats de l'analyse du domaine."
+            },
+            "result": {
+              "error": "Pas de code fourni"
+            }
+          },
+          {
+            "step": {
+              "action": "create_tool",
+              "tool": "existing_code_improver",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Créer un outil pour améliorer le code existant basé sur les résultats de l'analyse du domaine."
+            },
+            "result": {
+              "error": "Pas de code fourni"
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "new_agent_specialist_generator",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Utiliser l'outil pour générer un nouvel agent spécialisé si nécessaire après avoir analysé le domaine."
+            },
+            "result": {
+              "tool": "new_agent_specialist_generator",
+              "exit_code": 1,
+              "stdout": "",
+              "stderr": "Traceback (most recent call last):\n  File \"/home/aza/eva-adam-v2/agents/skillsmith/tools/new_agent_specialist_generator.py\", line 1, in <module>\n    python\nNameError: name 'python' is not defined\n",
+              "success": false
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "existing_code_improver",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Utiliser l'outil pour améliorer le code existant si nécessaire après avoir analysé le domaine."
+            },
+            "result": {
+              "tool": "existing_code_improver",
+              "exit_code": 1,
+              "stdout": "",
+              "stderr": "Traceback (most recent call last):\n  File \"/home/aza/eva-adam-v2/agents/skillsmith/tools/existing_code_improver.py\", line 1, in <module>\n    python\nNameError: name 'python' is not defined\n",
+              "success": false
+            }
+          },
+          {
+            "step": {
+              "action": "manage_infra",
+              "infra_action": "status",
+              "description": "Vérifier la santé des conteneurs Docker"
+            },
+            "result": {
+              "action": "status",
+              "results": [
+                {
+                  "containers": "adam-graphify Up 3 hours\neva-activity Up 3 hours\neva-monitor Up 5 hours\nadam-bus Up 16 hours (healthy)\nadam-viz Up 17 hours\nadam-chat Up 18 hours\nadam-postgres Up 18 hours (healthy)\nvllm-mistral Up 15 hours\nkali-pentest Up 38 hours\ngrafana Up 38 hours\nprometheus Up 38 hours\nnode-exporter Up 38 hours"
+                }
+              ],
+              "success": true
+            }
+          }
+        ],
+        "timestamp": "2026-07-26T00:42:17.102317+00:00"
+      },
+      "steps": [
+        {
+          "action": "research",
+          "tool": "domain_analysis",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Analyser le domaine pour comprendre les besoins et les exigences avant de décider de créer un nouvel agent spécialisé ou d'améliorer le code existant."
+        },
+        {
+          "action": "create_tool",
+          "tool": "new_agent_specialist_generator",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Créer un outil pour générer un nouvel agent spécialisé basé sur les résultats de l'analyse du domaine."
+        },
+        {
+          "action": "create_tool",
+          "tool": "existing_code_improver",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Créer un outil pour améliorer le code existant basé sur les résultats de l'analyse du domaine."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "new_agent_specialist_generator",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Utiliser l'outil pour générer un nouvel agent spécialisé si nécessaire après avoir analysé le domaine."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "existing_code_improver",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Utiliser l'outil pour améliorer le code existant si nécessaire après avoir analysé le domaine."
+        },
+        {
+          "action": "manage_infra",
+          "infra_action": "status",
+          "description": "Vérifier la santé des conteneurs Docker"
+        }
+      ],
+      "timestamp": "2026-07-26T00:42:17.102351+00:00",
+      "agent": "adam-skillsmith"
+    },
+    {
+      "id": "m_186",
+      "mission": "Évolue le système: crée un nouvel agent spécialisé ou améliore le code existant — Ta contribution en tant que skillsmith",
+      "result": {
+        "agent": "adam-skillsmith",
+        "mission": "Évolue le système: crée un nouvel agent spécialisé ou améliore le code existant — Ta contribution en tant que skillsmith",
+        "success": false,
+        "steps": 3,
+        "elapsed_s": 6.93,
+        "results": [
+          {
+            "step": {
+              "action": "domain_analysis",
+              "tool": "domain_analysis",
+              "args": {},
+              "code": "",
+              "target_agent": "",
+              "description": "Analyser le domaine pour comprendre clairement les besoins et les exigences avant de créer un nouvel agent spécialisé."
+            },
+            "result": {
+              "error": "Action inconnue: domain_analysis"
+            }
+          },
+          {
+            "step": {
+              "action": "new_agent_specialist_generator",
+              "tool": "new_agent_specialist_generator",
+              "args": {},
+              "code": "",
+              "target_agent": "",
+              "description": "Générer un nouvel agent spécialisé basé sur les résultats de l'analyse du domaine, en s'assurant d'utiliser les leçons apprises pour éviter les erreurs passées."
+            },
+            "result": {
+              "error": "Action inconnue: new_agent_specialist_generator"
+            }
+          },
+          {
+            "step": {
+              "action": "manage_infra",
+              "infra_action": "status",
+              "description": "Vérifier la santé des conteneurs Docker"
+            },
+            "result": {
+              "action": "status",
+              "results": [
+                {
+                  "containers": "adam-graphify Up 3 hours\neva-activity Up 3 hours\neva-monitor Up 5 hours\nadam-bus Up 16 hours (healthy)\nadam-viz Up 17 hours\nadam-chat Up 18 hours\nadam-postgres Up 18 hours (healthy)\nvllm-mistral Up 15 hours\nkali-pentest Up 38 hours\ngrafana Up 38 hours\nprometheus Up 38 hours\nnode-exporter Up 38 hours"
+                }
+              ],
+              "success": true
+            }
+          }
+        ],
+        "timestamp": "2026-07-26T00:48:00.593935+00:00"
+      },
+      "steps": [
+        {
+          "action": "domain_analysis",
+          "tool": "domain_analysis",
+          "args": {},
+          "code": "",
+          "target_agent": "",
+          "description": "Analyser le domaine pour comprendre clairement les besoins et les exigences avant de créer un nouvel agent spécialisé."
+        },
+        {
+          "action": "new_agent_specialist_generator",
+          "tool": "new_agent_specialist_generator",
+          "args": {},
+          "code": "",
+          "target_agent": "",
+          "description": "Générer un nouvel agent spécialisé basé sur les résultats de l'analyse du domaine, en s'assurant d'utiliser les leçons apprises pour éviter les erreurs passées."
+        },
+        {
+          "action": "manage_infra",
+          "infra_action": "status",
+          "description": "Vérifier la santé des conteneurs Docker"
+        }
+      ],
+      "timestamp": "2026-07-26T00:48:00.593958+00:00",
+      "agent": "adam-skillsmith"
+    },
+    {
+      "id": "m_187",
+      "mission": "Évolue le système: crée un nouvel agent spécialisé ou améliore le code existant — Ta contribution en tant que skillsmith",
+      "result": {
+        "agent": "adam-skillsmith",
+        "mission": "Évolue le système: crée un nouvel agent spécialisé ou améliore le code existant — Ta contribution en tant que skillsmith",
+        "success": false,
+        "steps": 3,
+        "elapsed_s": 28.77,
+        "results": [
+          {
+            "step": {
+              "action": "research",
+              "tool": "domain_analysis",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Analyser le domaine pour identifier les besoins et les exigences précises, ainsi que les ressources disponibles."
+            },
+            "result": {
+              "query": "Analyser le domaine pour identifier les besoins et les exigences précises, ainsi que les ressources disponibles.",
+              "result": "Pour analyser un domaine de manière détaillée afin d'identifier les besoins et les exigences précises, ainsi que les ressources disponibles, voici une approche structurée qui peut être appliquée :\n\n1. **Définition du Domaine** : Commencez par bien comprendre et définir clairement le domaine à analys",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "create_agent",
+              "tool": "new_agent_specialist_generator",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Créer un nouvel agent spécialisé basé sur les résultats de l'analyse du domaine, en s'assurant qu'il répond aux besoins identifiés."
+            },
+            "result": {
+              "agent_name": "adam-new",
+              "role": "Créer un nouvel agent spécialisé basé sur les résultats de l'analyse du domaine, en s'assurant qu'il répond aux besoins identifiés.",
+              "status": "created",
+              "created_by": "adam-skillsmith"
+            }
+          },
+          {
+            "step": {
+              "action": "self_modify",
+              "tool": "existing_code_improver",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Améliorer le code existant en utilisant les leçons apprises pour éviter les erreurs passées et optimiser la performance."
+            },
+            "result": {
+              "what": "Améliorer le code existant en utilisant les leçons apprises pour éviter les erreurs passées et optimiser la performance.",
+              "improvement_file": "/home/aza/eva-adam-v2/agents/skillsmith/tools/self_improvement_20260726_025357.py",
+              "backup": "/home/aza/eva-adam-v2/agents/skillsmith/tools/backups/runtime_backup_20260726_025357.py",
+              "status": "improved"
+            }
+          }
+        ],
+        "timestamp": "2026-07-26T00:53:57.193044+00:00"
+      },
+      "steps": [
+        {
+          "action": "research",
+          "tool": "domain_analysis",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Analyser le domaine pour identifier les besoins et les exigences précises, ainsi que les ressources disponibles."
+        },
+        {
+          "action": "create_agent",
+          "tool": "new_agent_specialist_generator",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Créer un nouvel agent spécialisé basé sur les résultats de l'analyse du domaine, en s'assurant qu'il répond aux besoins identifiés."
+        },
+        {
+          "action": "self_modify",
+          "tool": "existing_code_improver",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Améliorer le code existant en utilisant les leçons apprises pour éviter les erreurs passées et optimiser la performance."
+        }
+      ],
+      "timestamp": "2026-07-26T00:53:57.193058+00:00",
+      "agent": "adam-skillsmith"
+    },
+    {
+      "id": "m_188",
+      "mission": "Évolue le système: crée un nouvel agent spécialisé ou améliore le code existant — Ta contribution en tant que skillsmith",
+      "result": {
+        "agent": "adam-skillsmith",
+        "mission": "Évolue le système: crée un nouvel agent spécialisé ou améliore le code existant — Ta contribution en tant que skillsmith",
+        "success": false,
+        "steps": 4,
+        "elapsed_s": 28.04,
+        "results": [
+          {
+            "step": {
+              "action": "research",
+              "tool": "domain_analysis",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Analyser le domaine manquant pour identifier clairement les besoins et les exigences."
+            },
+            "result": {
+              "query": "Analyser le domaine manquant pour identifier clairement les besoins et les exigences.",
+              "result": "Pour analyser un domaine manquant et identifier clairement les besoins et les exigences, voici une approche structurée :\n\n1. **Définition du Domaine Manquant** :\n   - Identifier exactement ce qui est manquant ou non couvert par les systèmes, processus ou services actuels.\n   - Comprendre pourquoi ce",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "create_tool",
+              "tool": "new_agent_specialist_generator",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Créer un outil basé sur les résultats de l'analyse du domaine pour générer un nouvel agent spécialisé."
+            },
+            "result": {
+              "error": "Pas de code fourni"
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "new_agent_specialist_generator",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Utiliser l'outil généré pour créer un nouvel agent spécialisé en tenant compte des leçons apprises."
+            },
+            "result": {
+              "tool": "new_agent_specialist_generator",
+              "exit_code": 1,
+              "stdout": "",
+              "stderr": "Traceback (most recent call last):\n  File \"/home/aza/eva-adam-v2/agents/skillsmith/tools/new_agent_specialist_generator.py\", line 1, in <module>\n    python\nNameError: name 'python' is not defined\n",
+              "success": false
+            }
+          },
+          {
+            "step": {
+              "action": "self_modify",
+              "what": "Optimiser la gestion d'erreur des outils",
+              "code": "def safe_exec(func):\n    try: return func()\n    except Exception as e: return {'error': str(e)}"
+            },
+            "result": {
+              "what": "Optimiser la gestion d'erreur des outils",
+              "improvement_file": "/home/aza/eva-adam-v2/agents/skillsmith/tools/self_improvement_20260726_030106.py",
+              "backup": "/home/aza/eva-adam-v2/agents/skillsmith/tools/backups/runtime_backup_20260726_030106.py",
+              "status": "improved"
+            }
+          }
+        ],
+        "timestamp": "2026-07-26T01:01:06.175227+00:00"
+      },
+      "steps": [
+        {
+          "action": "research",
+          "tool": "domain_analysis",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Analyser le domaine manquant pour identifier clairement les besoins et les exigences."
+        },
+        {
+          "action": "create_tool",
+          "tool": "new_agent_specialist_generator",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Créer un outil basé sur les résultats de l'analyse du domaine pour générer un nouvel agent spécialisé."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "new_agent_specialist_generator",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Utiliser l'outil généré pour créer un nouvel agent spécialisé en tenant compte des leçons apprises."
+        },
+        {
+          "action": "self_modify",
+          "what": "Optimiser la gestion d'erreur des outils",
+          "code": "def safe_exec(func):\n    try: return func()\n    except Exception as e: return {'error': str(e)}"
+        }
+      ],
+      "timestamp": "2026-07-26T01:01:06.175241+00:00",
+      "agent": "adam-skillsmith"
+    },
+    {
+      "id": "m_189",
+      "mission": "Évolue le système: crée un nouvel agent spécialisé ou améliore le code existant — Ta contribution en tant que skillsmith",
+      "result": {
+        "agent": "adam-skillsmith",
+        "mission": "Évolue le système: crée un nouvel agent spécialisé ou améliore le code existant — Ta contribution en tant que skillsmith",
+        "success": false,
+        "steps": 4,
+        "elapsed_s": 29.21,
+        "results": [
+          {
+            "step": {
+              "action": "research",
+              "tool": "domain_analysis",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Analyser le domaine manquant pour identifier clairement les composants nécessaires et les exigences pour la création d'un nouvel agent spécialisé."
+            },
+            "result": {
+              "query": "Analyser le domaine manquant pour identifier clairement les composants nécessaires et les exigences pour la création d'un nouvel agent spécialisé.",
+              "result": "Pour analyser en détail le domaine manquant et identifier clairement les composants nécessaires et les exigences pour la création d'un nouvel agent spécialisé, nous devons suivre plusieurs étapes importantes. Voici un guide étape par étape pour vous aider à structurer cette analyse :\n\n1. **Identific",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "create_tool",
+              "tool": "new_agent_specialist_generator",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Créer un outil pour générer un nouvel agent spécialisé basé sur les résultats de l'analyse du domaine."
+            },
+            "result": {
+              "error": "Pas de code fourni"
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "new_agent_specialist_generator",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Utiliser l'outil pour générer un nouvel agent spécialisé en tenant compte des leçons apprises pour éviter les erreurs passées."
+            },
+            "result": {
+              "tool": "new_agent_specialist_generator",
+              "exit_code": 1,
+              "stdout": "",
+              "stderr": "Traceback (most recent call last):\n  File \"/home/aza/eva-adam-v2/agents/skillsmith/tools/new_agent_specialist_generator.py\", line 1, in <module>\n    python\nNameError: name 'python' is not defined\n",
+              "success": false
+            }
+          },
+          {
+            "step": {
+              "action": "manage_infra",
+              "infra_action": "status",
+              "description": "Vérifier la santé des conteneurs Docker"
+            },
+            "result": {
+              "action": "status",
+              "results": [
+                {
+                  "containers": "adam-graphify Up 4 hours\neva-activity Up 4 hours\neva-monitor Up 6 hours\nadam-bus Up 16 hours (healthy)\nadam-viz Up 17 hours\nadam-chat Up 19 hours\nadam-postgres Up 19 hours (healthy)\nvllm-mistral Up 15 hours\nkali-pentest Up 39 hours\ngrafana Up 39 hours\nprometheus Up 39 hours\nnode-exporter Up 39 hours"
+                }
+              ],
+              "success": true
+            }
+          }
+        ],
+        "timestamp": "2026-07-26T01:06:04.004088+00:00"
+      },
+      "steps": [
+        {
+          "action": "research",
+          "tool": "domain_analysis",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Analyser le domaine manquant pour identifier clairement les composants nécessaires et les exigences pour la création d'un nouvel agent spécialisé."
+        },
+        {
+          "action": "create_tool",
+          "tool": "new_agent_specialist_generator",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Créer un outil pour générer un nouvel agent spécialisé basé sur les résultats de l'analyse du domaine."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "new_agent_specialist_generator",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Utiliser l'outil pour générer un nouvel agent spécialisé en tenant compte des leçons apprises pour éviter les erreurs passées."
+        },
+        {
+          "action": "manage_infra",
+          "infra_action": "status",
+          "description": "Vérifier la santé des conteneurs Docker"
+        }
+      ],
+      "timestamp": "2026-07-26T01:06:04.004145+00:00",
+      "agent": "adam-skillsmith"
     }
   ]
 }
