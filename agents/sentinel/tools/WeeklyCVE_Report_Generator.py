@@ -1,1 +1,1 @@
-Créer un outil pour générer un rapport basé sur les CVE obtenues pour la semaine.
+Maintenir une vigilance constante sur les vulnérabilités grâce à un rapport hebdomadaire.

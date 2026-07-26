@@ -16567,6 +16567,500 @@
       ],
       "timestamp": "2026-07-26T02:29:11.620562+00:00",
       "agent": "adam-rag"
+    },
+    {
+      "id": "m_197",
+      "mission": "Indexe les nouveaux documents dans PostgreSQL",
+      "result": {
+        "agent": "adam-rag",
+        "mission": "Indexe les nouveaux documents dans PostgreSQL",
+        "success": false,
+        "steps": 2,
+        "elapsed_s": 4.43,
+        "results": [
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "DocumentIndexer",
+              "args": {
+                "documents": "nouveaux_documents",
+                "database": "PostgreSQL",
+                "table": "document_index"
+              },
+              "code": "",
+              "target_agent": "",
+              "description": "Indexe les nouveaux documents dans PostgreSQL en veillant à optimiser les requêtes et la récupération des données."
+            },
+            "result": {
+              "tool": "DocumentIndexer",
+              "error": "'dict' object has no attribute 'split'"
+            }
+          },
+          {
+            "step": {
+              "action": "self_modify",
+              "what": "Ajouter un système de retry aux outils",
+              "code": "import time\ndef retry(func, max=3):\n    for i in range(max):\n        try: return func()\n        except: time.sleep(1)\n    return None"
+            },
+            "result": {
+              "what": "Ajouter un système de retry aux outils",
+              "improvement_file": "/home/aza/eva-adam-v2/agents/rag/tools/self_improvement_20260726_043425.py",
+              "backup": "/home/aza/eva-adam-v2/agents/rag/tools/backups/runtime_backup_20260726_043425.py",
+              "status": "improved"
+            }
+          }
+        ],
+        "timestamp": "2026-07-26T02:34:25.911167+00:00"
+      },
+      "steps": [
+        {
+          "action": "execute_tool",
+          "tool": "DocumentIndexer",
+          "args": {
+            "documents": "nouveaux_documents",
+            "database": "PostgreSQL",
+            "table": "document_index"
+          },
+          "code": "",
+          "target_agent": "",
+          "description": "Indexe les nouveaux documents dans PostgreSQL en veillant à optimiser les requêtes et la récupération des données."
+        },
+        {
+          "action": "self_modify",
+          "what": "Ajouter un système de retry aux outils",
+          "code": "import time\ndef retry(func, max=3):\n    for i in range(max):\n        try: return func()\n        except: time.sleep(1)\n    return None"
+        }
+      ],
+      "timestamp": "2026-07-26T02:34:25.911176+00:00",
+      "agent": "adam-rag"
+    },
+    {
+      "id": "m_198",
+      "mission": "Améliore la recherche sémantique avec PGVector",
+      "result": {
+        "agent": "adam-rag",
+        "mission": "Améliore la recherche sémantique avec PGVector",
+        "success": false,
+        "steps": 4,
+        "elapsed_s": 29.16,
+        "results": [
+          {
+            "step": {
+              "action": "research",
+              "tool": "ParamètresOptimisation",
+              "args": "PGVector",
+              "code": "",
+              "target_agent": "",
+              "description": "Rechercher et comprendre comment PGVector fonctionne et comment ses vecteurs d'embeddings sont configurés."
+            },
+            "result": {
+              "query": "Rechercher et comprendre comment PGVector fonctionne et comment ses vecteurs d'embeddings sont configurés.",
+              "result": "PGVector (anteriormente conocido como vector.hn) es una extensión para PostgreSQL que permite el almacenamiento y la consulta eficiente de vectores de alta dimensión. Es especialmente útil en aplicaciones de aprendizaje automático y de procesamiento del lenguaje natural, donde los vectores de embedd",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "ParamètresOptimisation",
+              "args": "PGVector",
+              "code": "",
+              "target_agent": "",
+              "description": "Optimiser les paramètres de PGVector pour améliorer la pertinence des résultats de recherche sémantique."
+            },
+            "result": {
+              "tool": "ParamètresOptimisation",
+              "exit_code": 1,
+              "stdout": "",
+              "stderr": "  File \"/home/aza/eva-adam-v2/agents/rag/tools/ParamètresOptimisation.py\", line 1\n    Crée un outil pour optimiser les paramètres de la recherche sémantique en se basant sur les données indexées.\n         ^^\nSyntaxError: invalid syntax\n",
+              "success": false
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "SemanticSearchEngine",
+              "args": "PGVector, optimised_parameters",
+              "code": "",
+              "target_agent": "",
+              "description": "Réimplémenter le moteur de recherche sémantique avec les paramètres optimisés de PGVector pour améliorer la recherche."
+            },
+            "result": {
+              "tool": "SemanticSearchEngine",
+              "exit_code": 1,
+              "stdout": "",
+              "stderr": "Traceback (most recent call last):\n  File \"/home/aza/eva-adam-v2/agents/rag/tools/SemanticSearchEngine.py\", line 1, in <module>\n    from semantic_search import create_engine\nModuleNotFoundError: No module named 'semantic_search'\n",
+              "success": false
+            }
+          },
+          {
+            "step": {
+              "action": "manage_infra",
+              "infra_action": "status",
+              "description": "Vérifier la santé des conteneurs Docker"
+            },
+            "result": {
+              "action": "status",
+              "results": [
+                {
+                  "containers": "adam-graphify Up 5 hours\neva-activity Up 5 hours\neva-monitor Up 7 hours\nadam-bus Up 18 hours (healthy)\nadam-viz Up 19 hours\nadam-chat Up 20 hours\nadam-postgres Up 20 hours (healthy)\nvllm-mistral Up 17 hours\nkali-pentest Up 40 hours\ngrafana Up 40 hours\nprometheus Up 40 hours\nnode-exporter Up 40 hours"
+                }
+              ],
+              "success": true
+            }
+          }
+        ],
+        "timestamp": "2026-07-26T02:40:00.624283+00:00"
+      },
+      "steps": [
+        {
+          "action": "research",
+          "tool": "ParamètresOptimisation",
+          "args": "PGVector",
+          "code": "",
+          "target_agent": "",
+          "description": "Rechercher et comprendre comment PGVector fonctionne et comment ses vecteurs d'embeddings sont configurés."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "ParamètresOptimisation",
+          "args": "PGVector",
+          "code": "",
+          "target_agent": "",
+          "description": "Optimiser les paramètres de PGVector pour améliorer la pertinence des résultats de recherche sémantique."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "SemanticSearchEngine",
+          "args": "PGVector, optimised_parameters",
+          "code": "",
+          "target_agent": "",
+          "description": "Réimplémenter le moteur de recherche sémantique avec les paramètres optimisés de PGVector pour améliorer la recherche."
+        },
+        {
+          "action": "manage_infra",
+          "infra_action": "status",
+          "description": "Vérifier la santé des conteneurs Docker"
+        }
+      ],
+      "timestamp": "2026-07-26T02:40:00.624311+00:00",
+      "agent": "adam-rag"
+    },
+    {
+      "id": "m_199",
+      "mission": "Crée un pipeline RAG pour les connaissances ADAM",
+      "result": {
+        "agent": "adam-rag",
+        "mission": "Crée un pipeline RAG pour les connaissances ADAM",
+        "success": false,
+        "steps": 5,
+        "elapsed_s": 12.98,
+        "results": [
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "DocumentIndexer",
+              "args": "nouveau_documents",
+              "description": "Indexe les nouveaux documents dans PostgreSQL pour garantir que tous les documents sont correctement organisés et accessibles."
+            },
+            "result": {
+              "tool": "DocumentIndexer",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "SemanticSearchEngine",
+              "args": "PGVector",
+              "description": "Crée une instance de moteur de recherche sémantique basée sur les documents indexés avec PGVector dans PostgreSQL pour améliorer la pertinence des résultats de recherche."
+            },
+            "result": {
+              "tool": "SemanticSearchEngine",
+              "exit_code": 1,
+              "stdout": "",
+              "stderr": "Traceback (most recent call last):\n  File \"/home/aza/eva-adam-v2/agents/rag/tools/SemanticSearchEngine.py\", line 1, in <module>\n    from semantic_search import create_engine\nModuleNotFoundError: No module named 'semantic_search'\n",
+              "success": false
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "ParamètresOptimisation",
+              "args": "SemanticSearchEngine",
+              "description": "Optimise les paramètres du moteur de recherche sémantique pour maximiser la pertinence des résultats."
+            },
+            "result": {
+              "tool": "ParamètresOptimisation",
+              "exit_code": 1,
+              "stdout": "",
+              "stderr": "  File \"/home/aza/eva-adam-v2/agents/rag/tools/ParamètresOptimisation.py\", line 1\n    Crée un outil pour optimiser les paramètres de la recherche sémantique en se basant sur les données indexées.\n         ^^\nSyntaxError: invalid syntax\n",
+              "success": false
+            }
+          },
+          {
+            "step": {
+              "action": "create_tool",
+              "tool": "RAGPipeline",
+              "args": "connaissances_ADAM",
+              "code": "RAGPipeline(semantic_search_engine=SemanticSearchEngine, document_indexer=DocumentIndexer)",
+              "description": "Crée un pipeline RAG pour les connaissances ADAM en utilisant le moteur de recherche sémantique optimisé et les documents indexés, en veillant à la compatibilité et à l'intégration des différents composants du système."
+            },
+            "result": {
+              "id": "add580d37137",
+              "name": "RAGPipeline",
+              "file": "RAGPipeline.py",
+              "status": "created"
+            }
+          },
+          {
+            "step": {
+              "action": "manage_infra",
+              "infra_action": "status",
+              "description": "Vérifier la santé des conteneurs Docker"
+            },
+            "result": {
+              "action": "status",
+              "results": [
+                {
+                  "containers": "adam-graphify Up 5 hours\neva-activity Up 5 hours\neva-monitor Up 7 hours\nadam-bus Up 18 hours (healthy)\nadam-viz Up 19 hours\nadam-chat Up 20 hours\nadam-postgres Up 20 hours (healthy)\nvllm-mistral Up 17 hours\nkali-pentest Up 40 hours\ngrafana Up 40 hours\nprometheus Up 40 hours\nnode-exporter Up 40 hours"
+                }
+              ],
+              "success": true
+            }
+          }
+        ],
+        "timestamp": "2026-07-26T02:44:32.263723+00:00"
+      },
+      "steps": [
+        {
+          "action": "execute_tool",
+          "tool": "DocumentIndexer",
+          "args": "nouveau_documents",
+          "description": "Indexe les nouveaux documents dans PostgreSQL pour garantir que tous les documents sont correctement organisés et accessibles."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "SemanticSearchEngine",
+          "args": "PGVector",
+          "description": "Crée une instance de moteur de recherche sémantique basée sur les documents indexés avec PGVector dans PostgreSQL pour améliorer la pertinence des résultats de recherche."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "ParamètresOptimisation",
+          "args": "SemanticSearchEngine",
+          "description": "Optimise les paramètres du moteur de recherche sémantique pour maximiser la pertinence des résultats."
+        },
+        {
+          "action": "create_tool",
+          "tool": "RAGPipeline",
+          "args": "connaissances_ADAM",
+          "code": "RAGPipeline(semantic_search_engine=SemanticSearchEngine, document_indexer=DocumentIndexer)",
+          "description": "Crée un pipeline RAG pour les connaissances ADAM en utilisant le moteur de recherche sémantique optimisé et les documents indexés, en veillant à la compatibilité et à l'intégration des différents composants du système."
+        },
+        {
+          "action": "manage_infra",
+          "infra_action": "status",
+          "description": "Vérifier la santé des conteneurs Docker"
+        }
+      ],
+      "timestamp": "2026-07-26T02:44:32.263747+00:00",
+      "agent": "adam-rag"
+    },
+    {
+      "id": "m_200",
+      "mission": "Indexe les leçons apprises pour un accès rapide",
+      "result": {
+        "agent": "adam-rag",
+        "mission": "Indexe les leçons apprises pour un accès rapide",
+        "success": false,
+        "steps": 3,
+        "elapsed_s": 11.8,
+        "results": [
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "DocumentIndexer",
+              "args": {
+                "documents": [
+                  "Il est crucial de structurer et de catégoriser méthodiquement les leçons apprises pour faciliter leur accès et leur utilisation future.",
+                  "Il est essentiel de structurer et de catégoriser méthodiquement les leçons apprises pour faciliter leur indexation et leur accès rapide.",
+                  "Il est essentiel de structurer et de catégoriser méthodiquement les leçons apprises pour faciliter leur indexation et leur accès rapide."
+                ],
+                "categories": [
+                  "méthodologie",
+                  "indexation",
+                  "accès_rapide"
+                ],
+                "database": "PostgreSQL"
+              },
+              "description": "Indexe les leçons apprises dans PostgreSQL en les catégorisant pour faciliter leur accès rapide."
+            },
+            "result": {
+              "tool": "DocumentIndexer",
+              "error": "'dict' object has no attribute 'split'"
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "SemanticSearchEngine",
+              "args": {
+                "database": "PostgreSQL",
+                "vector_store": "PGVector"
+              },
+              "description": "Améliore la recherche sémantique des leçons apprises dans PostgreSQL en utilisant PGVector pour une meilleure pertinence des résultats."
+            },
+            "result": {
+              "tool": "SemanticSearchEngine",
+              "error": "'dict' object has no attribute 'split'"
+            }
+          },
+          {
+            "step": {
+              "action": "manage_infra",
+              "infra_action": "status",
+              "description": "Vérifier la santé des conteneurs Docker"
+            },
+            "result": {
+              "action": "status",
+              "results": [
+                {
+                  "containers": "adam-graphify Up 5 hours\neva-activity Up 5 hours\neva-monitor Up 7 hours\nadam-bus Up 18 hours (healthy)\nadam-viz Up 19 hours\nadam-chat Up 20 hours\nadam-postgres Up 20 hours (healthy)\nvllm-mistral Up 17 hours\nkali-pentest Up 40 hours\ngrafana Up 40 hours\nprometheus Up 40 hours\nnode-exporter Up 40 hours"
+                }
+              ],
+              "success": true
+            }
+          }
+        ],
+        "timestamp": "2026-07-26T02:49:23.126322+00:00"
+      },
+      "steps": [
+        {
+          "action": "execute_tool",
+          "tool": "DocumentIndexer",
+          "args": {
+            "documents": [
+              "Il est crucial de structurer et de catégoriser méthodiquement les leçons apprises pour faciliter leur accès et leur utilisation future.",
+              "Il est essentiel de structurer et de catégoriser méthodiquement les leçons apprises pour faciliter leur indexation et leur accès rapide.",
+              "Il est essentiel de structurer et de catégoriser méthodiquement les leçons apprises pour faciliter leur indexation et leur accès rapide."
+            ],
+            "categories": [
+              "méthodologie",
+              "indexation",
+              "accès_rapide"
+            ],
+            "database": "PostgreSQL"
+          },
+          "description": "Indexe les leçons apprises dans PostgreSQL en les catégorisant pour faciliter leur accès rapide."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "SemanticSearchEngine",
+          "args": {
+            "database": "PostgreSQL",
+            "vector_store": "PGVector"
+          },
+          "description": "Améliore la recherche sémantique des leçons apprises dans PostgreSQL en utilisant PGVector pour une meilleure pertinence des résultats."
+        },
+        {
+          "action": "manage_infra",
+          "infra_action": "status",
+          "description": "Vérifier la santé des conteneurs Docker"
+        }
+      ],
+      "timestamp": "2026-07-26T02:49:23.126348+00:00",
+      "agent": "adam-rag"
+    },
+    {
+      "id": "m_201",
+      "mission": "Indexe les nouveaux documents dans PostgreSQL (Contexte: EVA vise l'autonomie financière et l'AGI)",
+      "result": {
+        "agent": "adam-rag",
+        "mission": "Indexe les nouveaux documents dans PostgreSQL (Contexte: EVA vise l'autonomie financière et l'AGI)",
+        "success": false,
+        "steps": 3,
+        "elapsed_s": 6.75,
+        "results": [
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "DocumentIndexer",
+              "args": {
+                "documents": [
+                  "nouveaux_documents"
+                ],
+                "database": "PostgreSQL",
+                "context": "EVA vise l'autonomie financière et l'AGI"
+              },
+              "description": "Indexe les nouveaux documents dans PostgreSQL en tenant compte du contexte d'EVA."
+            },
+            "result": {
+              "tool": "DocumentIndexer",
+              "error": "'dict' object has no attribute 'split'"
+            }
+          },
+          {
+            "step": {
+              "action": "optimize",
+              "tool": "ParamètresOptimisation",
+              "args": {
+                "database": "PostgreSQL"
+              },
+              "description": "Optimise les paramètres de la base de données PostgreSQL pour améliorer les performances de l'indexation."
+            },
+            "result": {
+              "error": "Action inconnue: optimize"
+            }
+          },
+          {
+            "step": {
+              "action": "self_modify",
+              "what": "Ajouter un logging des appels d'outils",
+              "code": "import logging\nlog = logging.getLogger(__name__)\ndef log_call(name, result):\n    log.info(f'Tool {name}: {result}')"
+            },
+            "result": {
+              "what": "Ajouter un logging des appels d'outils",
+              "improvement_file": "/home/aza/eva-adam-v2/agents/rag/tools/self_improvement_20260726_045405.py",
+              "backup": "/home/aza/eva-adam-v2/agents/rag/tools/backups/runtime_backup_20260726_045405.py",
+              "status": "improved"
+            }
+          }
+        ],
+        "timestamp": "2026-07-26T02:54:05.141274+00:00"
+      },
+      "steps": [
+        {
+          "action": "execute_tool",
+          "tool": "DocumentIndexer",
+          "args": {
+            "documents": [
+              "nouveaux_documents"
+            ],
+            "database": "PostgreSQL",
+            "context": "EVA vise l'autonomie financière et l'AGI"
+          },
+          "description": "Indexe les nouveaux documents dans PostgreSQL en tenant compte du contexte d'EVA."
+        },
+        {
+          "action": "optimize",
+          "tool": "ParamètresOptimisation",
+          "args": {
+            "database": "PostgreSQL"
+          },
+          "description": "Optimise les paramètres de la base de données PostgreSQL pour améliorer les performances de l'indexation."
+        },
+        {
+          "action": "self_modify",
+          "what": "Ajouter un logging des appels d'outils",
+          "code": "import logging\nlog = logging.getLogger(__name__)\ndef log_call(name, result):\n    log.info(f'Tool {name}: {result}')"
+        }
+      ],
+      "timestamp": "2026-07-26T02:54:05.141284+00:00",
+      "agent": "adam-rag"
     }
   ]
 }

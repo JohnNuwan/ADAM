@@ -1,1 +1,3 @@
-Créer un outil capable d'améliorer le code existant en fonction des exigences identifiées par les audits précédents.
+from adam_tools import ADAMCodeImprovementAgent
+improvement_agent = ADAMCodeImprovementAgent()
+improvement_agent.improve_code_based_on_audits(audit_results)
