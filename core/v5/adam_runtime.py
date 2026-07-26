@@ -125,6 +125,25 @@ Outils disponibles:
         except:
             pass
 
+        # Charger les outils des autres agents (partage de connaissances)
+        shared_tools_str = ""
+        try:
+            from pathlib import Path as _P2
+            agents_dir = _P2("/home/aza/eva-adam-v2/agents")
+            if agents_dir.exists():
+                other_tools = []
+                for ad in agents_dir.iterdir():
+                    if ad.is_dir() and ad.name != self.agent_name.replace("adam-", ""):
+                        tdir = ad / "tools"
+                        if tdir.exists():
+                            for tf in sorted(tdir.glob("*.py")):
+                                if "registry" not in tf.name and "self_improvement" not in tf.name and "backup" not in str(tf):
+                                    other_tools.append(f"{ad.name}/{tf.name}")
+                if other_tools:
+                    shared_tools_str = "\n\nOutils disponibles chez autres agents:\n" + "\n".join(other_tools[:15])
+        except:
+            pass
+
         recent_str = ""
         try:
             recent = self.memory.get_recent_missions(limit=3)
@@ -137,7 +156,12 @@ Outils disponibles:
             pass
 
         # Injecter la mémoire dans le prompt
-        think_prompt = think_prompt + lessons_str + recent_str + "\nIMPORTANT: Utilise les leçons pour éviter les erreurs. Réutilise les outils existants."
+        think_prompt = think_prompt + lessons_str + recent_str + "\nIMPORTANT: Utilise les leçons pour éviter les erreurs. Réutilise les outils existants.
+{skills_context}{shared_tools_str}
+
+Si la mission est trop complexe pour un seul agent, utilise create_agent pour créer un agent spécialisé qui t'aidera.
+Si tu as besoin d'une compétence que tu n'as pas, cherche si un autre agent l'a (voir outils ci-dessus) et utilise delegate.
+Pour les grandes tâches (landing page, rapport long), divise le travail: crée un agent assistant et délègue-lui une partie."
 
         plan_response = self._llm(think_prompt, system=system_prompt, max_tokens=4096)
 
@@ -249,7 +273,7 @@ Outils disponibles:
             if not code:
                 # If no code, ask the LLM to generate real code
                 gen_prompt = f"Génère le code Python complet pour l'outil '{name}'. Description: {desc}. Le code doit être FONCTIONNEL avec de vraies implémentations (pas de 'pass' ou 'TODO'). Réponds UNIQUEMENT avec le code Python, pas d'explication."
-                code = self._llm(gen_prompt, max_tokens=2048)
+                code = self._llm(gen_prompt, max_tokens=4096)
                 # Extract code from markdown if present
                 if "```python" in code:
                     code = code.split("```python")[1].split("```")[0]
@@ -268,7 +292,7 @@ Outils disponibles:
                 # Code is just text/description, not Python — regenerate
                 logger.warning(f"Outil {name}: code invalide, regeneration...")
                 gen_prompt = f"Tu dois écrire du CODE PYTHON fonctionnel pour '{name}'. Pas de texte, pas de description, du CODE. Description: {desc}. Inclue des imports, des fonctions avec de vraies implémentations, et un block if __name__=='__main__'."
-                code = self._llm(gen_prompt, max_tokens=2048)
+                code = self._llm(gen_prompt, max_tokens=4096)
                 if "```python" in code:
                     code = code.split("```python")[1].split("```")[0]
                 elif "```" in code:

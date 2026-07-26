@@ -354,7 +354,7 @@ def get_agent_mission(agent, cycle):
 
 def run_agent(agent, mission):
     """Run a single agent via Runtime V5 (LLM)"""
-    env = dict(os.environ, VLLM_URL=VLLM_URL)
+    env = dict(os.environ, VLLM_URL=VLLM_URL, EVA_CORE_SKILLS="/home/aza/EVA_CORE/skills")
     agent_name = "adam-" + agent if not agent.startswith("adam-") else agent
 
     if RUNTIME_V5.exists():
