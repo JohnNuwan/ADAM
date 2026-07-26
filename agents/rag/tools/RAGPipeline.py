@@ -1,1 +1,1 @@
-Crée un pipeline RAG pour les connaissances ADAM en utilisant le moteur de recherche sémantique optimisé et les documents indexés, en veillant à la compatibilité et à l'intégration des différents composants du système.
+Crée un pipeline RAG pour les connaissances ADAM en intégrant les différentes étapes et composants nécessaires, tout en garantissant leur compatibilité et leur intégration. Assure une compréhension approfondie des données et de l'architecture du système.

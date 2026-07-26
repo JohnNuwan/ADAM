@@ -23748,6 +23748,807 @@
       ],
       "timestamp": "2026-07-26T03:18:29.177544+00:00",
       "agent": "adam-sentinel"
+    },
+    {
+      "id": "m_230",
+      "mission": "Améliore la sécurité: audite et corrige les vulnérabilités — Ta contribution en tant que sentinel",
+      "result": {
+        "agent": "adam-sentinel",
+        "mission": "Améliore la sécurité: audite et corrige les vulnérabilités — Ta contribution en tant que sentinel",
+        "success": false,
+        "steps": 8,
+        "elapsed_s": 17.9,
+        "results": [
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "Port_Scanner",
+              "args": "",
+              "description": "Scanner les ports ouverts sur le serveur local pour identifier les vulnérabilités potentielles."
+            },
+            "result": {
+              "tool": "Port_Scanner",
+              "exit_code": 0,
+              "stdout": "Ports ouverts sur 127.0.0.1: [22, 631]\n",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "CVE_Scanner",
+              "args": "",
+              "description": "Obtenir les 3 dernières CVE pour une analyse de sécurité plus approfondie."
+            },
+            "result": {
+              "tool": "CVE_Scanner",
+              "exit_code": 0,
+              "stdout": "[]\n",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "Security_Vulnerability_Report",
+              "args": "",
+              "description": "Générer un rapport de vulnérabilité de sécurité basé sur les résultats des scans de ports et des CVE."
+            },
+            "result": {
+              "tool": "Security_Vulnerability_Report",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "Vulnerability_Fixer",
+              "args": "",
+              "description": "Corriger les vulnérabilités identifiées par les outils de scan et de CVE."
+            },
+            "result": {
+              "tool": "Vulnerability_Fixer",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "Continuous_CVE_Monitor",
+              "args": "",
+              "description": "Surveiller continuellement les CVE les plus récentes et alerter en cas de nouvelles vulnérabilités."
+            },
+            "result": {
+              "tool": "Continuous_CVE_Monitor",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "WeeklyCVE_Report_Generator",
+              "args": "",
+              "description": "Générer automatiquement un rapport hebdomadaire sur les nouvelles vulnérabilités (CVE) pour une surveillance continue."
+            },
+            "result": {
+              "tool": "WeeklyCVE_Report_Generator",
+              "exit_code": 1,
+              "stdout": "",
+              "stderr": "  File \"/home/aza/eva-adam-v2/agents/sentinel/tools/WeeklyCVE_Report_Generator.py\", line 1\n    Maintenir une vigilance constante sur les vulnérabilités grâce à un rapport hebdomadaire.\n              ^^^\nSyntaxError: invalid syntax\n",
+              "success": false
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "Security_Automation_Tool",
+              "args": "",
+              "description": "Automatiser l'exécution des tâches de sécurité pour assurer une surveillance continue et une correction rapide des vulnérabilités."
+            },
+            "result": {
+              "tool": "Security_Automation_Tool",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "manage_infra",
+              "infra_action": "status",
+              "description": "Vérifier la santé des conteneurs Docker"
+            },
+            "result": {
+              "action": "status",
+              "results": [
+                {
+                  "containers": "adam-graphify Up 6 hours\neva-activity Up 6 hours\neva-monitor Up 8 hours\nadam-bus Up 18 hours (healthy)\nadam-viz Up 19 hours\nadam-chat Up 21 hours\nadam-postgres Up 21 hours (healthy)\nvllm-mistral Up 18 hours\nkali-pentest Up 41 hours\ngrafana Up 41 hours\nprometheus Up 41 hours\nnode-exporter Up 41 hours"
+                }
+              ],
+              "success": true
+            }
+          }
+        ],
+        "timestamp": "2026-07-26T03:24:22.714368+00:00"
+      },
+      "steps": [
+        {
+          "action": "execute_tool",
+          "tool": "Port_Scanner",
+          "args": "",
+          "description": "Scanner les ports ouverts sur le serveur local pour identifier les vulnérabilités potentielles."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "CVE_Scanner",
+          "args": "",
+          "description": "Obtenir les 3 dernières CVE pour une analyse de sécurité plus approfondie."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "Security_Vulnerability_Report",
+          "args": "",
+          "description": "Générer un rapport de vulnérabilité de sécurité basé sur les résultats des scans de ports et des CVE."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "Vulnerability_Fixer",
+          "args": "",
+          "description": "Corriger les vulnérabilités identifiées par les outils de scan et de CVE."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "Continuous_CVE_Monitor",
+          "args": "",
+          "description": "Surveiller continuellement les CVE les plus récentes et alerter en cas de nouvelles vulnérabilités."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "WeeklyCVE_Report_Generator",
+          "args": "",
+          "description": "Générer automatiquement un rapport hebdomadaire sur les nouvelles vulnérabilités (CVE) pour une surveillance continue."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "Security_Automation_Tool",
+          "args": "",
+          "description": "Automatiser l'exécution des tâches de sécurité pour assurer une surveillance continue et une correction rapide des vulnérabilités."
+        },
+        {
+          "action": "manage_infra",
+          "infra_action": "status",
+          "description": "Vérifier la santé des conteneurs Docker"
+        }
+      ],
+      "timestamp": "2026-07-26T03:24:22.714391+00:00",
+      "agent": "adam-sentinel"
+    },
+    {
+      "id": "m_231",
+      "mission": "Améliore la sécurité: audite et corrige les vulnérabilités — Ta contribution en tant que sentinel",
+      "result": {
+        "agent": "adam-sentinel",
+        "mission": "Améliore la sécurité: audite et corrige les vulnérabilités — Ta contribution en tant que sentinel",
+        "success": false,
+        "steps": 8,
+        "elapsed_s": 17.3,
+        "results": [
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "Port_Scanner",
+              "args": "",
+              "description": "Scanner les ports ouverts du serveur local pour identifier les vulnérabilités potentielles."
+            },
+            "result": {
+              "tool": "Port_Scanner",
+              "exit_code": 0,
+              "stdout": "Ports ouverts sur 127.0.0.1: [22, 631]\n",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "CVE_Scanner",
+              "args": "",
+              "description": "Obtenir les 3 dernières CVE pour une analyse de sécurité plus approfondie."
+            },
+            "result": {
+              "tool": "CVE_Scanner",
+              "exit_code": 0,
+              "stdout": "[]\n",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "Continuous_CVE_Monitor",
+              "args": "",
+              "description": "Surveiller continuellement les CVE les plus récentes et alerter en cas de nouvelles vulnérabilités."
+            },
+            "result": {
+              "tool": "Continuous_CVE_Monitor",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "Security_Vulnerability_Report",
+              "args": "",
+              "description": "Générer un rapport de vulnérabilité de sécurité basé sur les résultats des scans de ports et des CVE."
+            },
+            "result": {
+              "tool": "Security_Vulnerability_Report",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "Vulnerability_Fixer",
+              "args": "",
+              "description": "Corriger les vulnérabilités identifiées par les outils précédents."
+            },
+            "result": {
+              "tool": "Vulnerability_Fixer",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "WeeklyCVE_Report_Generator",
+              "args": "",
+              "description": "Générer automatiquement un rapport hebdomadaire sur les nouvelles vulnérabilités (CVE) pour une surveillance continue."
+            },
+            "result": {
+              "tool": "WeeklyCVE_Report_Generator",
+              "exit_code": 1,
+              "stdout": "",
+              "stderr": "  File \"/home/aza/eva-adam-v2/agents/sentinel/tools/WeeklyCVE_Report_Generator.py\", line 1\n    Maintenir une vigilance constante sur les vulnérabilités grâce à un rapport hebdomadaire.\n              ^^^\nSyntaxError: invalid syntax\n",
+              "success": false
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "Security_Automation_Tool",
+              "args": "",
+              "description": "Automatiser l'exécution des tâches de sécurité pour assurer une surveillance continue et une correction rapide des vulnérabilités."
+            },
+            "result": {
+              "tool": "Security_Automation_Tool",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "manage_infra",
+              "infra_action": "status",
+              "description": "Vérifier la santé des conteneurs Docker"
+            },
+            "result": {
+              "action": "status",
+              "results": [
+                {
+                  "containers": "adam-graphify Up 6 hours\neva-activity Up 6 hours\neva-monitor Up 8 hours\nadam-bus Up 19 hours (healthy)\nadam-viz Up 19 hours\nadam-chat Up 21 hours\nadam-postgres Up 21 hours (healthy)\nvllm-mistral Up 18 hours\nkali-pentest Up 41 hours\ngrafana Up 41 hours\nprometheus Up 41 hours\nnode-exporter Up 41 hours"
+                }
+              ],
+              "success": true
+            }
+          }
+        ],
+        "timestamp": "2026-07-26T03:29:19.892014+00:00"
+      },
+      "steps": [
+        {
+          "action": "execute_tool",
+          "tool": "Port_Scanner",
+          "args": "",
+          "description": "Scanner les ports ouverts du serveur local pour identifier les vulnérabilités potentielles."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "CVE_Scanner",
+          "args": "",
+          "description": "Obtenir les 3 dernières CVE pour une analyse de sécurité plus approfondie."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "Continuous_CVE_Monitor",
+          "args": "",
+          "description": "Surveiller continuellement les CVE les plus récentes et alerter en cas de nouvelles vulnérabilités."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "Security_Vulnerability_Report",
+          "args": "",
+          "description": "Générer un rapport de vulnérabilité de sécurité basé sur les résultats des scans de ports et des CVE."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "Vulnerability_Fixer",
+          "args": "",
+          "description": "Corriger les vulnérabilités identifiées par les outils précédents."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "WeeklyCVE_Report_Generator",
+          "args": "",
+          "description": "Générer automatiquement un rapport hebdomadaire sur les nouvelles vulnérabilités (CVE) pour une surveillance continue."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "Security_Automation_Tool",
+          "args": "",
+          "description": "Automatiser l'exécution des tâches de sécurité pour assurer une surveillance continue et une correction rapide des vulnérabilités."
+        },
+        {
+          "action": "manage_infra",
+          "infra_action": "status",
+          "description": "Vérifier la santé des conteneurs Docker"
+        }
+      ],
+      "timestamp": "2026-07-26T03:29:19.892049+00:00",
+      "agent": "adam-sentinel"
+    },
+    {
+      "id": "m_232",
+      "mission": "Améliore la sécurité: audite et corrige les vulnérabilités — Ta contribution en tant que sentinel",
+      "result": {
+        "agent": "adam-sentinel",
+        "mission": "Améliore la sécurité: audite et corrige les vulnérabilités — Ta contribution en tant que sentinel",
+        "success": false,
+        "steps": 8,
+        "elapsed_s": 20.84,
+        "results": [
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "Port_Scanner",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Scanner les ports ouverts du serveur local pour identifier les vulnérabilités potentielles."
+            },
+            "result": {
+              "tool": "Port_Scanner",
+              "exit_code": 0,
+              "stdout": "Ports ouverts sur 127.0.0.1: [22, 631]\n",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "CVE_Scanner",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Obtenir les 3 dernières CVE pour une analyse de sécurité plus approfondie."
+            },
+            "result": {
+              "tool": "CVE_Scanner",
+              "exit_code": 0,
+              "stdout": "[]\n",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "Security_Vulnerability_Report",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Générer un rapport de vulnérabilité de sécurité basé sur les résultats des scans de ports et des CVE."
+            },
+            "result": {
+              "tool": "Security_Vulnerability_Report",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "Vulnerability_Fixer",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Corriger les vulnérabilités identifiées par les scans de ports et les CVE."
+            },
+            "result": {
+              "tool": "Vulnerability_Fixer",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "Continuous_CVE_Monitor",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Surveiller continuellement les CVE les plus récentes et alerter en cas de nouvelles vulnérabilités."
+            },
+            "result": {
+              "tool": "Continuous_CVE_Monitor",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "WeeklyCVE_Report_Generator",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Générer automatiquement un rapport hebdomadaire sur les nouvelles vulnérabilités (CVE) pour une surveillance continue."
+            },
+            "result": {
+              "tool": "WeeklyCVE_Report_Generator",
+              "exit_code": 1,
+              "stdout": "",
+              "stderr": "  File \"/home/aza/eva-adam-v2/agents/sentinel/tools/WeeklyCVE_Report_Generator.py\", line 1\n    Maintenir une vigilance constante sur les vulnérabilités grâce à un rapport hebdomadaire.\n              ^^^\nSyntaxError: invalid syntax\n",
+              "success": false
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "Security_Automation_Tool",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Automatiser l'exécution des tâches de sécurité pour assurer une surveillance continue et une correction rapide des vulnérabilités."
+            },
+            "result": {
+              "tool": "Security_Automation_Tool",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "self_modify",
+              "what": "Ajouter un logging des appels d'outils",
+              "code": "import logging\nlog = logging.getLogger(__name__)\ndef log_call(name, result):\n    log.info(f'Tool {name}: {result}')"
+            },
+            "result": {
+              "what": "Ajouter un logging des appels d'outils",
+              "improvement_file": "/home/aza/eva-adam-v2/agents/sentinel/tools/self_improvement_20260726_053346.py",
+              "backup": "/home/aza/eva-adam-v2/agents/sentinel/tools/backups/runtime_backup_20260726_053346.py",
+              "status": "improved"
+            }
+          }
+        ],
+        "timestamp": "2026-07-26T03:33:46.243037+00:00"
+      },
+      "steps": [
+        {
+          "action": "execute_tool",
+          "tool": "Port_Scanner",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Scanner les ports ouverts du serveur local pour identifier les vulnérabilités potentielles."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "CVE_Scanner",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Obtenir les 3 dernières CVE pour une analyse de sécurité plus approfondie."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "Security_Vulnerability_Report",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Générer un rapport de vulnérabilité de sécurité basé sur les résultats des scans de ports et des CVE."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "Vulnerability_Fixer",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Corriger les vulnérabilités identifiées par les scans de ports et les CVE."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "Continuous_CVE_Monitor",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Surveiller continuellement les CVE les plus récentes et alerter en cas de nouvelles vulnérabilités."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "WeeklyCVE_Report_Generator",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Générer automatiquement un rapport hebdomadaire sur les nouvelles vulnérabilités (CVE) pour une surveillance continue."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "Security_Automation_Tool",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Automatiser l'exécution des tâches de sécurité pour assurer une surveillance continue et une correction rapide des vulnérabilités."
+        },
+        {
+          "action": "self_modify",
+          "what": "Ajouter un logging des appels d'outils",
+          "code": "import logging\nlog = logging.getLogger(__name__)\ndef log_call(name, result):\n    log.info(f'Tool {name}: {result}')"
+        }
+      ],
+      "timestamp": "2026-07-26T03:33:46.243060+00:00",
+      "agent": "adam-sentinel"
+    },
+    {
+      "id": "m_233",
+      "mission": "Améliore la sécurité: audite et corrige les vulnérabilités — Ta contribution en tant que sentinel",
+      "result": {
+        "agent": "adam-sentinel",
+        "mission": "Améliore la sécurité: audite et corrige les vulnérabilités — Ta contribution en tant que sentinel",
+        "success": true,
+        "steps": 2,
+        "elapsed_s": 21.13,
+        "results": [
+          {
+            "step": {
+              "action": "report",
+              "description": "{\n  \"plan\": [\n    {\n      \"action\": \"execute_tool\",\n      \"tool\": \"Port_Scanner\",\n      \"args\": \"\",\n      \"code\": \"\",\n      \"target_agent\": \"\",\n      \"description\": \"Scanner les ports ouverts du serveur local pour identifier les vulnérabilités potentielles.\"\n    },\n    {\n      \"action\": \"execute_tool\",\n      \"tool\": \"CVE_Scanner\",\n      \"args\": \"\",\n      \"code\": \"\",\n      \"target_agent\": \"\",\n      \"description\": \"Obtenir les 3 dernières CVE pour une analyse de sécurité plus approfondie.\"\n    },\n"
+            },
+            "result": {
+              "success": true,
+              "report": "{\n  \"plan\": [\n    {\n      \"action\": \"execute_tool\",\n      \"tool\": \"Port_Scanner\",\n      \"args\": \"\",\n      \"code\": \"\",\n      \"target_agent\": \"\",\n      \"description\": \"Scanner les ports ouverts du serveur local pour identifier les vulnérabilités potentielles.\"\n    },\n    {\n      \"action\": \"execute_tool\",\n      \"tool\": \"CVE_Scanner\",\n      \"args\": \"\",\n      \"code\": \"\",\n      \"target_agent\": \"\",\n      \"description\": \"Obtenir les 3 dernières CVE pour une analyse de sécurité plus approfondie.\"\n    },\n"
+            }
+          },
+          {
+            "step": {
+              "action": "manage_infra",
+              "infra_action": "status",
+              "description": "Vérifier la santé des conteneurs Docker"
+            },
+            "result": {
+              "action": "status",
+              "results": [
+                {
+                  "containers": "adam-graphify Up 6 hours\neva-activity Up 6 hours\neva-monitor Up 8 hours\nadam-bus Up 19 hours (healthy)\nadam-viz Up 20 hours\nadam-chat Up 21 hours\nadam-postgres Up 21 hours (healthy)\nvllm-mistral Up 18 hours\nkali-pentest Up 41 hours\ngrafana Up 41 hours\nprometheus Up 41 hours\nnode-exporter Up 41 hours"
+                }
+              ],
+              "success": true
+            }
+          }
+        ],
+        "timestamp": "2026-07-26T03:39:26.036499+00:00"
+      },
+      "steps": [
+        {
+          "action": "report",
+          "description": "{\n  \"plan\": [\n    {\n      \"action\": \"execute_tool\",\n      \"tool\": \"Port_Scanner\",\n      \"args\": \"\",\n      \"code\": \"\",\n      \"target_agent\": \"\",\n      \"description\": \"Scanner les ports ouverts du serveur local pour identifier les vulnérabilités potentielles.\"\n    },\n    {\n      \"action\": \"execute_tool\",\n      \"tool\": \"CVE_Scanner\",\n      \"args\": \"\",\n      \"code\": \"\",\n      \"target_agent\": \"\",\n      \"description\": \"Obtenir les 3 dernières CVE pour une analyse de sécurité plus approfondie.\"\n    },\n"
+        },
+        {
+          "action": "manage_infra",
+          "infra_action": "status",
+          "description": "Vérifier la santé des conteneurs Docker"
+        }
+      ],
+      "timestamp": "2026-07-26T03:39:26.036520+00:00",
+      "agent": "adam-sentinel"
+    },
+    {
+      "id": "m_234",
+      "mission": "Améliore la sécurité: audite et corrige les vulnérabilités — Ta contribution en tant que sentinel",
+      "result": {
+        "agent": "adam-sentinel",
+        "mission": "Améliore la sécurité: audite et corrige les vulnérabilités — Ta contribution en tant que sentinel",
+        "success": true,
+        "steps": 7,
+        "elapsed_s": 15.66,
+        "results": [
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "Port_Scanner",
+              "args": "",
+              "description": "Scanner les ports ouverts du serveur local pour identifier les vulnérabilités potentielles."
+            },
+            "result": {
+              "tool": "Port_Scanner",
+              "exit_code": 0,
+              "stdout": "Ports ouverts sur 127.0.0.1: [22, 631]\n",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "CVE_Scanner",
+              "args": "",
+              "description": "Obtenir les 3 dernières CVE pour une analyse de sécurité plus approfondie."
+            },
+            "result": {
+              "tool": "CVE_Scanner",
+              "exit_code": 0,
+              "stdout": "[]\n",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "Continuous_CVE_Monitor",
+              "args": "",
+              "description": "Surveiller continuellement les CVE les plus récentes et alerter en cas de nouvelles vulnérabilités."
+            },
+            "result": {
+              "tool": "Continuous_CVE_Monitor",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "Security_Vulnerability_Report",
+              "args": "",
+              "description": "Générer un rapport de vulnérabilité de sécurité basé sur les résultats des scans de ports et des CVE."
+            },
+            "result": {
+              "tool": "Security_Vulnerability_Report",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "Vulnerability_Fixer",
+              "args": "",
+              "description": "Corriger les vulnérabilités identifiées par les autres outils."
+            },
+            "result": {
+              "tool": "Vulnerability_Fixer",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "Security_Automation_Tool",
+              "args": "",
+              "description": "Automatiser l'exécution des tâches de sécurité pour assurer une surveillance continue et une correction rapide des vulnérabilités."
+            },
+            "result": {
+              "tool": "Security_Automation_Tool",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "manage_infra",
+              "infra_action": "status",
+              "description": "Vérifier la santé des conteneurs Docker"
+            },
+            "result": {
+              "action": "status",
+              "results": [
+                {
+                  "containers": "adam-graphify Up 6 hours\neva-activity Up 6 hours\neva-monitor Up 8 hours\nadam-bus Up 19 hours (healthy)\nadam-viz Up 20 hours\nadam-chat Up 21 hours\nadam-postgres Up 21 hours (healthy)\nvllm-mistral Up 18 hours\nkali-pentest Up 41 hours\ngrafana Up 41 hours\nprometheus Up 41 hours\nnode-exporter Up 41 hours"
+                }
+              ],
+              "success": true
+            }
+          }
+        ],
+        "timestamp": "2026-07-26T03:44:19.066315+00:00"
+      },
+      "steps": [
+        {
+          "action": "execute_tool",
+          "tool": "Port_Scanner",
+          "args": "",
+          "description": "Scanner les ports ouverts du serveur local pour identifier les vulnérabilités potentielles."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "CVE_Scanner",
+          "args": "",
+          "description": "Obtenir les 3 dernières CVE pour une analyse de sécurité plus approfondie."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "Continuous_CVE_Monitor",
+          "args": "",
+          "description": "Surveiller continuellement les CVE les plus récentes et alerter en cas de nouvelles vulnérabilités."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "Security_Vulnerability_Report",
+          "args": "",
+          "description": "Générer un rapport de vulnérabilité de sécurité basé sur les résultats des scans de ports et des CVE."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "Vulnerability_Fixer",
+          "args": "",
+          "description": "Corriger les vulnérabilités identifiées par les autres outils."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "Security_Automation_Tool",
+          "args": "",
+          "description": "Automatiser l'exécution des tâches de sécurité pour assurer une surveillance continue et une correction rapide des vulnérabilités."
+        },
+        {
+          "action": "manage_infra",
+          "infra_action": "status",
+          "description": "Vérifier la santé des conteneurs Docker"
+        }
+      ],
+      "timestamp": "2026-07-26T03:44:19.066354+00:00",
+      "agent": "adam-sentinel"
     }
   ]
 }
