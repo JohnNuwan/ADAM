@@ -65,19 +65,19 @@ def poll_activity():
         except:
             pass
     
-    # Auto-clean old completed sprints (keep last 5)
+    # Auto-clean completed sprints — delete when done, keep only active
     def cleanup_sprints():
         with lock:
-            if len(sprints) > 5:
-                # Sort by creation date, keep newest 5
-                sorted_ids = sorted(sprints.keys(), key=lambda k: sprints[k].get("created_at", ""))
-                for sid in sorted_ids[:-5]:
-                    s = sprints[sid]
-                    # Only remove if all missions are done or failed
-                    all_done = all(m.get("status") in ("done", "failed") for m in s.get("missions", []))
-                    if all_done and s.get("missions"):
-                        del sprints[sid]
-                        print(f"[SPRINT] Cleaned: {sid}")
+            to_delete = []
+            for sid in sprints:
+                s = sprints[sid]
+                # Delete if sprint is done AND all missions completed
+                all_done = all(m.get("status") in ("done", "failed") for m in s.get("missions", [])) if s.get("missions") else False
+                if s.get("status") == "done" or (all_done and s.get("progress", 0) == 100):
+                    to_delete.append(sid)
+            for sid in to_delete:
+                print(f"[SPRINT] Supprimé (terminé): {sid}")
+                del sprints[sid]
     
     # Update sprint mission statuses from Go Bus
     def update_sprint_statuses():
