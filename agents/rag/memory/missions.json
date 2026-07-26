@@ -20562,6 +20562,121 @@
       ],
       "timestamp": "2026-07-26T06:01:55.381627+00:00",
       "agent": "adam-rag"
+    },
+    {
+      "id": "m_235",
+      "mission": "Améliore la recherche sémantique avec PGVector",
+      "result": {
+        "agent": "adam-rag",
+        "mission": "Améliore la recherche sémantique avec PGVector",
+        "success": false,
+        "steps": 5,
+        "elapsed_s": 91.12,
+        "results": [
+          {
+            "step": {
+              "action": "research",
+              "tool": "ParamètresOptimisation",
+              "args": "PGVector",
+              "description": "Recherche et analyse des paramètres actuels de PGVector pour identifier les domaines d'amélioration."
+            },
+            "result": {
+              "query": "Recherche et analyse des paramètres actuels de PGVector pour identifier les domaines d'amélioration.",
+              "result": "PGVector est une extension PostgreSQL qui ajoute le support pour le stockage et la recherche de vecteurs de grande dimension, ce qui est particulièrement utile dans les applications de machine learning et d'IA. Pour effectuer une analyse détaillée des paramètres actuels de PGVector et identifier les",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "ParamètresOptimisation",
+              "args": "PGVector",
+              "description": "Optimise les paramètres de PGVector en se basant sur les résultats de la recherche précédente pour améliorer la pertinence des résultats de la recherche sémantique."
+            },
+            "result": {
+              "tool": "ParamètresOptimisation",
+              "error": "timeout (60s)"
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "SemanticSearchEngine",
+              "args": "PGVector",
+              "description": "Configure et teste le moteur de recherche sémantique avec les nouveaux paramètres optimisés de PGVector pour évaluer l'amélioration apportée."
+            },
+            "result": {
+              "tool": "SemanticSearchEngine",
+              "exit_code": 1,
+              "stdout": "",
+              "stderr": "Traceback (most recent call last):\n  File \"/home/aza/eva-adam-v2/agents/rag/tools/SemanticSearchEngine.py\", line 1, in <module>\n    from semantic_search import create_engine\nModuleNotFoundError: No module named 'semantic_search'\n",
+              "success": false
+            }
+          },
+          {
+            "step": {
+              "action": "report",
+              "tool": "",
+              "args": "",
+              "description": "Prépare un rapport sur les modifications apportées aux paramètres de PGVector et leur impact sur l'efficacité de la recherche sémantique."
+            },
+            "result": {
+              "success": true,
+              "report": "Prépare un rapport sur les modifications apportées aux paramètres de PGVector et leur impact sur l'efficacité de la recherche sémantique."
+            }
+          },
+          {
+            "step": {
+              "action": "manage_infra",
+              "infra_action": "status",
+              "description": "Vérifier la santé des conteneurs Docker"
+            },
+            "result": {
+              "action": "status",
+              "results": [
+                {
+                  "containers": "eva-products Up 5 minutes\nadam-graphify Up 9 hours\neva-activity Up 56 minutes\neva-monitor Up 11 hours\nadam-bus Up 21 hours (healthy)\nadam-viz Up 22 hours\nadam-chat Up 24 hours\nadam-postgres Up 24 hours (healthy)\nvllm-mistral Up 21 hours\nkali-pentest Up 44 hours\ngrafana Up 44 hours\nprometheus Up 44 h"
+                }
+              ],
+              "success": true
+            }
+          }
+        ],
+        "timestamp": "2026-07-26T06:09:16.373141+00:00"
+      },
+      "steps": [
+        {
+          "action": "research",
+          "tool": "ParamètresOptimisation",
+          "args": "PGVector",
+          "description": "Recherche et analyse des paramètres actuels de PGVector pour identifier les domaines d'amélioration."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "ParamètresOptimisation",
+          "args": "PGVector",
+          "description": "Optimise les paramètres de PGVector en se basant sur les résultats de la recherche précédente pour améliorer la pertinence des résultats de la recherche sémantique."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "SemanticSearchEngine",
+          "args": "PGVector",
+          "description": "Configure et teste le moteur de recherche sémantique avec les nouveaux paramètres optimisés de PGVector pour évaluer l'amélioration apportée."
+        },
+        {
+          "action": "report",
+          "tool": "",
+          "args": "",
+          "description": "Prépare un rapport sur les modifications apportées aux paramètres de PGVector et leur impact sur l'efficacité de la recherche sémantique."
+        },
+        {
+          "action": "manage_infra",
+          "infra_action": "status",
+          "description": "Vérifier la santé des conteneurs Docker"
+        }
+      ],
+      "timestamp": "2026-07-26T06:09:16.373161+00:00",
+      "agent": "adam-rag"
     }
   ]
 }
