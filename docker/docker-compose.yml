@@ -124,10 +124,6 @@ services:
       go-bus:
         condition: service_started
 
-volumes:
-  pgdata:
-
-
   products:
     image: python:3.12-slim
     container_name: eva-products
@@ -141,6 +137,8 @@ volumes:
       "
     volumes:
       - ./eva_products.py:/app/eva_products.py
-    depends_on:
-      go-bus:
-        condition: service_started
+
+volumes:
+  pgdata:
+
+
