@@ -1,1 +1,1 @@
-RAGPipeline(semantic_search_engine=SemanticSearchEngine, document_indexer=DocumentIndexer)
+Crée un pipeline RAG pour les connaissances ADAM en utilisant le moteur de recherche sémantique optimisé et les documents indexés, en veillant à la compatibilité et à l'intégration des différents composants du système.

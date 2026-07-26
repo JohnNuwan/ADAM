@@ -15719,6 +15719,522 @@
       ],
       "timestamp": "2026-07-26T02:53:56.774342+00:00",
       "agent": "adam-researcher"
+    },
+    {
+      "id": "m_209",
+      "mission": "Augmente les revenus: crée un produit ou service vendable — Ta contribution en tant que researcher",
+      "result": {
+        "agent": "adam-researcher",
+        "mission": "Augmente les revenus: crée un produit ou service vendable — Ta contribution en tant que researcher",
+        "success": false,
+        "steps": 3,
+        "elapsed_s": 5.64,
+        "results": [
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "market_opportunity_analyzer",
+              "args": {},
+              "description": "Analyse les opportunités de marché pour identifier les domaines où un produit ou service basé sur l'IA pourrait être vendu."
+            },
+            "result": {
+              "tool": "market_opportunity_analyzer",
+              "exit_code": 1,
+              "stdout": "",
+              "stderr": "Traceback (most recent call last):\n  File \"/home/aza/eva-adam-v2/agents/researcher/tools/market_opportunity_analyzer.py\", line 1, in <module>\n    python\nNameError: name 'python' is not defined\n",
+              "success": false
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "product_idea_generator",
+              "args": {},
+              "description": "Génère des idées de produits ou services basés sur l'IA qui correspondent aux besoins identifiés sur le marché."
+            },
+            "result": {
+              "tool": "product_idea_generator",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "manage_infra",
+              "infra_action": "status",
+              "description": "Vérifier la santé des conteneurs Docker"
+            },
+            "result": {
+              "action": "status",
+              "results": [
+                {
+                  "containers": "adam-graphify Up 5 hours\neva-activity Up 5 hours\neva-monitor Up 7 hours\nadam-bus Up 18 hours (healthy)\nadam-viz Up 19 hours\nadam-chat Up 21 hours\nadam-postgres Up 21 hours (healthy)\nvllm-mistral Up 17 hours\nkali-pentest Up 41 hours\ngrafana Up 41 hours\nprometheus Up 41 hours\nnode-exporter Up 41 hours"
+                }
+              ],
+              "success": true
+            }
+          }
+        ],
+        "timestamp": "2026-07-26T02:58:39.028874+00:00"
+      },
+      "steps": [
+        {
+          "action": "execute_tool",
+          "tool": "market_opportunity_analyzer",
+          "args": {},
+          "description": "Analyse les opportunités de marché pour identifier les domaines où un produit ou service basé sur l'IA pourrait être vendu."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "product_idea_generator",
+          "args": {},
+          "description": "Génère des idées de produits ou services basés sur l'IA qui correspondent aux besoins identifiés sur le marché."
+        },
+        {
+          "action": "manage_infra",
+          "infra_action": "status",
+          "description": "Vérifier la santé des conteneurs Docker"
+        }
+      ],
+      "timestamp": "2026-07-26T02:58:39.028906+00:00",
+      "agent": "adam-researcher"
+    },
+    {
+      "id": "m_210",
+      "mission": "Augmente les revenus: crée un produit ou service vendable — Ta contribution en tant que researcher",
+      "result": {
+        "agent": "adam-researcher",
+        "mission": "Augmente les revenus: crée un produit ou service vendable — Ta contribution en tant que researcher",
+        "success": false,
+        "steps": 4,
+        "elapsed_s": 29.08,
+        "results": [
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "market_opportunity_analyzer",
+              "args": {},
+              "code": "",
+              "target_agent": "",
+              "description": "Analyser les opportunités de marché pour identifier les domaines où les produits ou services basés sur l'IA peuvent générer des revenus."
+            },
+            "result": {
+              "tool": "market_opportunity_analyzer",
+              "exit_code": 1,
+              "stdout": "",
+              "stderr": "Traceback (most recent call last):\n  File \"/home/aza/eva-adam-v2/agents/researcher/tools/market_opportunity_analyzer.py\", line 1, in <module>\n    python\nNameError: name 'python' is not defined\n",
+              "success": false
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "product_idea_generator",
+              "args": {},
+              "code": "",
+              "target_agent": "",
+              "description": "Générer des idées de produits ou services basés sur l'IA qui répondent aux besoins identifiés sur le marché."
+            },
+            "result": {
+              "tool": "product_idea_generator",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "research",
+              "tool": "",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Conduire une recherche approfondie sur les besoins des clients et les tendances du marché pour valider les idées de produits ou services."
+            },
+            "result": {
+              "query": "Conduire une recherche approfondie sur les besoins des clients et les tendances du marché pour valider les idées de produits ou services.",
+              "result": "Une analyse détaillée des besoins des clients et des tendances du marché est essentielle pour valider les idées de produits ou services. Voici un guide étape par étape pour mener à bien cette recherche :\n\n1. **Définir l'objectif de la recherche** : Avant de commencer, il est important de définir cla",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "self_modify",
+              "what": "Optimiser la gestion d'erreur des outils",
+              "code": "def safe_exec(func):\n    try: return func()\n    except Exception as e: return {'error': str(e)}"
+            },
+            "result": {
+              "what": "Optimiser la gestion d'erreur des outils",
+              "improvement_file": "/home/aza/eva-adam-v2/agents/researcher/tools/self_improvement_20260726_050430.py",
+              "backup": "/home/aza/eva-adam-v2/agents/researcher/tools/backups/runtime_backup_20260726_050430.py",
+              "status": "improved"
+            }
+          }
+        ],
+        "timestamp": "2026-07-26T03:04:30.843656+00:00"
+      },
+      "steps": [
+        {
+          "action": "execute_tool",
+          "tool": "market_opportunity_analyzer",
+          "args": {},
+          "code": "",
+          "target_agent": "",
+          "description": "Analyser les opportunités de marché pour identifier les domaines où les produits ou services basés sur l'IA peuvent générer des revenus."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "product_idea_generator",
+          "args": {},
+          "code": "",
+          "target_agent": "",
+          "description": "Générer des idées de produits ou services basés sur l'IA qui répondent aux besoins identifiés sur le marché."
+        },
+        {
+          "action": "research",
+          "tool": "",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Conduire une recherche approfondie sur les besoins des clients et les tendances du marché pour valider les idées de produits ou services."
+        },
+        {
+          "action": "self_modify",
+          "what": "Optimiser la gestion d'erreur des outils",
+          "code": "def safe_exec(func):\n    try: return func()\n    except Exception as e: return {'error': str(e)}"
+        }
+      ],
+      "timestamp": "2026-07-26T03:04:30.843673+00:00",
+      "agent": "adam-researcher"
+    },
+    {
+      "id": "m_211",
+      "mission": "Augmente les revenus: crée un produit ou service vendable — Ta contribution en tant que researcher",
+      "result": {
+        "agent": "adam-researcher",
+        "mission": "Augmente les revenus: crée un produit ou service vendable — Ta contribution en tant que researcher",
+        "success": false,
+        "steps": 5,
+        "elapsed_s": 31.45,
+        "results": [
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "market_opportunity_analyzer",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Analyse les opportunités de marché pour identifier les domaines où un produit ou service basé sur l'IA pourrait être rentable."
+            },
+            "result": {
+              "tool": "market_opportunity_analyzer",
+              "exit_code": 1,
+              "stdout": "",
+              "stderr": "Traceback (most recent call last):\n  File \"/home/aza/eva-adam-v2/agents/researcher/tools/market_opportunity_analyzer.py\", line 1, in <module>\n    python\nNameError: name 'python' is not defined\n",
+              "success": false
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "product_idea_generator",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Génère des idées de produits ou services basés sur l'IA qui correspondent aux besoins identifiés sur le marché."
+            },
+            "result": {
+              "tool": "product_idea_generator",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "research",
+              "tool": "",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Effectue une recherche approfondie sur les besoins spécifiques des clients dans les domaines identifiés par l'analyse du marché."
+            },
+            "result": {
+              "query": "Effectue une recherche approfondie sur les besoins spécifiques des clients dans les domaines identifiés par l'analyse du marché.",
+              "result": "Pour effectuer une analyse détaillée des besoins spécifiques des clients dans les domaines identifiés par l'analyse du marché, il est important de suivre plusieurs étapes méthodologiques. Voici un guide étape par étape pour réaliser cette tâche :\n\n### 1. **Définir le Domaine d'Analyse**\n   - **Ident",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "report",
+              "tool": "",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Prépare un rapport détaillé sur les idées de produits ou services générées, y compris les résultats de l'analyse du marché et la recherche sur les besoins des clients."
+            },
+            "result": {
+              "success": true,
+              "report": "Prépare un rapport détaillé sur les idées de produits ou services générées, y compris les résultats de l'analyse du marché et la recherche sur les besoins des clients."
+            }
+          },
+          {
+            "step": {
+              "action": "self_modify",
+              "what": "Ajouter un logging des appels d'outils",
+              "code": "import logging\nlog = logging.getLogger(__name__)\ndef log_call(name, result):\n    log.info(f'Tool {name}: {result}')"
+            },
+            "result": {
+              "what": "Ajouter un logging des appels d'outils",
+              "improvement_file": "/home/aza/eva-adam-v2/agents/researcher/tools/self_improvement_20260726_051031.py",
+              "backup": "/home/aza/eva-adam-v2/agents/researcher/tools/backups/runtime_backup_20260726_051031.py",
+              "status": "improved"
+            }
+          }
+        ],
+        "timestamp": "2026-07-26T03:10:31.878103+00:00"
+      },
+      "steps": [
+        {
+          "action": "execute_tool",
+          "tool": "market_opportunity_analyzer",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Analyse les opportunités de marché pour identifier les domaines où un produit ou service basé sur l'IA pourrait être rentable."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "product_idea_generator",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Génère des idées de produits ou services basés sur l'IA qui correspondent aux besoins identifiés sur le marché."
+        },
+        {
+          "action": "research",
+          "tool": "",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Effectue une recherche approfondie sur les besoins spécifiques des clients dans les domaines identifiés par l'analyse du marché."
+        },
+        {
+          "action": "report",
+          "tool": "",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Prépare un rapport détaillé sur les idées de produits ou services générées, y compris les résultats de l'analyse du marché et la recherche sur les besoins des clients."
+        },
+        {
+          "action": "self_modify",
+          "what": "Ajouter un logging des appels d'outils",
+          "code": "import logging\nlog = logging.getLogger(__name__)\ndef log_call(name, result):\n    log.info(f'Tool {name}: {result}')"
+        }
+      ],
+      "timestamp": "2026-07-26T03:10:31.878121+00:00",
+      "agent": "adam-researcher"
+    },
+    {
+      "id": "m_212",
+      "mission": "Augmente les revenus: crée un produit ou service vendable — Ta contribution en tant que researcher",
+      "result": {
+        "agent": "adam-researcher",
+        "mission": "Augmente les revenus: crée un produit ou service vendable — Ta contribution en tant que researcher",
+        "success": false,
+        "steps": 4,
+        "elapsed_s": 28.86,
+        "results": [
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "market_opportunity_analyzer",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Analyser les opportunités de marché pour identifier les domaines où les produits ou services basés sur l'IA peuvent être vendus."
+            },
+            "result": {
+              "tool": "market_opportunity_analyzer",
+              "exit_code": 1,
+              "stdout": "",
+              "stderr": "Traceback (most recent call last):\n  File \"/home/aza/eva-adam-v2/agents/researcher/tools/market_opportunity_analyzer.py\", line 1, in <module>\n    python\nNameError: name 'python' is not defined\n",
+              "success": false
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "product_idea_generator",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Générer des idées de produits ou services basés sur l'IA qui répondent aux besoins identifiés sur le marché."
+            },
+            "result": {
+              "tool": "product_idea_generator",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "research",
+              "tool": "",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Rechercher les tendances actuelles et futures dans le domaine de l'IA pour s'assurer que les produits ou services proposés restent pertinents et compétitifs."
+            },
+            "result": {
+              "query": "Rechercher les tendances actuelles et futures dans le domaine de l'IA pour s'assurer que les produits ou services proposés restent pertinents et compétitifs.",
+              "result": "Pour analyser les tendances actuelles et futures dans le domaine de l'IA, il est important de considérer plusieurs aspects, y compris les technologies émergentes, les applications pratiques, et les implications éthiques. Voici une analyse détaillée :\n\n1. **Technologies Émergentes** :\n   - **Apprenti",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "self_modify",
+              "what": "Optimiser la gestion d'erreur des outils",
+              "code": "def safe_exec(func):\n    try: return func()\n    except Exception as e: return {'error': str(e)}"
+            },
+            "result": {
+              "what": "Optimiser la gestion d'erreur des outils",
+              "improvement_file": "/home/aza/eva-adam-v2/agents/researcher/tools/self_improvement_20260726_051623.py",
+              "backup": "/home/aza/eva-adam-v2/agents/researcher/tools/backups/runtime_backup_20260726_051623.py",
+              "status": "improved"
+            }
+          }
+        ],
+        "timestamp": "2026-07-26T03:16:23.845001+00:00"
+      },
+      "steps": [
+        {
+          "action": "execute_tool",
+          "tool": "market_opportunity_analyzer",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Analyser les opportunités de marché pour identifier les domaines où les produits ou services basés sur l'IA peuvent être vendus."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "product_idea_generator",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Générer des idées de produits ou services basés sur l'IA qui répondent aux besoins identifiés sur le marché."
+        },
+        {
+          "action": "research",
+          "tool": "",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Rechercher les tendances actuelles et futures dans le domaine de l'IA pour s'assurer que les produits ou services proposés restent pertinents et compétitifs."
+        },
+        {
+          "action": "self_modify",
+          "what": "Optimiser la gestion d'erreur des outils",
+          "code": "def safe_exec(func):\n    try: return func()\n    except Exception as e: return {'error': str(e)}"
+        }
+      ],
+      "timestamp": "2026-07-26T03:16:23.845019+00:00",
+      "agent": "adam-researcher"
+    },
+    {
+      "id": "m_213",
+      "mission": "Augmente les revenus: crée un produit ou service vendable — Ta contribution en tant que researcher",
+      "result": {
+        "agent": "adam-researcher",
+        "mission": "Augmente les revenus: crée un produit ou service vendable — Ta contribution en tant que researcher",
+        "success": false,
+        "steps": 3,
+        "elapsed_s": 6.54,
+        "results": [
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "market_opportunity_analyzer",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Analyser les opportunités de marché pour identifier les domaines où les produits ou services basés sur l'IA peuvent générer des revenus."
+            },
+            "result": {
+              "tool": "market_opportunity_analyzer",
+              "exit_code": 1,
+              "stdout": "",
+              "stderr": "Traceback (most recent call last):\n  File \"/home/aza/eva-adam-v2/agents/researcher/tools/market_opportunity_analyzer.py\", line 1, in <module>\n    python\nNameError: name 'python' is not defined\n",
+              "success": false
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "product_idea_generator",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Générer des idées de produits ou services basés sur l'IA qui répondent aux besoins identifiés sur le marché."
+            },
+            "result": {
+              "tool": "product_idea_generator",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "self_modify",
+              "what": "Optimiser la gestion d'erreur des outils",
+              "code": "def safe_exec(func):\n    try: return func()\n    except Exception as e: return {'error': str(e)}"
+            },
+            "result": {
+              "what": "Optimiser la gestion d'erreur des outils",
+              "improvement_file": "/home/aza/eva-adam-v2/agents/researcher/tools/self_improvement_20260726_052108.py",
+              "backup": "/home/aza/eva-adam-v2/agents/researcher/tools/backups/runtime_backup_20260726_052108.py",
+              "status": "improved"
+            }
+          }
+        ],
+        "timestamp": "2026-07-26T03:21:08.888334+00:00"
+      },
+      "steps": [
+        {
+          "action": "execute_tool",
+          "tool": "market_opportunity_analyzer",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Analyser les opportunités de marché pour identifier les domaines où les produits ou services basés sur l'IA peuvent générer des revenus."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "product_idea_generator",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Générer des idées de produits ou services basés sur l'IA qui répondent aux besoins identifiés sur le marché."
+        },
+        {
+          "action": "self_modify",
+          "what": "Optimiser la gestion d'erreur des outils",
+          "code": "def safe_exec(func):\n    try: return func()\n    except Exception as e: return {'error': str(e)}"
+        }
+      ],
+      "timestamp": "2026-07-26T03:21:08.888349+00:00",
+      "agent": "adam-researcher"
     }
   ]
 }
