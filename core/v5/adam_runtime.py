@@ -156,8 +156,8 @@ Outils disponibles:
             pass
 
         # Injecter la mémoire dans le prompt
-        think_prompt = think_prompt + lessons_str + recent_str + "\nIMPORTANT: Utilise les leçons pour éviter les erreurs. Réutilise les outils existants.
-{skills_context}{shared_tools_str}
+        think_prompt = think_prompt + lessons_str + recent_str + skills_context + shared_tools_str + "\nIMPORTANT: Utilise les leçons pour éviter les erreurs. Réutilise les outils existants.
+
 
 Si la mission est trop complexe pour un seul agent, utilise create_agent pour créer un agent spécialisé qui t'aidera.
 Si tu as besoin d'une compétence que tu n'as pas, cherche si un autre agent l'a (voir outils ci-dessus) et utilise delegate.
