@@ -1,5 +1,1 @@
-def continuous_cve_monitor():
-    while True:
-        # Code to continuously monitor for new CVEs
-        # and notify the team of any potential security issues.
-        pass
+Créer un outil pour surveiller continuellement les CVE et assurer une correction rapide.

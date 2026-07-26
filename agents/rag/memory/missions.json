@@ -19241,6 +19241,528 @@
       ],
       "timestamp": "2026-07-26T04:43:36.454409+00:00",
       "agent": "adam-rag"
+    },
+    {
+      "id": "m_222",
+      "mission": "Améliore la recherche sémantique avec PGVector",
+      "result": {
+        "agent": "adam-rag",
+        "mission": "Améliore la recherche sémantique avec PGVector",
+        "success": false,
+        "steps": 4,
+        "elapsed_s": 32.17,
+        "results": [
+          {
+            "step": {
+              "action": "research",
+              "tool": "ParamètresOptimisation",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Commencer par une analyse approfondie des paramètres actuels utilisés dans le moteur de recherche sémantique basé sur PGVector. Cette étape est cruciale pour comprendre comment les vecteurs d'embeddings sont configurés et comment ils affectent les résultats de la recherche."
+            },
+            "result": {
+              "query": "Commencer par une analyse approfondie des paramètres actuels utilisés dans le moteur de recherche sémantique basé sur PGVector. Cette étape est cruciale pour comprendre comment les vecteurs d'embeddings sont configurés et comment ils affectent les résultats de la recherche.",
+              "result": "Pour effectuer une analyse détaillée des paramètres actuellement utilisés dans un moteur de recherche sémantique basé sur PGVector (un extension de PostgreSQL qui permet de stocker et de rechercher des vecteurs), il est nécessaire de comprendre plusieurs aspects importants. PGVector utilise des tech",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "ParamètresOptimisation",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Utiliser l'outil ParamètresOptimisation pour ajuster et optimiser les paramètres du moteur de recherche sémantique. Cela inclut la modification des vecteurs d'embeddings pour améliorer la pertinence des résultats de recherche."
+            },
+            "result": {
+              "tool": "ParamètresOptimisation",
+              "exit_code": 1,
+              "stdout": "",
+              "stderr": "  File \"/home/aza/eva-adam-v2/agents/rag/tools/ParamètresOptimisation.py\", line 1\n    Crée un outil pour optimiser les paramètres de la recherche sémantique en se basant sur les données indexées.\n         ^^\nSyntaxError: invalid syntax\n",
+              "success": false
+            }
+          },
+          {
+            "step": {
+              "action": "report",
+              "tool": "",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Préparer un rapport détaillé sur les modifications apportées aux paramètres et aux vecteurs d'embeddings, ainsi que sur l'impact de ces changements sur la qualité des résultats de recherche sémantique."
+            },
+            "result": {
+              "success": true,
+              "report": "Préparer un rapport détaillé sur les modifications apportées aux paramètres et aux vecteurs d'embeddings, ainsi que sur l'impact de ces changements sur la qualité des résultats de recherche sémantique."
+            }
+          },
+          {
+            "step": {
+              "action": "self_modify",
+              "what": "Ajouter un système de retry aux outils",
+              "code": "import time\ndef retry(func, max=3):\n    for i in range(max):\n        try: return func()\n        except: time.sleep(1)\n    return None"
+            },
+            "result": {
+              "what": "Ajouter un système de retry aux outils",
+              "improvement_file": "/home/aza/eva-adam-v2/agents/rag/tools/self_improvement_20260726_064935.py",
+              "backup": "/home/aza/eva-adam-v2/agents/rag/tools/backups/runtime_backup_20260726_064935.py",
+              "status": "improved"
+            }
+          }
+        ],
+        "timestamp": "2026-07-26T04:49:35.710671+00:00"
+      },
+      "steps": [
+        {
+          "action": "research",
+          "tool": "ParamètresOptimisation",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Commencer par une analyse approfondie des paramètres actuels utilisés dans le moteur de recherche sémantique basé sur PGVector. Cette étape est cruciale pour comprendre comment les vecteurs d'embeddings sont configurés et comment ils affectent les résultats de la recherche."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "ParamètresOptimisation",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Utiliser l'outil ParamètresOptimisation pour ajuster et optimiser les paramètres du moteur de recherche sémantique. Cela inclut la modification des vecteurs d'embeddings pour améliorer la pertinence des résultats de recherche."
+        },
+        {
+          "action": "report",
+          "tool": "",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Préparer un rapport détaillé sur les modifications apportées aux paramètres et aux vecteurs d'embeddings, ainsi que sur l'impact de ces changements sur la qualité des résultats de recherche sémantique."
+        },
+        {
+          "action": "self_modify",
+          "what": "Ajouter un système de retry aux outils",
+          "code": "import time\ndef retry(func, max=3):\n    for i in range(max):\n        try: return func()\n        except: time.sleep(1)\n    return None"
+        }
+      ],
+      "timestamp": "2026-07-26T04:49:35.710686+00:00",
+      "agent": "adam-rag"
+    },
+    {
+      "id": "m_223",
+      "mission": "Crée un pipeline RAG pour les connaissances ADAM",
+      "result": {
+        "agent": "adam-rag",
+        "mission": "Crée un pipeline RAG pour les connaissances ADAM",
+        "success": false,
+        "steps": 5,
+        "elapsed_s": 13.26,
+        "results": [
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "DocumentIndexer",
+              "args": "nouvelles_documents",
+              "description": "Indexe les nouveaux documents pertinents pour les connaissances ADAM afin de préparer la création du pipeline RAG."
+            },
+            "result": {
+              "tool": "DocumentIndexer",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "SemanticSearchEngine",
+              "args": "PGVector",
+              "description": "Utilise PGVector pour créer un moteur de recherche sémantique basé sur les documents indexés, garantissant une recherche pertinente."
+            },
+            "result": {
+              "tool": "SemanticSearchEngine",
+              "exit_code": 1,
+              "stdout": "",
+              "stderr": "Traceback (most recent call last):\n  File \"/home/aza/eva-adam-v2/agents/rag/tools/SemanticSearchEngine.py\", line 1, in <module>\n    from semantic_search import create_engine\nModuleNotFoundError: No module named 'semantic_search'\n",
+              "success": false
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "ParamètresOptimisation",
+              "args": "SemanticSearchEngine",
+              "description": "Optimise les paramètres du moteur de recherche sémantique pour améliorer la pertinence des résultats."
+            },
+            "result": {
+              "tool": "ParamètresOptimisation",
+              "exit_code": 1,
+              "stdout": "",
+              "stderr": "  File \"/home/aza/eva-adam-v2/agents/rag/tools/ParamètresOptimisation.py\", line 1\n    Crée un outil pour optimiser les paramètres de la recherche sémantique en se basant sur les données indexées.\n         ^^\nSyntaxError: invalid syntax\n",
+              "success": false
+            }
+          },
+          {
+            "step": {
+              "action": "create_tool",
+              "tool": "RAGPipeline",
+              "args": "",
+              "code": "Crée un pipeline RAG pour les connaissances ADAM en intégrant les différentes étapes et composants nécessaires, tout en garantissant leur compatibilité et leur intégration.",
+              "description": "Crée un pipeline RAG pour les connaissances ADAM en utilisant les leçons apprises pour éviter les erreurs précédentes et en s'assurant que chaque composant est correctement intégré et optimisé."
+            },
+            "result": {
+              "id": "add580d37137",
+              "name": "RAGPipeline",
+              "file": "RAGPipeline.py",
+              "status": "created"
+            }
+          },
+          {
+            "step": {
+              "action": "manage_infra",
+              "infra_action": "status",
+              "description": "Vérifier la santé des conteneurs Docker"
+            },
+            "result": {
+              "action": "status",
+              "results": [
+                {
+                  "containers": "adam-graphify Up 7 hours\neva-activity Up 7 hours\neva-monitor Up 9 hours\nadam-bus Up 20 hours (healthy)\nadam-viz Up 21 hours\nadam-chat Up 22 hours\nadam-postgres Up 22 hours (healthy)\nvllm-mistral Up 19 hours\nkali-pentest Up 42 hours\ngrafana Up 42 hours\nprometheus Up 42 hours\nnode-exporter Up 42 hours"
+                }
+              ],
+              "success": true
+            }
+          }
+        ],
+        "timestamp": "2026-07-26T04:54:30.287593+00:00"
+      },
+      "steps": [
+        {
+          "action": "execute_tool",
+          "tool": "DocumentIndexer",
+          "args": "nouvelles_documents",
+          "description": "Indexe les nouveaux documents pertinents pour les connaissances ADAM afin de préparer la création du pipeline RAG."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "SemanticSearchEngine",
+          "args": "PGVector",
+          "description": "Utilise PGVector pour créer un moteur de recherche sémantique basé sur les documents indexés, garantissant une recherche pertinente."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "ParamètresOptimisation",
+          "args": "SemanticSearchEngine",
+          "description": "Optimise les paramètres du moteur de recherche sémantique pour améliorer la pertinence des résultats."
+        },
+        {
+          "action": "create_tool",
+          "tool": "RAGPipeline",
+          "args": "",
+          "code": "Crée un pipeline RAG pour les connaissances ADAM en intégrant les différentes étapes et composants nécessaires, tout en garantissant leur compatibilité et leur intégration.",
+          "description": "Crée un pipeline RAG pour les connaissances ADAM en utilisant les leçons apprises pour éviter les erreurs précédentes et en s'assurant que chaque composant est correctement intégré et optimisé."
+        },
+        {
+          "action": "manage_infra",
+          "infra_action": "status",
+          "description": "Vérifier la santé des conteneurs Docker"
+        }
+      ],
+      "timestamp": "2026-07-26T04:54:30.287627+00:00",
+      "agent": "adam-rag"
+    },
+    {
+      "id": "m_224",
+      "mission": "Indexe les leçons apprises pour un accès rapide",
+      "result": {
+        "agent": "adam-rag",
+        "mission": "Indexe les leçons apprises pour un accès rapide",
+        "success": false,
+        "steps": 3,
+        "elapsed_s": 11.84,
+        "results": [
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "DocumentIndexer",
+              "args": {
+                "documents": [
+                  {
+                    "id": 1,
+                    "content": "Il est crucial de structurer et de catégoriser méthodiquement les leçons apprises pour faciliter leur accès et leur utilisation future."
+                  },
+                  {
+                    "id": 2,
+                    "content": "Il est essentiel de structurer et de catégoriser méthodiquement les leçons apprises pour faciliter leur indexation et leur accès rapide."
+                  },
+                  {
+                    "id": 3,
+                    "content": "Il est essentiel de structurer et de catégoriser méthodiquement les leçons apprises pour faciliter leur indexation et leur accès rapide."
+                  }
+                ]
+              },
+              "description": "Indexe les leçons apprises dans PostgreSQL pour un accès rapide."
+            },
+            "result": {
+              "tool": "DocumentIndexer",
+              "error": "'dict' object has no attribute 'split'"
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "ParamètresOptimisation",
+              "args": {
+                "engine": "SemanticSearchEngine"
+              },
+              "description": "Optimise les paramètres du moteur de recherche pour améliorer la pertinence des résultats lors de la recherche des leçons apprises."
+            },
+            "result": {
+              "tool": "ParamètresOptimisation",
+              "error": "'dict' object has no attribute 'split'"
+            }
+          },
+          {
+            "step": {
+              "action": "self_modify",
+              "what": "Optimiser la gestion d'erreur des outils",
+              "code": "def safe_exec(func):\n    try: return func()\n    except Exception as e: return {'error': str(e)}"
+            },
+            "result": {
+              "what": "Optimiser la gestion d'erreur des outils",
+              "improvement_file": "/home/aza/eva-adam-v2/agents/rag/tools/self_improvement_20260726_065931.py",
+              "backup": "/home/aza/eva-adam-v2/agents/rag/tools/backups/runtime_backup_20260726_065931.py",
+              "status": "improved"
+            }
+          }
+        ],
+        "timestamp": "2026-07-26T04:59:31.742165+00:00"
+      },
+      "steps": [
+        {
+          "action": "execute_tool",
+          "tool": "DocumentIndexer",
+          "args": {
+            "documents": [
+              {
+                "id": 1,
+                "content": "Il est crucial de structurer et de catégoriser méthodiquement les leçons apprises pour faciliter leur accès et leur utilisation future."
+              },
+              {
+                "id": 2,
+                "content": "Il est essentiel de structurer et de catégoriser méthodiquement les leçons apprises pour faciliter leur indexation et leur accès rapide."
+              },
+              {
+                "id": 3,
+                "content": "Il est essentiel de structurer et de catégoriser méthodiquement les leçons apprises pour faciliter leur indexation et leur accès rapide."
+              }
+            ]
+          },
+          "description": "Indexe les leçons apprises dans PostgreSQL pour un accès rapide."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "ParamètresOptimisation",
+          "args": {
+            "engine": "SemanticSearchEngine"
+          },
+          "description": "Optimise les paramètres du moteur de recherche pour améliorer la pertinence des résultats lors de la recherche des leçons apprises."
+        },
+        {
+          "action": "self_modify",
+          "what": "Optimiser la gestion d'erreur des outils",
+          "code": "def safe_exec(func):\n    try: return func()\n    except Exception as e: return {'error': str(e)}"
+        }
+      ],
+      "timestamp": "2026-07-26T04:59:31.742178+00:00",
+      "agent": "adam-rag"
+    },
+    {
+      "id": "m_225",
+      "mission": "Indexe les nouveaux documents dans PostgreSQL",
+      "result": {
+        "agent": "adam-rag",
+        "mission": "Indexe les nouveaux documents dans PostgreSQL",
+        "success": false,
+        "steps": 3,
+        "elapsed_s": 5.97,
+        "results": [
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "DocumentIndexer",
+              "args": "nouveaux_documents",
+              "description": "Indexe les nouveaux documents dans PostgreSQL en se basant sur les leçons apprises pour optimiser les requêtes et vérifier la configuration."
+            },
+            "result": {
+              "tool": "DocumentIndexer",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "optimize",
+              "tool": "ParamètresOptimisation",
+              "args": "PGVector",
+              "description": "Optimise les paramètres du moteur de recherche PGVector pour améliorer la pertinence des résultats de recherche après l'indexation des nouveaux documents."
+            },
+            "result": {
+              "error": "Action inconnue: optimize"
+            }
+          },
+          {
+            "step": {
+              "action": "self_modify",
+              "what": "Optimiser la gestion d'erreur des outils",
+              "code": "def safe_exec(func):\n    try: return func()\n    except Exception as e: return {'error': str(e)}"
+            },
+            "result": {
+              "what": "Optimiser la gestion d'erreur des outils",
+              "improvement_file": "/home/aza/eva-adam-v2/agents/rag/tools/self_improvement_20260726_070454.py",
+              "backup": "/home/aza/eva-adam-v2/agents/rag/tools/backups/runtime_backup_20260726_070454.py",
+              "status": "improved"
+            }
+          }
+        ],
+        "timestamp": "2026-07-26T05:04:54.264638+00:00"
+      },
+      "steps": [
+        {
+          "action": "execute_tool",
+          "tool": "DocumentIndexer",
+          "args": "nouveaux_documents",
+          "description": "Indexe les nouveaux documents dans PostgreSQL en se basant sur les leçons apprises pour optimiser les requêtes et vérifier la configuration."
+        },
+        {
+          "action": "optimize",
+          "tool": "ParamètresOptimisation",
+          "args": "PGVector",
+          "description": "Optimise les paramètres du moteur de recherche PGVector pour améliorer la pertinence des résultats de recherche après l'indexation des nouveaux documents."
+        },
+        {
+          "action": "self_modify",
+          "what": "Optimiser la gestion d'erreur des outils",
+          "code": "def safe_exec(func):\n    try: return func()\n    except Exception as e: return {'error': str(e)}"
+        }
+      ],
+      "timestamp": "2026-07-26T05:04:54.264649+00:00",
+      "agent": "adam-rag"
+    },
+    {
+      "id": "m_226",
+      "mission": "Améliore la recherche sémantique avec PGVector",
+      "result": {
+        "agent": "adam-rag",
+        "mission": "Améliore la recherche sémantique avec PGVector",
+        "success": false,
+        "steps": 4,
+        "elapsed_s": 29.71,
+        "results": [
+          {
+            "step": {
+              "action": "research",
+              "tool": "DocumentIndexer",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Recherche sur la façon d'optimiser l'utilisation de PGVector pour la recherche sémantique, en se concentrant sur la configuration des vecteurs d'embeddings."
+            },
+            "result": {
+              "query": "Recherche sur la façon d'optimiser l'utilisation de PGVector pour la recherche sémantique, en se concentrant sur la configuration des vecteurs d'embeddings.",
+              "result": "Pour optimiser l'utilisation de PGVector pour la recherche sémantique, il est crucial de bien comprendre comment configurer les vecteurs d'embeddings. PGVector est une extension du système de gestion de base de données PostgreSQL qui permet de stocker et de rechercher efficacement des vecteurs de fa",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "SemanticSearchEngine",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Utilise le moteur de recherche sémantique pour évaluer la pertinence actuelle des résultats de recherche avec la configuration actuelle de PGVector."
+            },
+            "result": {
+              "tool": "SemanticSearchEngine",
+              "exit_code": 1,
+              "stdout": "",
+              "stderr": "Traceback (most recent call last):\n  File \"/home/aza/eva-adam-v2/agents/rag/tools/SemanticSearchEngine.py\", line 1, in <module>\n    from semantic_search import create_engine\nModuleNotFoundError: No module named 'semantic_search'\n",
+              "success": false
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "ParamètresOptimisation",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Optimise les paramètres de PGVector pour améliorer la pertinence des résultats de recherche sémantique."
+            },
+            "result": {
+              "tool": "ParamètresOptimisation",
+              "exit_code": 1,
+              "stdout": "",
+              "stderr": "  File \"/home/aza/eva-adam-v2/agents/rag/tools/ParamètresOptimisation.py\", line 1\n    Crée un outil pour optimiser les paramètres de la recherche sémantique en se basant sur les données indexées.\n         ^^\nSyntaxError: invalid syntax\n",
+              "success": false
+            }
+          },
+          {
+            "step": {
+              "action": "manage_infra",
+              "infra_action": "status",
+              "description": "Vérifier la santé des conteneurs Docker"
+            },
+            "result": {
+              "action": "status",
+              "results": [
+                {
+                  "containers": "adam-graphify Up 8 hours\neva-activity Up 8 hours\neva-monitor Up 10 hours\nadam-bus Up 20 hours (healthy)\nadam-viz Up 21 hours\nadam-chat Up 23 hours\nadam-postgres Up 23 hours (healthy)\nvllm-mistral Up 20 hours\nkali-pentest Up 43 hours\ngrafana Up 43 hours\nprometheus Up 43 hours\nnode-exporter Up 43 hour"
+                }
+              ],
+              "success": true
+            }
+          }
+        ],
+        "timestamp": "2026-07-26T05:10:01.554069+00:00"
+      },
+      "steps": [
+        {
+          "action": "research",
+          "tool": "DocumentIndexer",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Recherche sur la façon d'optimiser l'utilisation de PGVector pour la recherche sémantique, en se concentrant sur la configuration des vecteurs d'embeddings."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "SemanticSearchEngine",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Utilise le moteur de recherche sémantique pour évaluer la pertinence actuelle des résultats de recherche avec la configuration actuelle de PGVector."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "ParamètresOptimisation",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Optimise les paramètres de PGVector pour améliorer la pertinence des résultats de recherche sémantique."
+        },
+        {
+          "action": "manage_infra",
+          "infra_action": "status",
+          "description": "Vérifier la santé des conteneurs Docker"
+        }
+      ],
+      "timestamp": "2026-07-26T05:10:01.554086+00:00",
+      "agent": "adam-rag"
     }
   ]
 }
