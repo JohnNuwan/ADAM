@@ -1,31 +1,45 @@
 
 import random
+import string
 
 class ChallengeAutogenerator:
-    def __init__(self, lesson_plan):
-        self.lesson_plan = lesson_plan
+    def __init__(self, technique):
+        self.technique = technique
+        self.challenges = []
 
-    def generate_challenge(self, lesson_name):
-        lesson_details = self.lesson_plan.get(lesson_name, {})
-        challenge_type = random.choice(list(lesson_details.keys()))
-        challenge_content = random.choice(lesson_details[challenge_type])
-        return f"Challenge for {lesson_name}: {challenge_type} - {challenge_content}"
-
-def main():
-    lesson_plan = {
-        "Python Basics": {
-            "Quiz": ["What is the syntax to print something in Python?", "How do you define a function?"],
-            "Exercise": ["Write a program that prints 'Hello, World!'", "Create a function that adds two numbers."]
-        },
-        "Data Structures": {
-            "Quiz": ["What is a list in Python?", "How do you create a dictionary?"],
-            "Exercise": ["Write a program that creates a list of 5 elements.", "Create a dictionary with keys as integers and values as strings."]
+    def generate_challenge(self):
+        challenge_title = f"Challenge based on {self.technique}"
+        challenge_description = self._generate_description()
+        challenge_flag = self._generate_flag()
+        
+        challenge = {
+            "title": challenge_title,
+            "description": challenge_description,
+            "flag": challenge_flag
         }
-    }
+        self.challenges.append(challenge)
+        return challenge
 
-    generator = ChallengeAutogenerator(lesson_plan)
-    print(generator.generate_challenge("Python Basics"))
-    print(generator.generate_challenge("Data Structures"))
+    def _generate_description(self):
+        techniques = ["reverse engineering", "cryptoanalysis", "network security"]
+        description = f"Use your skills in {self.technique} to uncover the hidden message."
+        if self.technique == "reverse engineering":
+            description += " Analyze the binary and find the secret algorithm."
+        elif self.technique == "cryptoanalysis":
+            description += " Decrypt the ciphertext using known techniques."
+        elif self.technique == "network security":
+            description += " Capture and analyze network packets to extract the flag."
+        return description
 
-if __name__ == '__main__':
-    main()
+    def _generate_flag(self):
+        return f"FLAG{{{self._random_string(16)}}}"
+
+    @staticmethod
+    def _random_string(length):
+        letters = string.ascii_lowercase + string.digits
+        return ''.join(random.choice(letters) for i in range(length))
+
+# Example usage:
+autogenerator = ChallengeAutogenerator("reverse engineering")
+challenge = autogenerator.generate_challenge()
+print(challenge)

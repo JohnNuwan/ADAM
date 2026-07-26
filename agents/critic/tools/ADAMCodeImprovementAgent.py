@@ -1,49 +1,46 @@
 
 import ast
-from ast import NodeTransformer
+from collections import defaultdict
 
-class ADAMCodeImprovementAgent(NodeTransformer):
-    def __init__(self, audit_results):
-        super().__init__()
-        self.audit_results = audit_results
+class ADAMCodeImprovementAgent:
+    def __init__(self):
+        self.improvement_suggestions = defaultdict(list)
 
-    def visit_Call(self, node):
-        # Example improvement: if the audit results indicate that certain functions are inefficient,
-        # replace them with more efficient alternatives.
-        func_name = node.func.id if isinstance(node.func, ast.Name) else None
-        if func_name and self.audit_results.get('inefficient_functions', {}).get(func_name):
-            replacement_func = self.audit_results['inefficient_functions'][func_name]
-            node.func = ast.Name(id=replacement_func, ctx=ast.Load())
-        return self.generic_visit(node)
+    def analyze_code(self, code):
+        tree = ast.parse(code)
+        self._analyze_ast(tree)
 
-    def visit_Assign(self, node):
-        # Example improvement: if the audit results suggest that variables should be renamed for clarity,
-        # apply those changes here.
-        for target in node.targets:
-            if isinstance(target, ast.Name) and self.audit_results.get('rename_variables', {}).get(target.id):
-                new_var_name = self.audit_results['rename_variables'][target.id]
-                target.id = new_var_name
-        return self.generic_visit(node)
+    def _analyze_ast(self, node):
+        for child in ast.iter_child_nodes(node):
+            if isinstance(child, ast.FunctionDef):
+                self.check_function_def(child)
+            elif isinstance(child, ast.Import):
+                self.check_import(child)
+            self._analyze_ast(child)
 
-def improve_code(source_code, audit_results):
-    tree = ast.parse(source_code)
-    transformer = ADAMCodeImprovementAgent(audit_results)
-    improved_tree = transformer.visit(tree)
-    improved_code = compile(improved_tree, filename="<ast>", mode="exec")
-    return improved_code
+    def check_function_def(self, node):
+        if len(node.body) > 20:
+            self.improvement_suggestions[node.name].append("Function is too long, consider splitting it into smaller functions.")
+        for n in ast.walk(node):
+            if isinstance(n, ast.For):
+                self.improvement_suggestions[node.name].append("Consider using list comprehension or map/filter for better readability.")
+
+    def check_import(self, node):
+        for alias in node.names:
+            if alias.asname:
+                self.improvement_suggestions[alias.name].append(f"Import alias {alias.asname} detected, consider using the original name {alias.name} for clarity.")
+
+    def get_improvement_suggestions(self):
+        return dict(self.improvement_suggestions)
 
 # Example usage
-source_code = """
-def inefficient_function(x):
-    return x * 2
-
-result = inefficient_function(5)
+agent = ADAMCodeImprovementAgent()
+code_to_analyze = """
+def example_function():
+    result = []
+    for i in range(100):
+        result.append(i * i)
+    return result
 """
-
-audit_results = {
-    'inefficient_functions': {'inefficient_function': 'efficient_function'},
-    'rename_variables': {'result': 'output'}
-}
-
-improved_code = improve_code(source_code, audit_results)
-exec(improved_code)
+agent.analyze_code(code_to_analyze)
+print(agent.get_improvement_suggestions())

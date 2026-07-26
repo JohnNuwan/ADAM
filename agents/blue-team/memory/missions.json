@@ -11555,6 +11555,208 @@
       ],
       "timestamp": "2026-07-26T05:28:29.997800+00:00",
       "agent": "adam-blue-team"
+    },
+    {
+      "id": "m_108",
+      "mission": "Améliore la sécurité: audite et corrige les vulnérabilités — Ta contribution en tant que blue-team",
+      "result": {
+        "agent": "adam-blue-team",
+        "mission": "Améliore la sécurité: audite et corrige les vulnérabilités — Ta contribution en tant que blue-team",
+        "success": true,
+        "steps": 4,
+        "elapsed_s": 7.81,
+        "results": [
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "vulnerability_assessment",
+              "args": {},
+              "description": "Exécuter un audit de vulnérabilité complet pour identifier toutes les faiblesses potentielles du système."
+            },
+            "result": {
+              "tool": "vulnerability_assessment",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "hardening_plan_generator",
+              "args": {},
+              "description": "Générer un plan de hardening basé sur les vulnérabilités identifiées pour renforcer la sécurité du système."
+            },
+            "result": {
+              "tool": "hardening_plan_generator",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "real_time_security_monitoring",
+              "args": {},
+              "description": "Mettre en place un monitoring de sécurité temps réel pour détecter et répondre rapidement aux menaces."
+            },
+            "result": {
+              "tool": "real_time_security_monitoring",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "manage_infra",
+              "infra_action": "status",
+              "description": "Vérifier la santé des conteneurs Docker"
+            },
+            "result": {
+              "action": "status",
+              "results": [
+                {
+                  "containers": "eva-products Up 19 minutes\nadam-graphify Up 8 hours\neva-activity Up 27 minutes\neva-monitor Up 10 hours\nadam-bus Up 21 hours (healthy)\nadam-viz Up 22 hours\nadam-chat Up 23 hours\nadam-postgres Up 23 hours (healthy)\nvllm-mistral Up 20 hours\nkali-pentest Up 43 hours\ngrafana Up 43 hours\nprometheus Up 43 "
+                }
+              ],
+              "success": true
+            }
+          }
+        ],
+        "timestamp": "2026-07-26T05:39:52.928085+00:00"
+      },
+      "steps": [
+        {
+          "action": "execute_tool",
+          "tool": "vulnerability_assessment",
+          "args": {},
+          "description": "Exécuter un audit de vulnérabilité complet pour identifier toutes les faiblesses potentielles du système."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "hardening_plan_generator",
+          "args": {},
+          "description": "Générer un plan de hardening basé sur les vulnérabilités identifiées pour renforcer la sécurité du système."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "real_time_security_monitoring",
+          "args": {},
+          "description": "Mettre en place un monitoring de sécurité temps réel pour détecter et répondre rapidement aux menaces."
+        },
+        {
+          "action": "manage_infra",
+          "infra_action": "status",
+          "description": "Vérifier la santé des conteneurs Docker"
+        }
+      ],
+      "timestamp": "2026-07-26T05:39:52.928120+00:00",
+      "agent": "adam-blue-team"
+    },
+    {
+      "id": "m_109",
+      "mission": "Améliore la sécurité: audite et corrige les vulnérabilités — Ta contribution en tant que blue-team",
+      "result": {
+        "agent": "adam-blue-team",
+        "mission": "Améliore la sécurité: audite et corrige les vulnérabilités — Ta contribution en tant que blue-team",
+        "success": false,
+        "steps": 4,
+        "elapsed_s": 7.86,
+        "results": [
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "vulnerability_assessment",
+              "args": {},
+              "description": "Effectuer une évaluation des vulnérabilités pour identifier les points faibles du système."
+            },
+            "result": {
+              "tool": "vulnerability_assessment",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "hardening_plan_generator",
+              "args": {
+                "based_on": "vulnerability_assessment"
+              },
+              "description": "Générer un plan de hardening basé sur les résultats de l'évaluation des vulnérabilités."
+            },
+            "result": {
+              "tool": "hardening_plan_generator",
+              "error": "'dict' object has no attribute 'split'"
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "real_time_security_monitoring",
+              "args": {},
+              "description": "Mettre en place un monitoring de sécurité temps réel pour détecter et répondre rapidement aux menaces."
+            },
+            "result": {
+              "tool": "real_time_security_monitoring",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "self_modify",
+              "what": "Ajouter un cache aux outils pour éviter les appels dupliqués",
+              "code": "CACHE = {}\ndef cached_call(key, func, *args):\n    if key not in CACHE:\n        CACHE[key] = func(*args)\n    return CACHE[key]"
+            },
+            "result": {
+              "what": "Ajouter un cache aux outils pour éviter les appels dupliqués",
+              "improvement_file": "/home/aza/eva-adam-v2/agents/blue-team/tools/self_improvement_20260726_075339.py",
+              "backup": "/home/aza/eva-adam-v2/agents/blue-team/tools/backups/runtime_backup_20260726_075339.py",
+              "status": "improved"
+            }
+          }
+        ],
+        "timestamp": "2026-07-26T05:53:39.264492+00:00"
+      },
+      "steps": [
+        {
+          "action": "execute_tool",
+          "tool": "vulnerability_assessment",
+          "args": {},
+          "description": "Effectuer une évaluation des vulnérabilités pour identifier les points faibles du système."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "hardening_plan_generator",
+          "args": {
+            "based_on": "vulnerability_assessment"
+          },
+          "description": "Générer un plan de hardening basé sur les résultats de l'évaluation des vulnérabilités."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "real_time_security_monitoring",
+          "args": {},
+          "description": "Mettre en place un monitoring de sécurité temps réel pour détecter et répondre rapidement aux menaces."
+        },
+        {
+          "action": "self_modify",
+          "what": "Ajouter un cache aux outils pour éviter les appels dupliqués",
+          "code": "CACHE = {}\ndef cached_call(key, func, *args):\n    if key not in CACHE:\n        CACHE[key] = func(*args)\n    return CACHE[key]"
+        }
+      ],
+      "timestamp": "2026-07-26T05:53:39.264502+00:00",
+      "agent": "adam-blue-team"
     }
   ]
 }

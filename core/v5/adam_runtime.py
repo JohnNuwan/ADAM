@@ -139,7 +139,7 @@ Outils disponibles:
         # Injecter la mémoire dans le prompt
         think_prompt = think_prompt + lessons_str + recent_str + "\nIMPORTANT: Utilise les leçons pour éviter les erreurs. Réutilise les outils existants."
 
-        plan_response = self._llm(think_prompt, system=system_prompt, max_tokens=2048)
+        plan_response = self._llm(think_prompt, system=system_prompt, max_tokens=4096)
 
         # 3. Parser le plan
         plan = self._parse_plan(plan_response)
@@ -249,7 +249,7 @@ Outils disponibles:
             if not code:
                 # If no code, ask the LLM to generate real code
                 gen_prompt = f"Génère le code Python complet pour l'outil '{name}'. Description: {desc}. Le code doit être FONCTIONNEL avec de vraies implémentations (pas de 'pass' ou 'TODO'). Réponds UNIQUEMENT avec le code Python, pas d'explication."
-                code = self._llm(gen_prompt, max_tokens=1024)
+                code = self._llm(gen_prompt, max_tokens=2048)
                 # Extract code from markdown if present
                 if "```python" in code:
                     code = code.split("```python")[1].split("```")[0]
@@ -268,7 +268,7 @@ Outils disponibles:
                 # Code is just text/description, not Python — regenerate
                 logger.warning(f"Outil {name}: code invalide, regeneration...")
                 gen_prompt = f"Tu dois écrire du CODE PYTHON fonctionnel pour '{name}'. Pas de texte, pas de description, du CODE. Description: {desc}. Inclue des imports, des fonctions avec de vraies implémentations, et un block if __name__=='__main__'."
-                code = self._llm(gen_prompt, max_tokens=1024)
+                code = self._llm(gen_prompt, max_tokens=2048)
                 if "```python" in code:
                     code = code.split("```python")[1].split("```")[0]
                 elif "```" in code:
