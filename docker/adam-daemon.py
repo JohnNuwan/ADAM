@@ -306,6 +306,8 @@ def fetch_mission_from_bus(agent):
             missions = data if isinstance(data, list) else data.get("events", [])
             agent_lower = agent_name.lower()
             agent_short = agent.lower().replace("adam-", "")
+            # Sort by timestamp DESC (newest first)
+            missions.sort(key=lambda x: x.get("timestamp", ""), reverse=True)
             for m in missions:
                 payload = m.get("payload", {})
                 if isinstance(payload, dict):
