@@ -1,4 +1,6 @@
-def generate_innovative_technique(challenge_type, lessons_learned):
+import innovation_module
+
+def generate_technique():
     # Utiliser les leçons apprises pour générer une technique innovante
-    innovative_technique = f"Technique innovante pour {challenge_type} basée sur les leçons apprises : {lessons_learned}"
-    return innovative_technique
+    new_technique = innovation_module.generate_based_on_lessons()
+    return new_technique

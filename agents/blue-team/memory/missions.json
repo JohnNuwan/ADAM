@@ -10100,6 +10100,576 @@
       ],
       "timestamp": "2026-07-26T04:18:28.678081+00:00",
       "agent": "adam-blue-team"
+    },
+    {
+      "id": "m_95",
+      "mission": "Améliore la sécurité: audite et corrige les vulnérabilités — Ta contribution en tant que blue-team",
+      "result": {
+        "agent": "adam-blue-team",
+        "mission": "Améliore la sécurité: audite et corrige les vulnérabilités — Ta contribution en tant que blue-team",
+        "success": false,
+        "steps": 4,
+        "elapsed_s": 8.99,
+        "results": [
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "vulnerability_assessment",
+              "args": {},
+              "code": "",
+              "target_agent": "",
+              "description": "Effectuer une évaluation des vulnérabilités pour identifier les points faibles du système."
+            },
+            "result": {
+              "tool": "vulnerability_assessment",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "hardening_plan_generator",
+              "args": {},
+              "code": "",
+              "target_agent": "",
+              "description": "Générer un plan de hardening basé sur les vulnérabilités identifiées pour renforcer la sécurité du système."
+            },
+            "result": {
+              "tool": "hardening_plan_generator",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "real_time_security_monitoring",
+              "args": {},
+              "code": "",
+              "target_agent": "",
+              "description": "Déployer un outil de monitoring de sécurité temps réel pour surveiller en continu l'état de sécurité du système et détecter tout incident potentiel."
+            },
+            "result": {
+              "tool": "real_time_security_monitoring",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "self_modify",
+              "what": "Ajouter un cache aux outils pour éviter les appels dupliqués",
+              "code": "CACHE = {}\ndef cached_call(key, func, *args):\n    if key not in CACHE:\n        CACHE[key] = func(*args)\n    return CACHE[key]"
+            },
+            "result": {
+              "what": "Ajouter un cache aux outils pour éviter les appels dupliqués",
+              "improvement_file": "/home/aza/eva-adam-v2/agents/blue-team/tools/self_improvement_20260726_062319.py",
+              "backup": "/home/aza/eva-adam-v2/agents/blue-team/tools/backups/runtime_backup_20260726_062319.py",
+              "status": "improved"
+            }
+          }
+        ],
+        "timestamp": "2026-07-26T04:23:19.809577+00:00"
+      },
+      "steps": [
+        {
+          "action": "execute_tool",
+          "tool": "vulnerability_assessment",
+          "args": {},
+          "code": "",
+          "target_agent": "",
+          "description": "Effectuer une évaluation des vulnérabilités pour identifier les points faibles du système."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "hardening_plan_generator",
+          "args": {},
+          "code": "",
+          "target_agent": "",
+          "description": "Générer un plan de hardening basé sur les vulnérabilités identifiées pour renforcer la sécurité du système."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "real_time_security_monitoring",
+          "args": {},
+          "code": "",
+          "target_agent": "",
+          "description": "Déployer un outil de monitoring de sécurité temps réel pour surveiller en continu l'état de sécurité du système et détecter tout incident potentiel."
+        },
+        {
+          "action": "self_modify",
+          "what": "Ajouter un cache aux outils pour éviter les appels dupliqués",
+          "code": "CACHE = {}\ndef cached_call(key, func, *args):\n    if key not in CACHE:\n        CACHE[key] = func(*args)\n    return CACHE[key]"
+        }
+      ],
+      "timestamp": "2026-07-26T04:23:19.809586+00:00",
+      "agent": "adam-blue-team"
+    },
+    {
+      "id": "m_96",
+      "mission": "Améliore la sécurité: audite et corrige les vulnérabilités — Ta contribution en tant que blue-team",
+      "result": {
+        "agent": "adam-blue-team",
+        "mission": "Améliore la sécurité: audite et corrige les vulnérabilités — Ta contribution en tant que blue-team",
+        "success": true,
+        "steps": 4,
+        "elapsed_s": 9.4,
+        "results": [
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "vulnerability_assessment",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Effectuer une évaluation approfondie des vulnérabilités actuelles du système pour identifier les points faibles."
+            },
+            "result": {
+              "tool": "vulnerability_assessment",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "hardening_plan_generator",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Générer un plan de hardening basé sur les vulnérabilités identifiées par l'évaluation précédente."
+            },
+            "result": {
+              "tool": "hardening_plan_generator",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "real_time_security_monitoring",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Déployer un système de monitoring de sécurité en temps réel pour surveiller continuellement l'état de sécurité du système et détecter rapidement toute nouvelle vulnérabilité."
+            },
+            "result": {
+              "tool": "real_time_security_monitoring",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "manage_infra",
+              "infra_action": "status",
+              "description": "Vérifier la santé des conteneurs Docker"
+            },
+            "result": {
+              "action": "status",
+              "results": [
+                {
+                  "containers": "adam-graphify Up 7 hours\neva-activity Up 7 hours\neva-monitor Up 9 hours\nadam-bus Up 20 hours (healthy)\nadam-viz Up 20 hours\nadam-chat Up 22 hours\nadam-postgres Up 22 hours (healthy)\nvllm-mistral Up 19 hours\nkali-pentest Up 42 hours\ngrafana Up 42 hours\nprometheus Up 42 hours\nnode-exporter Up 42 hours"
+                }
+              ],
+              "success": true
+            }
+          }
+        ],
+        "timestamp": "2026-07-26T04:28:43.618439+00:00"
+      },
+      "steps": [
+        {
+          "action": "execute_tool",
+          "tool": "vulnerability_assessment",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Effectuer une évaluation approfondie des vulnérabilités actuelles du système pour identifier les points faibles."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "hardening_plan_generator",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Générer un plan de hardening basé sur les vulnérabilités identifiées par l'évaluation précédente."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "real_time_security_monitoring",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Déployer un système de monitoring de sécurité en temps réel pour surveiller continuellement l'état de sécurité du système et détecter rapidement toute nouvelle vulnérabilité."
+        },
+        {
+          "action": "manage_infra",
+          "infra_action": "status",
+          "description": "Vérifier la santé des conteneurs Docker"
+        }
+      ],
+      "timestamp": "2026-07-26T04:28:43.618457+00:00",
+      "agent": "adam-blue-team"
+    },
+    {
+      "id": "m_97",
+      "mission": "Améliore la sécurité: audite et corrige les vulnérabilités — Ta contribution en tant que blue-team",
+      "result": {
+        "agent": "adam-blue-team",
+        "mission": "Améliore la sécurité: audite et corrige les vulnérabilités — Ta contribution en tant que blue-team",
+        "success": false,
+        "steps": 4,
+        "elapsed_s": 8.65,
+        "results": [
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "vulnerability_assessment",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Lancer une évaluation des vulnérabilités pour identifier les points faibles du système."
+            },
+            "result": {
+              "tool": "vulnerability_assessment",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "hardening_plan_generator",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Générer un plan de hardening basé sur les résultats de l'évaluation des vulnérabilités pour renforcer la sécurité."
+            },
+            "result": {
+              "tool": "hardening_plan_generator",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "real_time_security_monitoring",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Déployer un système de surveillance de sécurité en temps réel pour détecter et répondre rapidement aux menaces."
+            },
+            "result": {
+              "tool": "real_time_security_monitoring",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "self_modify",
+              "what": "Ajouter un système de retry aux outils",
+              "code": "import time\ndef retry(func, max=3):\n    for i in range(max):\n        try: return func()\n        except: time.sleep(1)\n    return None"
+            },
+            "result": {
+              "what": "Ajouter un système de retry aux outils",
+              "improvement_file": "/home/aza/eva-adam-v2/agents/blue-team/tools/self_improvement_20260726_063431.py",
+              "backup": "/home/aza/eva-adam-v2/agents/blue-team/tools/backups/runtime_backup_20260726_063431.py",
+              "status": "improved"
+            }
+          }
+        ],
+        "timestamp": "2026-07-26T04:34:31.828902+00:00"
+      },
+      "steps": [
+        {
+          "action": "execute_tool",
+          "tool": "vulnerability_assessment",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Lancer une évaluation des vulnérabilités pour identifier les points faibles du système."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "hardening_plan_generator",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Générer un plan de hardening basé sur les résultats de l'évaluation des vulnérabilités pour renforcer la sécurité."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "real_time_security_monitoring",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Déployer un système de surveillance de sécurité en temps réel pour détecter et répondre rapidement aux menaces."
+        },
+        {
+          "action": "self_modify",
+          "what": "Ajouter un système de retry aux outils",
+          "code": "import time\ndef retry(func, max=3):\n    for i in range(max):\n        try: return func()\n        except: time.sleep(1)\n    return None"
+        }
+      ],
+      "timestamp": "2026-07-26T04:34:31.828916+00:00",
+      "agent": "adam-blue-team"
+    },
+    {
+      "id": "m_98",
+      "mission": "Améliore la sécurité: audite et corrige les vulnérabilités — Ta contribution en tant que blue-team",
+      "result": {
+        "agent": "adam-blue-team",
+        "mission": "Améliore la sécurité: audite et corrige les vulnérabilités — Ta contribution en tant que blue-team",
+        "success": true,
+        "steps": 4,
+        "elapsed_s": 9.47,
+        "results": [
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "vulnerability_assessment",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Exécuter un audit de sécurité complet pour identifier toutes les vulnérabilités potentielles."
+            },
+            "result": {
+              "tool": "vulnerability_assessment",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "hardening_plan_generator",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Générer un plan de hardening basé sur les vulnérabilités identifiées par l'outil d'évaluation des vulnérabilités."
+            },
+            "result": {
+              "tool": "hardening_plan_generator",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "real_time_security_monitoring",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Mettre en place un système de monitoring de sécurité en temps réel pour surveiller continuellement les menaces et les vulnérabilités."
+            },
+            "result": {
+              "tool": "real_time_security_monitoring",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "manage_infra",
+              "infra_action": "status",
+              "description": "Vérifier la santé des conteneurs Docker"
+            },
+            "result": {
+              "action": "status",
+              "results": [
+                {
+                  "containers": "adam-graphify Up 7 hours\neva-activity Up 7 hours\neva-monitor Up 9 hours\nadam-bus Up 20 hours (healthy)\nadam-viz Up 21 hours\nadam-chat Up 22 hours\nadam-postgres Up 22 hours (healthy)\nvllm-mistral Up 19 hours\nkali-pentest Up 42 hours\ngrafana Up 42 hours\nprometheus Up 42 hours\nnode-exporter Up 42 hours"
+                }
+              ],
+              "success": true
+            }
+          }
+        ],
+        "timestamp": "2026-07-26T04:39:31.232362+00:00"
+      },
+      "steps": [
+        {
+          "action": "execute_tool",
+          "tool": "vulnerability_assessment",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Exécuter un audit de sécurité complet pour identifier toutes les vulnérabilités potentielles."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "hardening_plan_generator",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Générer un plan de hardening basé sur les vulnérabilités identifiées par l'outil d'évaluation des vulnérabilités."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "real_time_security_monitoring",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Mettre en place un système de monitoring de sécurité en temps réel pour surveiller continuellement les menaces et les vulnérabilités."
+        },
+        {
+          "action": "manage_infra",
+          "infra_action": "status",
+          "description": "Vérifier la santé des conteneurs Docker"
+        }
+      ],
+      "timestamp": "2026-07-26T04:39:31.232397+00:00",
+      "agent": "adam-blue-team"
+    },
+    {
+      "id": "m_99",
+      "mission": "Améliore la sécurité: audite et corrige les vulnérabilités — Ta contribution en tant que blue-team",
+      "result": {
+        "agent": "adam-blue-team",
+        "mission": "Améliore la sécurité: audite et corrige les vulnérabilités — Ta contribution en tant que blue-team",
+        "success": true,
+        "steps": 5,
+        "elapsed_s": 10.73,
+        "results": [
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "vulnerability_assessment",
+              "args": "",
+              "description": "Lancer une évaluation des vulnérabilités pour identifier les faiblesses actuelles du système."
+            },
+            "result": {
+              "tool": "vulnerability_assessment",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "hardening_plan_generator",
+              "args": "",
+              "description": "Générer un plan de hardening basé sur les vulnérabilités identifiées par l'évaluation précédente."
+            },
+            "result": {
+              "tool": "hardening_plan_generator",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "real_time_security_monitoring",
+              "args": "",
+              "description": "Mettre en place un monitoring de sécurité temps réel pour surveiller en continu l'état de sécurité du système et détecter tout changement potentiellement malveillant."
+            },
+            "result": {
+              "tool": "real_time_security_monitoring",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "report",
+              "tool": "",
+              "args": "",
+              "description": "Rapporter les résultats de l'évaluation des vulnérabilités, les actions prises pour renforcer la sécurité et la mise en place du monitoring en temps réel."
+            },
+            "result": {
+              "success": true,
+              "report": "Rapporter les résultats de l'évaluation des vulnérabilités, les actions prises pour renforcer la sécurité et la mise en place du monitoring en temps réel."
+            }
+          },
+          {
+            "step": {
+              "action": "manage_infra",
+              "infra_action": "status",
+              "description": "Vérifier la santé des conteneurs Docker"
+            },
+            "result": {
+              "action": "status",
+              "results": [
+                {
+                  "containers": "adam-graphify Up 7 hours\neva-activity Up 7 hours\neva-monitor Up 9 hours\nadam-bus Up 20 hours (healthy)\nadam-viz Up 21 hours\nadam-chat Up 22 hours\nadam-postgres Up 22 hours (healthy)\nvllm-mistral Up 19 hours\nkali-pentest Up 42 hours\ngrafana Up 42 hours\nprometheus Up 42 hours\nnode-exporter Up 42 hours"
+                }
+              ],
+              "success": true
+            }
+          }
+        ],
+        "timestamp": "2026-07-26T04:44:23.510159+00:00"
+      },
+      "steps": [
+        {
+          "action": "execute_tool",
+          "tool": "vulnerability_assessment",
+          "args": "",
+          "description": "Lancer une évaluation des vulnérabilités pour identifier les faiblesses actuelles du système."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "hardening_plan_generator",
+          "args": "",
+          "description": "Générer un plan de hardening basé sur les vulnérabilités identifiées par l'évaluation précédente."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "real_time_security_monitoring",
+          "args": "",
+          "description": "Mettre en place un monitoring de sécurité temps réel pour surveiller en continu l'état de sécurité du système et détecter tout changement potentiellement malveillant."
+        },
+        {
+          "action": "report",
+          "tool": "",
+          "args": "",
+          "description": "Rapporter les résultats de l'évaluation des vulnérabilités, les actions prises pour renforcer la sécurité et la mise en place du monitoring en temps réel."
+        },
+        {
+          "action": "manage_infra",
+          "infra_action": "status",
+          "description": "Vérifier la santé des conteneurs Docker"
+        }
+      ],
+      "timestamp": "2026-07-26T04:44:23.510178+00:00",
+      "agent": "adam-blue-team"
     }
   ]
 }

@@ -1,4 +1,4 @@
-def evaluate_technique(technique, lessons_learned):
+def evaluate_technique(technique):
     # Évaluer la technique générée en se basant sur les leçons apprises
-    evaluation = f"Évaluation de la technique {technique} basée sur les leçons apprises : {lessons_learned}"
-    return evaluation
+    evaluation_result = technique_analysis_module.analyze(technique)
+    return evaluation_result
