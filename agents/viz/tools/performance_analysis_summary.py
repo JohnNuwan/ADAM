@@ -1,0 +1,1 @@
+Utiliser les résultats de l'audit du dashboard et de l'audit des conteneurs pour créer un résumé de l'analyse des performances.

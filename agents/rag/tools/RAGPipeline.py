@@ -1,1 +1,1 @@
-Crée un pipeline RAG pour les connaissances ADAM, en intégrant les leçons apprises et en garantissant la compatibilité et l'intégration des composants du système.
+Crée un pipeline RAG pour les connaissances ADAM en utilisant les outils et configurations précédemment définis.
