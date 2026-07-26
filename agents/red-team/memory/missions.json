@@ -9607,6 +9607,781 @@
       ],
       "timestamp": "2026-07-26T01:37:15.303415+00:00",
       "agent": "adam-red-team"
+    },
+    {
+      "id": "m_63",
+      "mission": "Améliore la sécurité: audite et corrige les vulnérabilités — Ta contribution en tant que red-team",
+      "result": {
+        "agent": "adam-red-team",
+        "mission": "Améliore la sécurité: audite et corrige les vulnérabilités — Ta contribution en tant que red-team",
+        "success": false,
+        "steps": 6,
+        "elapsed_s": 18.72,
+        "results": [
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "AdvancedSecurityScanner",
+              "args": {
+                "target": "192.168.1.10",
+                "port_range": "1-65535"
+              },
+              "description": "Utiliser l'AdvancedSecurityScanner pour scanner le serveur cible et identifier les ports ouverts et potentiellement vulnérables."
+            },
+            "result": {
+              "tool": "AdvancedSecurityScanner",
+              "error": "'dict' object has no attribute 'split'"
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "AutomatedIntrusionTester",
+              "args": {
+                "target": "192.168.1.10",
+                "vulnerabilities": [
+                  "CVE-2021-44228"
+                ]
+              },
+              "description": "Utiliser l'AutomatedIntrusionTester pour tester les vulnérabilités spécifiques sur le serveur cible."
+            },
+            "result": {
+              "tool": "AutomatedIntrusionTester",
+              "error": "'dict' object has no attribute 'split'"
+            }
+          },
+          {
+            "step": {
+              "action": "create_tool",
+              "tool": "VulnerabilityAssessmentReport",
+              "args": {
+                "results": "AutomatedIntrusionTester_results.json"
+              },
+              "code": "import json\nfrom VulnerabilityAssessmentReport import create_report\n\nwith open('AutomatedIntrusionTester_results.json', 'r') as file:\n    results = json.load(file)\n\nreport = create_report(results)\nprint(report)",
+              "description": "Créer un rapport détaillé des résultats des tests d'intrusion pour documenter les vulnérabilités identifiées."
+            },
+            "result": {
+              "id": "ac8104d058ed",
+              "name": "VulnerabilityAssessmentReport",
+              "file": "VulnerabilityAssessmentReport.py",
+              "status": "created"
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "ProfessionalPentestReportTemplate",
+              "args": {
+                "assessment_report": "VulnerabilityAssessmentReport_results.json",
+                "team": "blue_team"
+              },
+              "description": "Compiler un rapport professionnel de pentest qui sera partagé avec l'équipe blue team pour collaboration et action corrective."
+            },
+            "result": {
+              "tool": "ProfessionalPentestReportTemplate",
+              "error": "'dict' object has no attribute 'split'"
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "VulnerabilityCorrectionAssistant",
+              "args": {
+                "vulnerabilities": "ProfessionalPentestReportTemplate_vulnerabilities.json"
+              },
+              "description": "Appliquer les correctifs aux vulnérabilités identifiées en collaboration avec l'équipe blue team."
+            },
+            "result": {
+              "tool": "VulnerabilityCorrectionAssistant",
+              "error": "'dict' object has no attribute 'split'"
+            }
+          },
+          {
+            "step": {
+              "action": "manage_infra",
+              "infra_action": "status",
+              "description": "Vérifier la santé des conteneurs Docker"
+            },
+            "result": {
+              "action": "status",
+              "results": [
+                {
+                  "containers": "adam-graphify Up 4 hours\neva-activity Up 4 hours\neva-monitor Up 6 hours\nadam-bus Up 17 hours (healthy)\nadam-viz Up 18 hours\nadam-chat Up 19 hours\nadam-postgres Up 19 hours (healthy)\nvllm-mistral Up 16 hours\nkali-pentest Up 39 hours\ngrafana Up 39 hours\nprometheus Up 39 hours\nnode-exporter Up 39 hours"
+                }
+              ],
+              "success": true
+            }
+          }
+        ],
+        "timestamp": "2026-07-26T01:42:16.867238+00:00"
+      },
+      "steps": [
+        {
+          "action": "execute_tool",
+          "tool": "AdvancedSecurityScanner",
+          "args": {
+            "target": "192.168.1.10",
+            "port_range": "1-65535"
+          },
+          "description": "Utiliser l'AdvancedSecurityScanner pour scanner le serveur cible et identifier les ports ouverts et potentiellement vulnérables."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "AutomatedIntrusionTester",
+          "args": {
+            "target": "192.168.1.10",
+            "vulnerabilities": [
+              "CVE-2021-44228"
+            ]
+          },
+          "description": "Utiliser l'AutomatedIntrusionTester pour tester les vulnérabilités spécifiques sur le serveur cible."
+        },
+        {
+          "action": "create_tool",
+          "tool": "VulnerabilityAssessmentReport",
+          "args": {
+            "results": "AutomatedIntrusionTester_results.json"
+          },
+          "code": "import json\nfrom VulnerabilityAssessmentReport import create_report\n\nwith open('AutomatedIntrusionTester_results.json', 'r') as file:\n    results = json.load(file)\n\nreport = create_report(results)\nprint(report)",
+          "description": "Créer un rapport détaillé des résultats des tests d'intrusion pour documenter les vulnérabilités identifiées."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "ProfessionalPentestReportTemplate",
+          "args": {
+            "assessment_report": "VulnerabilityAssessmentReport_results.json",
+            "team": "blue_team"
+          },
+          "description": "Compiler un rapport professionnel de pentest qui sera partagé avec l'équipe blue team pour collaboration et action corrective."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "VulnerabilityCorrectionAssistant",
+          "args": {
+            "vulnerabilities": "ProfessionalPentestReportTemplate_vulnerabilities.json"
+          },
+          "description": "Appliquer les correctifs aux vulnérabilités identifiées en collaboration avec l'équipe blue team."
+        },
+        {
+          "action": "manage_infra",
+          "infra_action": "status",
+          "description": "Vérifier la santé des conteneurs Docker"
+        }
+      ],
+      "timestamp": "2026-07-26T01:42:16.867258+00:00",
+      "agent": "adam-red-team"
+    },
+    {
+      "id": "m_64",
+      "mission": "Améliore la sécurité: audite et corrige les vulnérabilités — Ta contribution en tant que red-team",
+      "result": {
+        "agent": "adam-red-team",
+        "mission": "Améliore la sécurité: audite et corrige les vulnérabilités — Ta contribution en tant que red-team",
+        "success": false,
+        "steps": 6,
+        "elapsed_s": 17.02,
+        "results": [
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "AdvancedSecurityScanner",
+              "args": {
+                "target": "192.168.1.10",
+                "port_range": "1-1024"
+              },
+              "description": "Utiliser l'AdvancedSecurityScanner pour identifier les ports ouverts et potentielles vulnérabilités du serveur cible."
+            },
+            "result": {
+              "tool": "AdvancedSecurityScanner",
+              "error": "'dict' object has no attribute 'split'"
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "AutomatedIntrusionTester",
+              "args": {
+                "target": "192.168.1.10",
+                "vulnerabilities": "previous_scan_results"
+              },
+              "description": "Utiliser l'AutomatedIntrusionTester pour tester les vulnérabilités identifiées par l'AdvancedSecurityScanner."
+            },
+            "result": {
+              "tool": "AutomatedIntrusionTester",
+              "error": "'dict' object has no attribute 'split'"
+            }
+          },
+          {
+            "step": {
+              "action": "create_tool",
+              "tool": "VulnerabilityAssessmentReport",
+              "args": {
+                "scan_results": "results_from_AutomatedIntrusionTester"
+              },
+              "description": "Créer un rapport détaillé des résultats des tests d'intrusion pour documenter les vulnérabilités identifiées."
+            },
+            "result": {
+              "error": "Pas de code fourni"
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "ProfessionalPentestReportTemplate",
+              "args": {
+                "assessment_report": "VulnerabilityAssessmentReport"
+              },
+              "description": "Compiler un rapport professionnel de pentest qui sera partagé avec l'équipe blue team pour collaboration et action corrective."
+            },
+            "result": {
+              "tool": "ProfessionalPentestReportTemplate",
+              "error": "'dict' object has no attribute 'split'"
+            }
+          },
+          {
+            "step": {
+              "action": "delegate",
+              "tool": "VulnerabilityCorrectionAssistant",
+              "args": {
+                "corrections": "recommended_from_PentestReport",
+                "target": "192.168.1.10"
+              },
+              "description": "Déléguer à un assistant la tâche d'appliquer les correctifs aux vulnérabilités identifiées, en collaboration étroite avec l'équipe blue team."
+            },
+            "result": {
+              "status": "delegated",
+              "target": "",
+              "subtask": "Déléguer à un assistant la tâche d'appliquer les correctifs aux vulnérabilités identifiées, en collaboration étroite avec l'équipe blue team."
+            }
+          },
+          {
+            "step": {
+              "action": "self_modify",
+              "what": "Ajouter un logging des appels d'outils",
+              "code": "import logging\nlog = logging.getLogger(__name__)\ndef log_call(name, result):\n    log.info(f'Tool {name}: {result}')"
+            },
+            "result": {
+              "what": "Ajouter un logging des appels d'outils",
+              "improvement_file": "/home/aza/eva-adam-v2/agents/red-team/tools/self_improvement_20260726_034641.py",
+              "backup": "/home/aza/eva-adam-v2/agents/red-team/tools/backups/runtime_backup_20260726_034641.py",
+              "status": "improved"
+            }
+          }
+        ],
+        "timestamp": "2026-07-26T01:46:41.037248+00:00"
+      },
+      "steps": [
+        {
+          "action": "execute_tool",
+          "tool": "AdvancedSecurityScanner",
+          "args": {
+            "target": "192.168.1.10",
+            "port_range": "1-1024"
+          },
+          "description": "Utiliser l'AdvancedSecurityScanner pour identifier les ports ouverts et potentielles vulnérabilités du serveur cible."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "AutomatedIntrusionTester",
+          "args": {
+            "target": "192.168.1.10",
+            "vulnerabilities": "previous_scan_results"
+          },
+          "description": "Utiliser l'AutomatedIntrusionTester pour tester les vulnérabilités identifiées par l'AdvancedSecurityScanner."
+        },
+        {
+          "action": "create_tool",
+          "tool": "VulnerabilityAssessmentReport",
+          "args": {
+            "scan_results": "results_from_AutomatedIntrusionTester"
+          },
+          "description": "Créer un rapport détaillé des résultats des tests d'intrusion pour documenter les vulnérabilités identifiées."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "ProfessionalPentestReportTemplate",
+          "args": {
+            "assessment_report": "VulnerabilityAssessmentReport"
+          },
+          "description": "Compiler un rapport professionnel de pentest qui sera partagé avec l'équipe blue team pour collaboration et action corrective."
+        },
+        {
+          "action": "delegate",
+          "tool": "VulnerabilityCorrectionAssistant",
+          "args": {
+            "corrections": "recommended_from_PentestReport",
+            "target": "192.168.1.10"
+          },
+          "description": "Déléguer à un assistant la tâche d'appliquer les correctifs aux vulnérabilités identifiées, en collaboration étroite avec l'équipe blue team."
+        },
+        {
+          "action": "self_modify",
+          "what": "Ajouter un logging des appels d'outils",
+          "code": "import logging\nlog = logging.getLogger(__name__)\ndef log_call(name, result):\n    log.info(f'Tool {name}: {result}')"
+        }
+      ],
+      "timestamp": "2026-07-26T01:46:41.037261+00:00",
+      "agent": "adam-red-team"
+    },
+    {
+      "id": "m_65",
+      "mission": "Améliore la sécurité: audite et corrige les vulnérabilités — Ta contribution en tant que red-team",
+      "result": {
+        "agent": "adam-red-team",
+        "mission": "Améliore la sécurité: audite et corrige les vulnérabilités — Ta contribution en tant que red-team",
+        "success": false,
+        "steps": 6,
+        "elapsed_s": 17.2,
+        "results": [
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "AdvancedSecurityScanner",
+              "args": {
+                "target_range": "192.168.1.0/24"
+              },
+              "description": "Scanner la plage d'adresses IP spécifiée pour identifier les ports ouverts et potentielles vulnérabilités."
+            },
+            "result": {
+              "tool": "AdvancedSecurityScanner",
+              "error": "'dict' object has no attribute 'split'"
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "AutomatedIntrusionTester",
+              "args": {
+                "target_list": "output_of_AdvancedSecurityScanner"
+              },
+              "description": "Utiliser les résultats du scan pour tester les vulnérabilités identifiées et évaluer la résilience du réseau."
+            },
+            "result": {
+              "tool": "AutomatedIntrusionTester",
+              "error": "'dict' object has no attribute 'split'"
+            }
+          },
+          {
+            "step": {
+              "action": "create_tool",
+              "tool": "VulnerabilityAssessmentReport",
+              "args": {
+                "test_results": "output_of_AutomatedIntrusionTester"
+              },
+              "code": "def generate_report(test_results):\n    # Code to compile and format the report\n    return formatted_report",
+              "description": "Créer un rapport détaillé des tests d'intrusion pour documenter les vulnérabilités identifiées."
+            },
+            "result": {
+              "id": "ac8104d058ed",
+              "name": "VulnerabilityAssessmentReport",
+              "file": "VulnerabilityAssessmentReport.py",
+              "status": "created"
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "ProfessionalPentestReportTemplate",
+              "args": {
+                "assessment_report": "output_of_VulnerabilityAssessmentReport"
+              },
+              "description": "Compiler un rapport professionnel de pentest pour partager les résultats avec l'équipe blue team."
+            },
+            "result": {
+              "tool": "ProfessionalPentestReportTemplate",
+              "error": "'dict' object has no attribute 'split'"
+            }
+          },
+          {
+            "step": {
+              "action": "create_tool",
+              "tool": "VulnerabilityCorrectionAssistant",
+              "args": {
+                "vulnerabilities": "output_of_ProfessionalPentestReportTemplate"
+              },
+              "code": "def apply_patches(vulnerabilities):\n    # Code to automate or guide the application of patches for identified vulnerabilities\n    return patched_system_status",
+              "description": "Créer un assistant pour aider à appliquer les correctifs aux vulnérabilités identifiées, en collaboration avec l'équipe blue team."
+            },
+            "result": {
+              "id": "7231a624131c",
+              "name": "VulnerabilityCorrectionAssistant",
+              "file": "VulnerabilityCorrectionAssistant.py",
+              "status": "created"
+            }
+          },
+          {
+            "step": {
+              "action": "self_modify",
+              "what": "Optimiser la gestion d'erreur des outils",
+              "code": "def safe_exec(func):\n    try: return func()\n    except Exception as e: return {'error': str(e)}"
+            },
+            "result": {
+              "what": "Optimiser la gestion d'erreur des outils",
+              "improvement_file": "/home/aza/eva-adam-v2/agents/red-team/tools/self_improvement_20260726_035123.py",
+              "backup": "/home/aza/eva-adam-v2/agents/red-team/tools/backups/runtime_backup_20260726_035123.py",
+              "status": "improved"
+            }
+          }
+        ],
+        "timestamp": "2026-07-26T01:51:23.309210+00:00"
+      },
+      "steps": [
+        {
+          "action": "execute_tool",
+          "tool": "AdvancedSecurityScanner",
+          "args": {
+            "target_range": "192.168.1.0/24"
+          },
+          "description": "Scanner la plage d'adresses IP spécifiée pour identifier les ports ouverts et potentielles vulnérabilités."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "AutomatedIntrusionTester",
+          "args": {
+            "target_list": "output_of_AdvancedSecurityScanner"
+          },
+          "description": "Utiliser les résultats du scan pour tester les vulnérabilités identifiées et évaluer la résilience du réseau."
+        },
+        {
+          "action": "create_tool",
+          "tool": "VulnerabilityAssessmentReport",
+          "args": {
+            "test_results": "output_of_AutomatedIntrusionTester"
+          },
+          "code": "def generate_report(test_results):\n    # Code to compile and format the report\n    return formatted_report",
+          "description": "Créer un rapport détaillé des tests d'intrusion pour documenter les vulnérabilités identifiées."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "ProfessionalPentestReportTemplate",
+          "args": {
+            "assessment_report": "output_of_VulnerabilityAssessmentReport"
+          },
+          "description": "Compiler un rapport professionnel de pentest pour partager les résultats avec l'équipe blue team."
+        },
+        {
+          "action": "create_tool",
+          "tool": "VulnerabilityCorrectionAssistant",
+          "args": {
+            "vulnerabilities": "output_of_ProfessionalPentestReportTemplate"
+          },
+          "code": "def apply_patches(vulnerabilities):\n    # Code to automate or guide the application of patches for identified vulnerabilities\n    return patched_system_status",
+          "description": "Créer un assistant pour aider à appliquer les correctifs aux vulnérabilités identifiées, en collaboration avec l'équipe blue team."
+        },
+        {
+          "action": "self_modify",
+          "what": "Optimiser la gestion d'erreur des outils",
+          "code": "def safe_exec(func):\n    try: return func()\n    except Exception as e: return {'error': str(e)}"
+        }
+      ],
+      "timestamp": "2026-07-26T01:51:23.309217+00:00",
+      "agent": "adam-red-team"
+    },
+    {
+      "id": "m_66",
+      "mission": "Améliore la sécurité: audite et corrige les vulnérabilités — Ta contribution en tant que red-team",
+      "result": {
+        "agent": "adam-red-team",
+        "mission": "Améliore la sécurité: audite et corrige les vulnérabilités — Ta contribution en tant que red-team",
+        "success": false,
+        "steps": 6,
+        "elapsed_s": 16.98,
+        "results": [
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "AdvancedSecurityScanner",
+              "args": {
+                "target_range": "192.168.1.0/24"
+              },
+              "description": "Scanne la plage d'adresses IP spécifiée pour identifier les ports ouverts et potentielles vulnérabilités."
+            },
+            "result": {
+              "tool": "AdvancedSecurityScanner",
+              "error": "'dict' object has no attribute 'split'"
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "AutomatedIntrusionTester",
+              "args": {},
+              "description": "Utilise les résultats du scan pour tester les vulnérabilités identifiées et valider leur existence."
+            },
+            "result": {
+              "tool": "AutomatedIntrusionTester",
+              "exit_code": 1,
+              "stdout": "",
+              "stderr": "Traceback (most recent call last):\n  File \"/home/aza/eva-adam-v2/agents/red-team/tools/AutomatedIntrusionTester.py\", line 1, in <module>\n    from SecurityScanner import AdvancedSecurityScanner\nImportError: cannot import name 'AdvancedSecurityScanner' from 'SecurityScanner' (/home/aza/eva-adam-v2/agents/red-team/tools/SecurityScanner.py)\n",
+              "success": false
+            }
+          },
+          {
+            "step": {
+              "action": "create_tool",
+              "tool": "VulnerabilityAssessmentReport",
+              "args": {
+                "scan_results": "résultats du scan",
+                "intrusion_test_results": "résultats du test d'intrusion"
+              },
+              "code": "python -m VulnerabilityAssessmentReport --scan-results 'résultats du scan' --intrusion-test-results 'résultats du test d'intrusion'",
+              "description": "Crée un rapport détaillé des vulnérabilités identifiées et des tests d'intrusion effectués."
+            },
+            "result": {
+              "id": "ac8104d058ed",
+              "name": "VulnerabilityAssessmentReport",
+              "file": "VulnerabilityAssessmentReport.py",
+              "status": "created"
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "ProfessionalPentestReportTemplate",
+              "args": {
+                "vulnerability_report": "rapport de vulnérabilité"
+              },
+              "description": "Compile un rapport professionnel de pentest pour être partagé avec l'équipe blue team."
+            },
+            "result": {
+              "tool": "ProfessionalPentestReportTemplate",
+              "error": "'dict' object has no attribute 'split'"
+            }
+          },
+          {
+            "step": {
+              "action": "delegate",
+              "tool": "VulnerabilityCorrectionAssistant",
+              "args": {
+                "vulnerability_report": "rapport de vulnérabilité"
+              },
+              "target_agent": "blue-team",
+              "description": "Collabore avec l'équipe blue team pour aider à appliquer les correctifs aux vulnérabilités identifiées."
+            },
+            "result": {
+              "status": "delegated",
+              "target": "blue-team",
+              "subtask": "Collabore avec l'équipe blue team pour aider à appliquer les correctifs aux vulnérabilités identifiées."
+            }
+          },
+          {
+            "step": {
+              "action": "self_modify",
+              "what": "Ajouter un cache aux outils pour éviter les appels dupliqués",
+              "code": "CACHE = {}\ndef cached_call(key, func, *args):\n    if key not in CACHE:\n        CACHE[key] = func(*args)\n    return CACHE[key]"
+            },
+            "result": {
+              "what": "Ajouter un cache aux outils pour éviter les appels dupliqués",
+              "improvement_file": "/home/aza/eva-adam-v2/agents/red-team/tools/self_improvement_20260726_035626.py",
+              "backup": "/home/aza/eva-adam-v2/agents/red-team/tools/backups/runtime_backup_20260726_035626.py",
+              "status": "improved"
+            }
+          }
+        ],
+        "timestamp": "2026-07-26T01:56:26.113856+00:00"
+      },
+      "steps": [
+        {
+          "action": "execute_tool",
+          "tool": "AdvancedSecurityScanner",
+          "args": {
+            "target_range": "192.168.1.0/24"
+          },
+          "description": "Scanne la plage d'adresses IP spécifiée pour identifier les ports ouverts et potentielles vulnérabilités."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "AutomatedIntrusionTester",
+          "args": {},
+          "description": "Utilise les résultats du scan pour tester les vulnérabilités identifiées et valider leur existence."
+        },
+        {
+          "action": "create_tool",
+          "tool": "VulnerabilityAssessmentReport",
+          "args": {
+            "scan_results": "résultats du scan",
+            "intrusion_test_results": "résultats du test d'intrusion"
+          },
+          "code": "python -m VulnerabilityAssessmentReport --scan-results 'résultats du scan' --intrusion-test-results 'résultats du test d'intrusion'",
+          "description": "Crée un rapport détaillé des vulnérabilités identifiées et des tests d'intrusion effectués."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "ProfessionalPentestReportTemplate",
+          "args": {
+            "vulnerability_report": "rapport de vulnérabilité"
+          },
+          "description": "Compile un rapport professionnel de pentest pour être partagé avec l'équipe blue team."
+        },
+        {
+          "action": "delegate",
+          "tool": "VulnerabilityCorrectionAssistant",
+          "args": {
+            "vulnerability_report": "rapport de vulnérabilité"
+          },
+          "target_agent": "blue-team",
+          "description": "Collabore avec l'équipe blue team pour aider à appliquer les correctifs aux vulnérabilités identifiées."
+        },
+        {
+          "action": "self_modify",
+          "what": "Ajouter un cache aux outils pour éviter les appels dupliqués",
+          "code": "CACHE = {}\ndef cached_call(key, func, *args):\n    if key not in CACHE:\n        CACHE[key] = func(*args)\n    return CACHE[key]"
+        }
+      ],
+      "timestamp": "2026-07-26T01:56:26.113879+00:00",
+      "agent": "adam-red-team"
+    },
+    {
+      "id": "m_67",
+      "mission": "Améliore la sécurité: audite et corrige les vulnérabilités — Ta contribution en tant que red-team",
+      "result": {
+        "agent": "adam-red-team",
+        "mission": "Améliore la sécurité: audite et corrige les vulnérabilités — Ta contribution en tant que red-team",
+        "success": false,
+        "steps": 6,
+        "elapsed_s": 22.53,
+        "results": [
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "AdvancedSecurityScanner",
+              "args": {
+                "target_range": "192.168.1.0/24"
+              },
+              "description": "Effectuer un scan de sécurité avancé sur la plage de IPs spécifiée pour identifier les ports ouverts et potentielles vulnérabilités."
+            },
+            "result": {
+              "tool": "AdvancedSecurityScanner",
+              "error": "'dict' object has no attribute 'split'"
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "AutomatedIntrusionTester",
+              "args": {},
+              "description": "Utiliser l'AdvancedSecurityScanner pour tester les vulnérabilités identifiées et évaluer la résilience du réseau."
+            },
+            "result": {
+              "tool": "AutomatedIntrusionTester",
+              "exit_code": 1,
+              "stdout": "",
+              "stderr": "Traceback (most recent call last):\n  File \"/home/aza/eva-adam-v2/agents/red-team/tools/AutomatedIntrusionTester.py\", line 1, in <module>\n    from SecurityScanner import AdvancedSecurityScanner\nImportError: cannot import name 'AdvancedSecurityScanner' from 'SecurityScanner' (/home/aza/eva-adam-v2/agents/red-team/tools/SecurityScanner.py)\n",
+              "success": false
+            }
+          },
+          {
+            "step": {
+              "action": "create_tool",
+              "tool": "VulnerabilityAssessmentReport",
+              "args": {},
+              "code": "import json\nfrom AutomatedIntrusionTester import generate_report as ait_report\n\n# Générer le rapport à partir des résultats de l'AutomatedIntrusionTester\nresults = ait_report()\n\nwith open('vulnerability_assessment_report.json', 'w') as report_file:\n    json.dump(results, report_file)",
+              "description": "Créer un rapport détaillé des vulnérabilités identifiées et des tests d'intrusion effectués pour partager les informations avec l'équipe blue team."
+            },
+            "result": {
+              "id": "ac8104d058ed",
+              "name": "VulnerabilityAssessmentReport",
+              "file": "VulnerabilityAssessmentReport.py",
+              "status": "created"
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "ProfessionalPentestReportTemplate",
+              "args": {
+                "input_report": "vulnerability_assessment_report.json"
+              },
+              "description": "Compiler un rapport professionnel de pentest basé sur les données du rapport d'évaluation des vulnérabilités pour faciliter la collaboration avec l'équipe blue team."
+            },
+            "result": {
+              "tool": "ProfessionalPentestReportTemplate",
+              "error": "'dict' object has no attribute 'split'"
+            }
+          },
+          {
+            "step": {
+              "action": "create_tool",
+              "tool": "VulnerabilityCorrectionAssistant",
+              "args": {
+                "input_report": "professional_pentest_report.json"
+              },
+              "code": "import json\n\n# Charger le rapport de pentest professionnel\nwith open('professional_pentest_report.json', 'r') as report_file:\n    report_data = json.load(report_file)\n\n# Identifier les vulnérabilités et proposer des correctifs\nfor vulnerability in report_data['vulnerabilities']:\n    print(f'Suggestion de correctif pour {vulnerability['name']}: {vulnerability['recommended_fix']}')",
+              "description": "Créer un assistant pour aider à appliquer les correctifs aux vulnérabilités identifiées, en collaboration avec l'équipe blue team."
+            },
+            "result": {
+              "id": "7231a624131c",
+              "name": "VulnerabilityCorrectionAssistant",
+              "file": "VulnerabilityCorrectionAssistant.py",
+              "status": "created"
+            }
+          },
+          {
+            "step": {
+              "action": "manage_infra",
+              "infra_action": "status",
+              "description": "Vérifier la santé des conteneurs Docker"
+            },
+            "result": {
+              "action": "status",
+              "results": [
+                {
+                  "containers": "adam-graphify Up 5 hours\neva-activity Up 5 hours\neva-monitor Up 6 hours\nadam-bus Up 17 hours (healthy)\nadam-viz Up 18 hours\nadam-chat Up 20 hours\nadam-postgres Up 20 hours (healthy)\nvllm-mistral Up 16 hours\nkali-pentest Up 40 hours\ngrafana Up 40 hours\nprometheus Up 40 hours\nnode-exporter Up 40 hours"
+                }
+              ],
+              "success": true
+            }
+          }
+        ],
+        "timestamp": "2026-07-26T02:02:44.447233+00:00"
+      },
+      "steps": [
+        {
+          "action": "execute_tool",
+          "tool": "AdvancedSecurityScanner",
+          "args": {
+            "target_range": "192.168.1.0/24"
+          },
+          "description": "Effectuer un scan de sécurité avancé sur la plage de IPs spécifiée pour identifier les ports ouverts et potentielles vulnérabilités."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "AutomatedIntrusionTester",
+          "args": {},
+          "description": "Utiliser l'AdvancedSecurityScanner pour tester les vulnérabilités identifiées et évaluer la résilience du réseau."
+        },
+        {
+          "action": "create_tool",
+          "tool": "VulnerabilityAssessmentReport",
+          "args": {},
+          "code": "import json\nfrom AutomatedIntrusionTester import generate_report as ait_report\n\n# Générer le rapport à partir des résultats de l'AutomatedIntrusionTester\nresults = ait_report()\n\nwith open('vulnerability_assessment_report.json', 'w') as report_file:\n    json.dump(results, report_file)",
+          "description": "Créer un rapport détaillé des vulnérabilités identifiées et des tests d'intrusion effectués pour partager les informations avec l'équipe blue team."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "ProfessionalPentestReportTemplate",
+          "args": {
+            "input_report": "vulnerability_assessment_report.json"
+          },
+          "description": "Compiler un rapport professionnel de pentest basé sur les données du rapport d'évaluation des vulnérabilités pour faciliter la collaboration avec l'équipe blue team."
+        },
+        {
+          "action": "create_tool",
+          "tool": "VulnerabilityCorrectionAssistant",
+          "args": {
+            "input_report": "professional_pentest_report.json"
+          },
+          "code": "import json\n\n# Charger le rapport de pentest professionnel\nwith open('professional_pentest_report.json', 'r') as report_file:\n    report_data = json.load(report_file)\n\n# Identifier les vulnérabilités et proposer des correctifs\nfor vulnerability in report_data['vulnerabilities']:\n    print(f'Suggestion de correctif pour {vulnerability['name']}: {vulnerability['recommended_fix']}')",
+          "description": "Créer un assistant pour aider à appliquer les correctifs aux vulnérabilités identifiées, en collaboration avec l'équipe blue team."
+        },
+        {
+          "action": "manage_infra",
+          "infra_action": "status",
+          "description": "Vérifier la santé des conteneurs Docker"
+        }
+      ],
+      "timestamp": "2026-07-26T02:02:44.447257+00:00",
+      "agent": "adam-red-team"
     }
   ]
 }

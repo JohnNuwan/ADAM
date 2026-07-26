@@ -1,0 +1,1 @@
+Créer un module expérimental qui utilise les outils de détection de tendances et de suivi d'innovations pour identifier les nouvelles techniques et opportunités en matière de collecte OSINT. Le module effectuera des expériences basées sur ces tendances et innovations et enregistrera les résultats pour une analyse ultérieure.

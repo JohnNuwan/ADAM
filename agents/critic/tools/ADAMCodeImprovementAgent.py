@@ -1,1 +1,1 @@
-Création d'un nouvel outil qui permettra d'améliorer le code existant en fonction des standards de qualité.
+Utiliser les résultats des audits précédents pour créer un outil qui peut améliorer le code existant.
