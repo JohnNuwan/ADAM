@@ -1,6 +1,8 @@
 from flask import Flask
 app = Flask(__name__)
-HTML = r""
+
+HTML = r"""
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -90,9 +92,12 @@ HTML = r""
     </main>
 </body>
 </html>
+
 """
+
 @app.route("/")
 def index():
     return HTML
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8093)
