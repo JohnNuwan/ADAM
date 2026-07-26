@@ -127,3 +127,20 @@ services:
 volumes:
   pgdata:
 
+
+  products:
+    image: python:3.12-slim
+    container_name: eva-products
+    restart: unless-stopped
+    ports:
+      - "8093:8093"
+    command: >
+      bash -c "
+      pip install -q flask &&
+      python /app/eva_products.py
+      "
+    volumes:
+      - ./eva_products.py:/app/eva_products.py
+    depends_on:
+      go-bus:
+        condition: service_started
