@@ -1,46 +1,69 @@
 
 import ast
-from collections import defaultdict
+from typing import List, Dict
 
 class ADAMCodeImprovementAgent:
     def __init__(self):
-        self.improvement_suggestions = defaultdict(list)
-
-    def analyze_code(self, code):
+        self.improvement_rules = {
+            "unused_import": self.find_unused_imports,
+            "repeated_code": self.find_repeated_code_blocks
+        }
+    
+    def audit(self, code: str) -> Dict[str, List[str]]:
         tree = ast.parse(code)
-        self._analyze_ast(tree)
-
-    def _analyze_ast(self, node):
-        for child in ast.iter_child_nodes(node):
-            if isinstance(child, ast.FunctionDef):
-                self.check_function_def(child)
-            elif isinstance(child, ast.Import):
-                self.check_import(child)
-            self._analyze_ast(child)
-
-    def check_function_def(self, node):
-        if len(node.body) > 20:
-            self.improvement_suggestions[node.name].append("Function is too long, consider splitting it into smaller functions.")
-        for n in ast.walk(node):
-            if isinstance(n, ast.For):
-                self.improvement_suggestions[node.name].append("Consider using list comprehension or map/filter for better readability.")
-
-    def check_import(self, node):
-        for alias in node.names:
-            if alias.asname:
-                self.improvement_suggestions[alias.name].append(f"Import alias {alias.asname} detected, consider using the original name {alias.name} for clarity.")
-
-    def get_improvement_suggestions(self):
-        return dict(self.improvement_suggestions)
+        results = {}
+        for rule_name, rule_function in self.improvement_rules.items():
+            results[rule_name] = rule_function(tree)
+        return results
+    
+    def find_unused_imports(self, tree: ast.AST) -> List[str]:
+        used_names = set()
+        unused_imports = []
+        
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Import):
+                for alias in node.names:
+                    if alias.name not in used_names:
+                        unused_imports.append(alias.name)
+            elif isinstance(node, ast.ImportFrom):
+                for alias in node.names:
+                    full_name = f"{node.module}.{alias.name}" if node.module else alias.name
+                    if full_name not in used_names:
+                        unused_imports.append(full_name)
+            else:
+                if isinstance(node, ast.Name):
+                    used_names.add(node.id)
+                elif isinstance(node, ast.Attribute):
+                    used_names.add(node.attr)
+        return unused_imports
+    
+    def find_repeated_code_blocks(self, tree: ast.AST) -> List[str]:
+        repeated_blocks = []
+        block_hashes = {}
+        
+        for node in ast.walk(tree):
+            if isinstance(node, (ast.FunctionDef, ast.For, ast.While)):
+                block_str = ast.unparse(node)
+                block_hash = hash(block_str)
+                if block_hash in block_hashes:
+                    repeated_blocks.append(block_str)
+                else:
+                    block_hashes[block_hash] = block_str
+        
+        return repeated_blocks
 
 # Example usage
-agent = ADAMCodeImprovementAgent()
-code_to_analyze = """
-def example_function():
-    result = []
-    for i in range(100):
-        result.append(i * i)
-    return result
+code_snippet = """
+import os
+import sys
+
+def test_func():
+    print("Hello World")
+    print("Hello World")
+
+test_func()
 """
-agent.analyze_code(code_to_analyze)
-print(agent.get_improvement_suggestions())
+
+agent = ADAMCodeImprovementAgent()
+results = agent.audit(code_snippet)
+print(results)

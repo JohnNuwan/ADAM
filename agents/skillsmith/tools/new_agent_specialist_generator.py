@@ -1,37 +1,36 @@
 
 class AgentSpecialistGenerator:
-    def __init__(self, domain_analysis_results):
-        self.domain_analysis_results = domain_analysis_results
+    def __init__(self, domain_analysis):
+        self.domain_analysis = domain_analysis
 
-    def generate_specialist_skills(self):
+    def analyze_domain(self):
+        # Hypothétique analyse de domaine
         skills = []
-        for skill, proficiency in self.domain_analysis_results.items():
-            if proficiency > 70:
-                skills.append(skill)
+        for keyword in self.domain_analysis:
+            if keyword == "AI":
+                skills.append("Machine Learning")
+                skills.append("Deep Learning")
+            elif keyword == "Web Development":
+                skills.append("Python")
+                skills.append("JavaScript")
+                skills.append("React")
+            else:
+                skills.append(f"Skill related to {keyword}")
         return skills
 
-    def create_agent_profile(self, name, base_skills):
+    def generate_specialist_profile(self):
+        skills = self.analyze_domain()
         profile = {
-            "name": name,
-            "base_skills": base_skills,
-            "specialist_skills": self.generate_specialist_skills()
+            "name": "New Specialist",
+            "skills": skills,
+            "domain": ", ".join(self.domain_analysis)
         }
         return profile
 
-def main():
-    # Example domain analysis results
-    domain_analysis_results = {
-        "Python Programming": 85,
-        "Machine Learning": 92,
-        "Data Analysis": 68,
-        "Web Development": 74,
-        "Project Management": 45
-    }
 
-    generator = AgentSpecialistGenerator(domain_analysis_results)
-    new_agent_profile = generator.create_agent_profile("AgentAlpha", ["Communication", "Problem Solving"])
-    
-    print(new_agent_profile)
-
+# Exemple d'utilisation
 if __name__ == "__main__":
-    main()
+    domain_keywords = ["AI", "Web Development"]
+    generator = AgentSpecialistGenerator(domain_keywords)
+    specialist_profile = generator.generate_specialist_profile()
+    print(specialist_profile)
