@@ -20495,6 +20495,73 @@
       ],
       "timestamp": "2026-07-26T05:52:28.571627+00:00",
       "agent": "adam-rag"
+    },
+    {
+      "id": "m_234",
+      "mission": "Indexe les nouveaux documents dans PostgreSQL (Contexte: EVA vise l'autonomie financière et l'AGI)",
+      "result": {
+        "agent": "adam-rag",
+        "mission": "Indexe les nouveaux documents dans PostgreSQL (Contexte: EVA vise l'autonomie financière et l'AGI)",
+        "success": false,
+        "steps": 2,
+        "elapsed_s": 5.44,
+        "results": [
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "DocumentIndexer",
+              "args": {
+                "documents": "nouveaux_documents_EVA_autonomie_financiere_AGI",
+                "database": "PostgreSQL"
+              },
+              "code": "",
+              "target_agent": "",
+              "description": "Indexe les nouveaux documents relatifs à l'autonomie financière d'EVA et à l'AGI dans PostgreSQL, en s'assurant de la compatibilité et de la configuration correcte du système de base de données."
+            },
+            "result": {
+              "tool": "DocumentIndexer",
+              "error": "'dict' object has no attribute 'split'"
+            }
+          },
+          {
+            "step": {
+              "action": "manage_infra",
+              "infra_action": "status",
+              "description": "Vérifier la santé des conteneurs Docker"
+            },
+            "result": {
+              "action": "status",
+              "results": [
+                {
+                  "containers": "eva-products Restarting (1) 10 seconds ago\nadam-graphify Up 8 hours\neva-activity Up 49 minutes\neva-monitor Up 10 hours\nadam-bus Up 21 hours (healthy)\nadam-viz Up 22 hours\nadam-chat Up 24 hours\nadam-postgres Up 24 hours (healthy)\nvllm-mistral Up 20 hours\nkali-pentest Up 44 hours\ngrafana Up 44 hours\np"
+                }
+              ],
+              "success": true
+            }
+          }
+        ],
+        "timestamp": "2026-07-26T06:01:55.381605+00:00"
+      },
+      "steps": [
+        {
+          "action": "execute_tool",
+          "tool": "DocumentIndexer",
+          "args": {
+            "documents": "nouveaux_documents_EVA_autonomie_financiere_AGI",
+            "database": "PostgreSQL"
+          },
+          "code": "",
+          "target_agent": "",
+          "description": "Indexe les nouveaux documents relatifs à l'autonomie financière d'EVA et à l'AGI dans PostgreSQL, en s'assurant de la compatibilité et de la configuration correcte du système de base de données."
+        },
+        {
+          "action": "manage_infra",
+          "infra_action": "status",
+          "description": "Vérifier la santé des conteneurs Docker"
+        }
+      ],
+      "timestamp": "2026-07-26T06:01:55.381627+00:00",
+      "agent": "adam-rag"
     }
   ]
 }

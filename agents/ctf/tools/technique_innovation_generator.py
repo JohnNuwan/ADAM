@@ -3,27 +3,20 @@ import random
 
 class TechniqueInnovationGenerator:
     def __init__(self):
-        self.challenges = {
-            "productivity": ["time management", "automation"],
-            "quality": ["continuous improvement", "six sigma"],
-            "innovation": ["design thinking", "open innovation"]
-        }
-        self.learnings = {
-            "past_projects": ["lessons from project X", "lessons from project Y"],
-            "industry_trends": ["AI trends", "blockchain trends"],
-            "customer_feedback": ["feedback from segment A", "feedback from segment B"]
+        self.challenges = ["scalability", "security", "usability", "performance"]
+        self.lessions_learned = {
+            "scalability": ["microservices architecture", "load balancing"],
+            "security": ["end-to-end encryption", "multi-factor authentication"],
+            "usability": ["intuitive UI/UX design", "voice command integration"],
+            "performance": ["caching mechanisms", "database indexing"]
         }
 
-    def generate_technique(self, challenge_type, learning_source):
-        challenge = random.choice(self.challenges.get(challenge_type, []))
-        learning = random.choice(self.learnings.get(learning_source, []))
-        return f"Innovative technique for {challenge} based on {learning}"
+    def generate_technique(self):
+        challenge = random.choice(self.challenges)
+        technique = random.choice(self.lessions_learned[challenge])
+        return f"Innovative Technique for {challenge.capitalize()}: {technique}"
 
-def main():
-    generator = TechniqueInnovationGenerator()
-    print(generator.generate_technique("productivity", "past_projects"))
-    print(generator.generate_technique("quality", "industry_trends"))
-    print(generator.generate_technique("innovation", "customer_feedback"))
-
+# Example usage
 if __name__ == "__main__":
-    main()
+    innovation_tool = TechniqueInnovationGenerator()
+    print(innovation_tool.generate_technique())

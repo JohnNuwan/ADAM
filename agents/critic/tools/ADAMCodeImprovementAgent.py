@@ -1,69 +1,45 @@
 
 import ast
-from typing import List, Dict
+from typing import List, Tuple
+
+class CodeAuditResult:
+    def __init__(self, file_path: str, issues: List[Tuple[str, int]]):
+        self.file_path = file_path
+        self.issues = issues  # List of tuples (issue_description, line_number)
 
 class ADAMCodeImprovementAgent:
-    def __init__(self):
-        self.improvement_rules = {
-            "unused_import": self.find_unused_imports,
-            "repeated_code": self.find_repeated_code_blocks
-        }
-    
-    def audit(self, code: str) -> Dict[str, List[str]]:
-        tree = ast.parse(code)
-        results = {}
-        for rule_name, rule_function in self.improvement_rules.items():
-            results[rule_name] = rule_function(tree)
-        return results
-    
-    def find_unused_imports(self, tree: ast.AST) -> List[str]:
-        used_names = set()
-        unused_imports = []
-        
+    def __init__(self, audit_results: List[CodeAuditResult]):
+        self.audit_results = audit_results
+
+    def parse_code(self, file_path: str) -> ast.AST:
+        with open(file_path, 'r') as file:
+            code_content = file.read()
+        return ast.parse(code_content)
+
+    def suggest_improvements(self) -> List[Tuple[str, str]]:
+        improvements = []
+        for result in self.audit_results:
+            tree = self.parse_code(result.file_path)
+            for issue, line_number in result.issues:
+                improvement_suggestion = self._generate_improvement(tree, line_number, issue)
+                if improvement_suggestion:
+                    improvements.append((result.file_path, improvement_suggestion))
+        return improvements
+
+    def _generate_improvement(self, tree: ast.AST, line_number: int, issue: str) -> str:
         for node in ast.walk(tree):
-            if isinstance(node, ast.Import):
-                for alias in node.names:
-                    if alias.name not in used_names:
-                        unused_imports.append(alias.name)
-            elif isinstance(node, ast.ImportFrom):
-                for alias in node.names:
-                    full_name = f"{node.module}.{alias.name}" if node.module else alias.name
-                    if full_name not in used_names:
-                        unused_imports.append(full_name)
-            else:
-                if isinstance(node, ast.Name):
-                    used_names.add(node.id)
-                elif isinstance(node, ast.Attribute):
-                    used_names.add(node.attr)
-        return unused_imports
-    
-    def find_repeated_code_blocks(self, tree: ast.AST) -> List[str]:
-        repeated_blocks = []
-        block_hashes = {}
-        
-        for node in ast.walk(tree):
-            if isinstance(node, (ast.FunctionDef, ast.For, ast.While)):
-                block_str = ast.unparse(node)
-                block_hash = hash(block_str)
-                if block_hash in block_hashes:
-                    repeated_blocks.append(block_str)
-                else:
-                    block_hashes[block_hash] = block_str
-        
-        return repeated_blocks
+            if getattr(node, 'lineno', None) == line_number:
+                if isinstance(node, ast.FunctionDef) and "missing-docstring" in issue:
+                    return f"Add docstring to function {node.name}"
+                elif isinstance(node, ast.Import) and "unused-import" in issue:
+                    return f"Remove unused import on line {line_number}"
+                elif isinstance(node, ast.Assign) and "redefined-variable" in issue:
+                    return f"Rename variable on line {line_number} to avoid redefinition"
+        return ""
 
 # Example usage
-code_snippet = """
-import os
-import sys
-
-def test_func():
-    print("Hello World")
-    print("Hello World")
-
-test_func()
-"""
-
-agent = ADAMCodeImprovementAgent()
-results = agent.audit(code_snippet)
-print(results)
+audit_results = [
+    CodeAuditResult('example.py', [('missing-docstring', 10), ('unused-import', 5)]),
+]
+agent = ADAMCodeImprovementAgent(audit_results)
+print(agent.suggest_improvements())

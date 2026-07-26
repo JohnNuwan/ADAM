@@ -23814,6 +23814,164 @@
       ],
       "timestamp": "2026-07-26T05:58:59.673720+00:00",
       "agent": "adam-critic"
+    },
+    {
+      "id": "m_258",
+      "mission": "Évolue le système: crée un nouvel agent spécialisé ou améliore le code existant — Ta contribution en tant que critic",
+      "result": {
+        "agent": "adam-critic",
+        "mission": "Évolue le système: crée un nouvel agent spécialisé ou améliore le code existant — Ta contribution en tant que critic",
+        "success": false,
+        "steps": 6,
+        "elapsed_s": 52.6,
+        "results": [
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "ADAMCodeQualityAuditor",
+              "args": "",
+              "code": "",
+              "target_agent": "adam-critic",
+              "description": "Auditer la qualité du code existant pour identifier les domaines qui nécessitent des améliorations ou des spécialisations."
+            },
+            "result": {
+              "tool": "ADAMCodeQualityAuditor",
+              "exit_code": 1,
+              "stdout": "",
+              "stderr": "Traceback (most recent call last):\n  File \"/home/aza/eva-adam-v2/agents/critic/tools/ADAMCodeQualityAuditor.py\", line 1, in <module>\n    from audit_tools import CodeQualityAuditor\nModuleNotFoundError: No module named 'audit_tools'\n",
+              "success": false
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "ServiceConfigAuditor",
+              "args": "",
+              "code": "",
+              "target_agent": "adam-critic",
+              "description": "Auditer les configurations des services actuels pour comprendre les limitations et les problèmes potentiels qui pourraient affecter la création ou l'amélioration d'un nouvel agent."
+            },
+            "result": {
+              "tool": "ServiceConfigAuditor",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "create_tool",
+              "tool": "ADAMCodeImprovementAgent",
+              "args": "",
+              "code": "",
+              "target_agent": "adam-critic",
+              "description": "Créer un outil basé sur les résultats des audits précédents pour proposer des améliorations spécifiques au code existant ou pour aider à la création d'un nouvel agent spécialisé."
+            },
+            "result": {
+              "id": "49fa29d50662",
+              "name": "ADAMCodeImprovementAgent",
+              "file": "ADAMCodeImprovementAgent.py",
+              "status": "created"
+            }
+          },
+          {
+            "step": {
+              "action": "research",
+              "tool": "",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Conduire une recherche approfondie sur les exigences et le contexte du système pour garantir que toute modification ou création est bien adaptée aux besoins actuels et futurs."
+            },
+            "result": {
+              "query": "Conduire une recherche approfondie sur les exigences et le contexte du système pour garantir que toute modification ou création est bien adaptée aux besoins actuels et futurs.",
+              "result": "Pour conduire une analyse détaillée des exigences et du contexte d'un système, plusieurs étapes sont nécessaires pour garantir que toutes les modifications ou créations seront bien adaptées aux besoins actuels et futurs. Voici un processus détaillé :\n\n### 1. **Compréhension du Contexte**\n   - **Iden",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "report",
+              "tool": "",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Présenter les résultats des audits, les recommandations d'amélioration et les conclusions de la recherche à la direction pour prendre des décisions éclairées."
+            },
+            "result": {
+              "success": true,
+              "report": "Présenter les résultats des audits, les recommandations d'amélioration et les conclusions de la recherche à la direction pour prendre des décisions éclairées."
+            }
+          },
+          {
+            "step": {
+              "action": "manage_infra",
+              "infra_action": "status",
+              "description": "Vérifier la santé des conteneurs Docker"
+            },
+            "result": {
+              "action": "status",
+              "results": [
+                {
+                  "containers": "eva-products Up About a minute\nadam-graphify Up 9 hours\neva-activity Up 53 minutes\neva-monitor Up 11 hours\nadam-bus Up 21 hours (healthy)\nadam-viz Up 22 hours\nadam-chat Up 24 hours\nadam-postgres Up 24 hours (healthy)\nvllm-mistral Up 20 hours\nkali-pentest Up 44 hours\ngrafana Up 44 hours\nprometheus Up"
+                }
+              ],
+              "success": true
+            }
+          }
+        ],
+        "timestamp": "2026-07-26T06:05:50.165047+00:00"
+      },
+      "steps": [
+        {
+          "action": "execute_tool",
+          "tool": "ADAMCodeQualityAuditor",
+          "args": "",
+          "code": "",
+          "target_agent": "adam-critic",
+          "description": "Auditer la qualité du code existant pour identifier les domaines qui nécessitent des améliorations ou des spécialisations."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "ServiceConfigAuditor",
+          "args": "",
+          "code": "",
+          "target_agent": "adam-critic",
+          "description": "Auditer les configurations des services actuels pour comprendre les limitations et les problèmes potentiels qui pourraient affecter la création ou l'amélioration d'un nouvel agent."
+        },
+        {
+          "action": "create_tool",
+          "tool": "ADAMCodeImprovementAgent",
+          "args": "",
+          "code": "",
+          "target_agent": "adam-critic",
+          "description": "Créer un outil basé sur les résultats des audits précédents pour proposer des améliorations spécifiques au code existant ou pour aider à la création d'un nouvel agent spécialisé."
+        },
+        {
+          "action": "research",
+          "tool": "",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Conduire une recherche approfondie sur les exigences et le contexte du système pour garantir que toute modification ou création est bien adaptée aux besoins actuels et futurs."
+        },
+        {
+          "action": "report",
+          "tool": "",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Présenter les résultats des audits, les recommandations d'amélioration et les conclusions de la recherche à la direction pour prendre des décisions éclairées."
+        },
+        {
+          "action": "manage_infra",
+          "infra_action": "status",
+          "description": "Vérifier la santé des conteneurs Docker"
+        }
+      ],
+      "timestamp": "2026-07-26T06:05:50.165067+00:00",
+      "agent": "adam-critic"
     }
   ]
 }
