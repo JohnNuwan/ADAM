@@ -155,8 +155,51 @@ Outils disponibles:
         except:
             pass
 
+        # --- SKILL LOADING ---
+        # Load relevant SKILL.md files from EVA_CORE/skills/ based on mission keywords
+        skills_context = ""
+        try:
+            skills_dir = Path("/home/aza/EVA_CORE/skills")
+            if skills_dir.exists():
+                mission_lower = mission.lower()
+                mission_words = set(mission_lower.split())
+                loaded_skills = []
+                for sdir in sorted(skills_dir.iterdir()):
+                    if not sdir.is_dir():
+                        continue
+                    skill_file = sdir / "SKILL.md"
+                    if not skill_file.exists():
+                        continue
+                    skill_name = sdir.name.lower()
+                    # Match: skill name appears in mission, or any keyword overlaps
+                    matched = False
+                    for w in mission_words:
+                        if len(w) > 3 and w in skill_name:
+                            matched = True
+                            break
+                        if len(w) > 3 and skill_name in w:
+                            matched = True
+                            break
+                    if not matched:
+                        continue
+                    try:
+                        skill_text = skill_file.read_text(encoding="utf-8", errors="replace")
+                        # Truncate to 2000 chars max per skill
+                        if len(skill_text) > 2000:
+                            skill_text = skill_text[:2000] + "..."
+                        loaded_skills.append("### Skill: " + sdir.name + "\n" + skill_text)
+                    except Exception:
+                        pass
+                if loaded_skills:
+                    skills_context = "\n\n--- SKILLS (relevant) ---\n" + "\n\n".join(loaded_skills[:5])
+                    logger.info("Skills loaded: " + str([s.name for s in skills_dir.iterdir() if s.is_dir() and (s / 'SKILL.md').exists()])[:200])
+        except Exception as e:
+            skills_context = ""
+            logger.warning("Skill loading failed: " + str(e))
+
+        # --- TEAM MODE ---
         # Injecter la mémoire dans le prompt
-        think_prompt = think_prompt + lessons_str + recent_str + skills_context + shared_tools_str + "\n\nIMPORTANT: Utilise les lecons pour eviter les erreurs. Reutilise les outils existants. Si la mission est trop complexe, utilise create_agent. Si tu as besoin d une competence, utilise delegate. Pour les grandes taches, divise le travail."
+        think_prompt = think_prompt + lessons_str + recent_str + skills_context + shared_tools_str + "\n\nIMPORTANT: Utilise les lecons pour eviter les erreurs. Reutilise les outils existants. Si la mission est trop complexe, utilise create_agent pour creer un agent helper et deleguer une partie du travail. Si tu as besoin d une competence, utilise delegate. Pour les grandes taches, divise le travail."
         plan_response = self._llm(think_prompt, system=system_prompt, max_tokens=4096)
 
         # 3. Parser le plan
