@@ -158,9 +158,6 @@ Outils disponibles:
         # Injecter la mémoire dans le prompt
         think_prompt = think_prompt + lessons_str + recent_str + skills_context + shared_tools_str + "\n\nIMPORTANT: Utilise les lecons pour eviter les erreurs. Reutilise les outils existants. Si la mission est trop complexe, utilise create_agent. Si tu as besoin d une competence, utilise delegate. Pour les grandes taches, divise le travail."
 
-
-Si la mission est trop complexe pour un seul agent, utilise create_agent pour créer un agent spécialisé qui t'aidera.
-Si tu as besoin d'une compétence que tu n'as pas, cherche si un autre agent l'a (voir outils ci-dessus) et utilise delegate.
 Pour les grandes tâches (landing page, rapport long), divise le travail: crée un agent assistant et délègue-lui une partie."
 
         plan_response = self._llm(think_prompt, system=system_prompt, max_tokens=4096)
