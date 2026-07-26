@@ -15201,6 +15201,1014 @@
       ],
       "timestamp": "2026-07-26T00:08:21.851331+00:00",
       "agent": "adam-doctor"
+    },
+    {
+      "id": "m_184",
+      "mission": "Optimise l'infrastructure: vérifie les conteneurs et propose des améliorations — Ta contribution en tant que doctor",
+      "result": {
+        "agent": "adam-doctor",
+        "mission": "Optimise l'infrastructure: vérifie les conteneurs et propose des améliorations — Ta contribution en tant que doctor",
+        "success": false,
+        "steps": 8,
+        "elapsed_s": 17.1,
+        "results": [
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "docker_inspect",
+              "args": {},
+              "description": "Inspecte tous les conteneurs Docker pour collecter des informations sur leur configuration et leur état."
+            },
+            "result": {
+              "tool": "docker_inspect",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "resource_monitor",
+              "args": {},
+              "description": "Mesure la consommation de ressources CPU/GPU/RAM de chaque conteneur Docker pour identifier les inefficacités."
+            },
+            "result": {
+              "tool": "resource_monitor",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "container_diagnostic",
+              "args": {},
+              "description": "Analyse les données recueillies par docker_inspect et resource_monitor pour diagnostiquer les problèmes potentiels."
+            },
+            "result": {
+              "tool": "container_diagnostic",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "gpu_usage_optimizer",
+              "args": {},
+              "description": "Optimise l'utilisation des GPUs RTX 3090 en ajustant la taille du batch et en appliquant des techniques de quantification."
+            },
+            "result": {
+              "tool": "gpu_usage_optimizer",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "performance_tuner",
+              "args": {},
+              "description": "Ajuste les paramètres des conteneurs en fonction des performances des GPUs pour maximiser l'efficacité."
+            },
+            "result": {
+              "tool": "performance_tuner",
+              "exit_code": 1,
+              "stdout": "",
+              "stderr": "  File \"/home/aza/eva-adam-v2/agents/doctor/tools/performance_tuner.py\", line 1\n    Créer un outil qui utilise les données recueillies par docker_inspect et resource_monitor pour ajuster dynamiquement les paramètres de batch et de quantification en fonction des performances des GPU RTX 3090.\n          ^^\nSyntaxError: invalid syntax\n",
+              "success": false
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "container_cleaner",
+              "args": {},
+              "description": "Nettoie les conteneurs Docker inutiles pour libérer des ressources et améliorer l'efficacité globale de l'infrastructure."
+            },
+            "result": {
+              "tool": "container_cleaner",
+              "exit_code": 1,
+              "stdout": "",
+              "stderr": "  File \"/home/aza/eva-adam-v2/agents/doctor/tools/container_cleaner.py\", line 1\n    Crée un outil container_cleaner pour nettoyer les conteneurs Docker identifiés comme inutiles en utilisant les données collectées par container_identifier.\n         ^^\nSyntaxError: invalid syntax\n",
+              "success": false
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "system_health_report",
+              "args": {},
+              "description": "Génère un rapport de santé du système basé sur les diagnostics effectués pour proposer des améliorations spécifiques."
+            },
+            "result": {
+              "tool": "system_health_report",
+              "exit_code": 1,
+              "stdout": "",
+              "stderr": "Traceback (most recent call last):\n  File \"/home/aza/eva-adam-v2/agents/doctor/tools/system_health_report.py\", line 1, in <module>\n    python\nNameError: name 'python' is not defined\n",
+              "success": false
+            }
+          },
+          {
+            "step": {
+              "action": "manage_infra",
+              "infra_action": "status",
+              "description": "Vérifier la santé des conteneurs Docker"
+            },
+            "result": {
+              "action": "status",
+              "results": [
+                {
+                  "containers": "adam-graphify Up 3 hours\neva-activity Up 3 hours\neva-monitor Up 5 hours\nadam-bus Up 15 hours (healthy)\nadam-viz Up 16 hours\nadam-chat Up 18 hours\nadam-postgres Up 18 hours (healthy)\nvllm-mistral Up 15 hours\nkali-pentest Up 38 hours\ngrafana Up 38 hours\nprometheus Up 38 hours\nnode-exporter Up 38 hours"
+                }
+              ],
+              "success": true
+            }
+          }
+        ],
+        "timestamp": "2026-07-26T00:13:36.863039+00:00"
+      },
+      "steps": [
+        {
+          "action": "execute_tool",
+          "tool": "docker_inspect",
+          "args": {},
+          "description": "Inspecte tous les conteneurs Docker pour collecter des informations sur leur configuration et leur état."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "resource_monitor",
+          "args": {},
+          "description": "Mesure la consommation de ressources CPU/GPU/RAM de chaque conteneur Docker pour identifier les inefficacités."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "container_diagnostic",
+          "args": {},
+          "description": "Analyse les données recueillies par docker_inspect et resource_monitor pour diagnostiquer les problèmes potentiels."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "gpu_usage_optimizer",
+          "args": {},
+          "description": "Optimise l'utilisation des GPUs RTX 3090 en ajustant la taille du batch et en appliquant des techniques de quantification."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "performance_tuner",
+          "args": {},
+          "description": "Ajuste les paramètres des conteneurs en fonction des performances des GPUs pour maximiser l'efficacité."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "container_cleaner",
+          "args": {},
+          "description": "Nettoie les conteneurs Docker inutiles pour libérer des ressources et améliorer l'efficacité globale de l'infrastructure."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "system_health_report",
+          "args": {},
+          "description": "Génère un rapport de santé du système basé sur les diagnostics effectués pour proposer des améliorations spécifiques."
+        },
+        {
+          "action": "manage_infra",
+          "infra_action": "status",
+          "description": "Vérifier la santé des conteneurs Docker"
+        }
+      ],
+      "timestamp": "2026-07-26T00:13:36.863063+00:00",
+      "agent": "adam-doctor"
+    },
+    {
+      "id": "m_185",
+      "mission": "Optimise l'infrastructure: vérifie les conteneurs et propose des améliorations — Ta contribution en tant que doctor",
+      "result": {
+        "agent": "adam-doctor",
+        "mission": "Optimise l'infrastructure: vérifie les conteneurs et propose des améliorations — Ta contribution en tant que doctor",
+        "success": false,
+        "steps": 8,
+        "elapsed_s": 19.42,
+        "results": [
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "docker_inspect",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Inspection des conteneurs Docker pour identifier les configurations et les états actuels."
+            },
+            "result": {
+              "tool": "docker_inspect",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "resource_monitor",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Mesure de la consommation de ressources (CPU, GPU, RAM) pour chaque conteneur afin d'identifier les points de congestion."
+            },
+            "result": {
+              "tool": "resource_monitor",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "container_diagnostic",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Analyse des données collectées par docker_inspect et resource_monitor pour diagnostiquer les problèmes potentiels."
+            },
+            "result": {
+              "tool": "container_diagnostic",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "gpu_usage_optimizer",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Optimisation de l'utilisation des GPUs RTX 3090 en ajustant la taille du batch et en appliquant des techniques de quantification."
+            },
+            "result": {
+              "tool": "gpu_usage_optimizer",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "performance_tuner",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Ajustement des paramètres des conteneurs en fonction des performances des GPU pour maximiser l'efficacité."
+            },
+            "result": {
+              "tool": "performance_tuner",
+              "exit_code": 1,
+              "stdout": "",
+              "stderr": "  File \"/home/aza/eva-adam-v2/agents/doctor/tools/performance_tuner.py\", line 1\n    Créer un outil qui utilise les données recueillies par docker_inspect et resource_monitor pour ajuster dynamiquement les paramètres de batch et de quantification en fonction des performances des GPU RTX 3090.\n          ^^\nSyntaxError: invalid syntax\n",
+              "success": false
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "container_cleaner",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Nettoyage des conteneurs Docker inutiles pour libérer des ressources."
+            },
+            "result": {
+              "tool": "container_cleaner",
+              "exit_code": 1,
+              "stdout": "",
+              "stderr": "  File \"/home/aza/eva-adam-v2/agents/doctor/tools/container_cleaner.py\", line 1\n    Crée un outil container_cleaner pour nettoyer les conteneurs Docker identifiés comme inutiles en utilisant les données collectées par container_identifier.\n         ^^\nSyntaxError: invalid syntax\n",
+              "success": false
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "system_health_report",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Génération d'un rapport de santé du système basé sur les diagnostics effectués pour informer des améliorations nécessaires."
+            },
+            "result": {
+              "tool": "system_health_report",
+              "exit_code": 1,
+              "stdout": "",
+              "stderr": "Traceback (most recent call last):\n  File \"/home/aza/eva-adam-v2/agents/doctor/tools/system_health_report.py\", line 1, in <module>\n    python\nNameError: name 'python' is not defined\n",
+              "success": false
+            }
+          },
+          {
+            "step": {
+              "action": "manage_infra",
+              "infra_action": "status",
+              "description": "Vérifier la santé des conteneurs Docker"
+            },
+            "result": {
+              "action": "status",
+              "results": [
+                {
+                  "containers": "adam-graphify Up 3 hours\neva-activity Up 3 hours\neva-monitor Up 5 hours\nadam-bus Up 15 hours (healthy)\nadam-viz Up 16 hours\nadam-chat Up 18 hours\nadam-postgres Up 18 hours (healthy)\nvllm-mistral Up 15 hours\nkali-pentest Up 38 hours\ngrafana Up 38 hours\nprometheus Up 38 hours\nnode-exporter Up 38 hours"
+                }
+              ],
+              "success": true
+            }
+          }
+        ],
+        "timestamp": "2026-07-26T00:18:36.827267+00:00"
+      },
+      "steps": [
+        {
+          "action": "execute_tool",
+          "tool": "docker_inspect",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Inspection des conteneurs Docker pour identifier les configurations et les états actuels."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "resource_monitor",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Mesure de la consommation de ressources (CPU, GPU, RAM) pour chaque conteneur afin d'identifier les points de congestion."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "container_diagnostic",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Analyse des données collectées par docker_inspect et resource_monitor pour diagnostiquer les problèmes potentiels."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "gpu_usage_optimizer",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Optimisation de l'utilisation des GPUs RTX 3090 en ajustant la taille du batch et en appliquant des techniques de quantification."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "performance_tuner",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Ajustement des paramètres des conteneurs en fonction des performances des GPU pour maximiser l'efficacité."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "container_cleaner",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Nettoyage des conteneurs Docker inutiles pour libérer des ressources."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "system_health_report",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Génération d'un rapport de santé du système basé sur les diagnostics effectués pour informer des améliorations nécessaires."
+        },
+        {
+          "action": "manage_infra",
+          "infra_action": "status",
+          "description": "Vérifier la santé des conteneurs Docker"
+        }
+      ],
+      "timestamp": "2026-07-26T00:18:36.827298+00:00",
+      "agent": "adam-doctor"
+    },
+    {
+      "id": "m_186",
+      "mission": "Optimise l'infrastructure: vérifie les conteneurs et propose des améliorations — Ta contribution en tant que doctor",
+      "result": {
+        "agent": "adam-doctor",
+        "mission": "Optimise l'infrastructure: vérifie les conteneurs et propose des améliorations — Ta contribution en tant que doctor",
+        "success": false,
+        "steps": 8,
+        "elapsed_s": 17.05,
+        "results": [
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "docker_inspect",
+              "args": {},
+              "description": "Inspecte tous les conteneurs Docker pour obtenir des informations détaillées sur leur configuration et leur état."
+            },
+            "result": {
+              "tool": "docker_inspect",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "resource_monitor",
+              "args": {},
+              "description": "Mesure la consommation de ressources (CPU, RAM, GPU) de chaque conteneur Docker pour identifier les goulots d'étranglement."
+            },
+            "result": {
+              "tool": "resource_monitor",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "container_diagnostic",
+              "args": {},
+              "description": "Analyse les données recueillies par docker_inspect et resource_monitor pour identifier les problèmes potentiels dans les conteneurs."
+            },
+            "result": {
+              "tool": "container_diagnostic",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "performance_tuner",
+              "args": {},
+              "description": "Ajuste les paramètres des conteneurs en fonction des performances des GPU et autres ressources pour optimiser leur utilisation."
+            },
+            "result": {
+              "tool": "performance_tuner",
+              "exit_code": 1,
+              "stdout": "",
+              "stderr": "  File \"/home/aza/eva-adam-v2/agents/doctor/tools/performance_tuner.py\", line 1\n    Créer un outil qui utilise les données recueillies par docker_inspect et resource_monitor pour ajuster dynamiquement les paramètres de batch et de quantification en fonction des performances des GPU RTX 3090.\n          ^^\nSyntaxError: invalid syntax\n",
+              "success": false
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "gpu_usage_optimizer",
+              "args": {},
+              "description": "Optimise l'utilisation des RTX 3090 en ajustant la taille du batch et en appliquant des techniques de quantification."
+            },
+            "result": {
+              "tool": "gpu_usage_optimizer",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "container_cleaner",
+              "args": {},
+              "description": "Nettoie les conteneurs Docker inutiles identifiés pour libérer des ressources."
+            },
+            "result": {
+              "tool": "container_cleaner",
+              "exit_code": 1,
+              "stdout": "",
+              "stderr": "  File \"/home/aza/eva-adam-v2/agents/doctor/tools/container_cleaner.py\", line 1\n    Crée un outil container_cleaner pour nettoyer les conteneurs Docker identifiés comme inutiles en utilisant les données collectées par container_identifier.\n         ^^\nSyntaxError: invalid syntax\n",
+              "success": false
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "system_health_report",
+              "args": {},
+              "description": "Génère un rapport de santé du système basé sur les diagnostics effectués, proposant des recommandations pour améliorer l'efficacité de l'infrastructure."
+            },
+            "result": {
+              "tool": "system_health_report",
+              "exit_code": 1,
+              "stdout": "",
+              "stderr": "Traceback (most recent call last):\n  File \"/home/aza/eva-adam-v2/agents/doctor/tools/system_health_report.py\", line 1, in <module>\n    python\nNameError: name 'python' is not defined\n",
+              "success": false
+            }
+          },
+          {
+            "step": {
+              "action": "self_modify",
+              "what": "Ajouter un logging des appels d'outils",
+              "code": "import logging\nlog = logging.getLogger(__name__)\ndef log_call(name, result):\n    log.info(f'Tool {name}: {result}')"
+            },
+            "result": {
+              "what": "Ajouter un logging des appels d'outils",
+              "improvement_file": "/home/aza/eva-adam-v2/agents/doctor/tools/self_improvement_20260726_022538.py",
+              "backup": "/home/aza/eva-adam-v2/agents/doctor/tools/backups/runtime_backup_20260726_022538.py",
+              "status": "improved"
+            }
+          }
+        ],
+        "timestamp": "2026-07-26T00:25:38.422971+00:00"
+      },
+      "steps": [
+        {
+          "action": "execute_tool",
+          "tool": "docker_inspect",
+          "args": {},
+          "description": "Inspecte tous les conteneurs Docker pour obtenir des informations détaillées sur leur configuration et leur état."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "resource_monitor",
+          "args": {},
+          "description": "Mesure la consommation de ressources (CPU, RAM, GPU) de chaque conteneur Docker pour identifier les goulots d'étranglement."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "container_diagnostic",
+          "args": {},
+          "description": "Analyse les données recueillies par docker_inspect et resource_monitor pour identifier les problèmes potentiels dans les conteneurs."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "performance_tuner",
+          "args": {},
+          "description": "Ajuste les paramètres des conteneurs en fonction des performances des GPU et autres ressources pour optimiser leur utilisation."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "gpu_usage_optimizer",
+          "args": {},
+          "description": "Optimise l'utilisation des RTX 3090 en ajustant la taille du batch et en appliquant des techniques de quantification."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "container_cleaner",
+          "args": {},
+          "description": "Nettoie les conteneurs Docker inutiles identifiés pour libérer des ressources."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "system_health_report",
+          "args": {},
+          "description": "Génère un rapport de santé du système basé sur les diagnostics effectués, proposant des recommandations pour améliorer l'efficacité de l'infrastructure."
+        },
+        {
+          "action": "self_modify",
+          "what": "Ajouter un logging des appels d'outils",
+          "code": "import logging\nlog = logging.getLogger(__name__)\ndef log_call(name, result):\n    log.info(f'Tool {name}: {result}')"
+        }
+      ],
+      "timestamp": "2026-07-26T00:25:38.422994+00:00",
+      "agent": "adam-doctor"
+    },
+    {
+      "id": "m_187",
+      "mission": "Optimise l'infrastructure: vérifie les conteneurs et propose des améliorations — Ta contribution en tant que doctor",
+      "result": {
+        "agent": "adam-doctor",
+        "mission": "Optimise l'infrastructure: vérifie les conteneurs et propose des améliorations — Ta contribution en tant que doctor",
+        "success": false,
+        "steps": 8,
+        "elapsed_s": 16.71,
+        "results": [
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "docker_inspect",
+              "args": "",
+              "description": "Inspecter les conteneurs Docker pour obtenir des informations sur leur configuration et leur état."
+            },
+            "result": {
+              "tool": "docker_inspect",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "resource_monitor",
+              "args": "",
+              "description": "Mesurer la consommation de ressources CPU/GPU/RAM des conteneurs Docker pour identifier les problèmes de performances."
+            },
+            "result": {
+              "tool": "resource_monitor",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "container_diagnostic",
+              "args": "",
+              "description": "Analyser les données recueillies par docker_inspect et resource_monitor pour diagnostiquer les problèmes potentiels des conteneurs."
+            },
+            "result": {
+              "tool": "container_diagnostic",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "gpu_usage_optimizer",
+              "args": "",
+              "description": "Optimiser l'utilisation des RTX 3090 en ajustant la taille du batch et en appliquant des techniques de quantification, si nécessaire."
+            },
+            "result": {
+              "tool": "gpu_usage_optimizer",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "performance_tuner",
+              "args": "",
+              "description": "Ajuster les paramètres des conteneurs en fonction des performances des GPU pour maximiser l'efficacité."
+            },
+            "result": {
+              "tool": "performance_tuner",
+              "exit_code": 1,
+              "stdout": "",
+              "stderr": "  File \"/home/aza/eva-adam-v2/agents/doctor/tools/performance_tuner.py\", line 1\n    Créer un outil qui utilise les données recueillies par docker_inspect et resource_monitor pour ajuster dynamiquement les paramètres de batch et de quantification en fonction des performances des GPU RTX 3090.\n          ^^\nSyntaxError: invalid syntax\n",
+              "success": false
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "container_cleaner",
+              "args": "",
+              "description": "Nettoyer les conteneurs Docker inutiles pour libérer des ressources et améliorer la performance globale."
+            },
+            "result": {
+              "tool": "container_cleaner",
+              "exit_code": 1,
+              "stdout": "",
+              "stderr": "  File \"/home/aza/eva-adam-v2/agents/doctor/tools/container_cleaner.py\", line 1\n    Crée un outil container_cleaner pour nettoyer les conteneurs Docker identifiés comme inutiles en utilisant les données collectées par container_identifier.\n         ^^\nSyntaxError: invalid syntax\n",
+              "success": false
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "system_health_report",
+              "args": "",
+              "description": "Générer un rapport de santé du système basé sur les diagnostics effectués pour proposer des améliorations."
+            },
+            "result": {
+              "tool": "system_health_report",
+              "exit_code": 1,
+              "stdout": "",
+              "stderr": "Traceback (most recent call last):\n  File \"/home/aza/eva-adam-v2/agents/doctor/tools/system_health_report.py\", line 1, in <module>\n    python\nNameError: name 'python' is not defined\n",
+              "success": false
+            }
+          },
+          {
+            "step": {
+              "action": "manage_infra",
+              "infra_action": "status",
+              "description": "Vérifier la santé des conteneurs Docker"
+            },
+            "result": {
+              "action": "status",
+              "results": [
+                {
+                  "containers": "adam-graphify Up 3 hours\neva-activity Up 3 hours\neva-monitor Up 5 hours\nadam-bus Up 16 hours (healthy)\nadam-viz Up 16 hours\nadam-chat Up 18 hours\nadam-postgres Up 18 hours (healthy)\nvllm-mistral Up 15 hours\nkali-pentest Up 38 hours\ngrafana Up 38 hours\nprometheus Up 38 hours\nnode-exporter Up 38 hours"
+                }
+              ],
+              "success": true
+            }
+          }
+        ],
+        "timestamp": "2026-07-26T00:31:49.620859+00:00"
+      },
+      "steps": [
+        {
+          "action": "execute_tool",
+          "tool": "docker_inspect",
+          "args": "",
+          "description": "Inspecter les conteneurs Docker pour obtenir des informations sur leur configuration et leur état."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "resource_monitor",
+          "args": "",
+          "description": "Mesurer la consommation de ressources CPU/GPU/RAM des conteneurs Docker pour identifier les problèmes de performances."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "container_diagnostic",
+          "args": "",
+          "description": "Analyser les données recueillies par docker_inspect et resource_monitor pour diagnostiquer les problèmes potentiels des conteneurs."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "gpu_usage_optimizer",
+          "args": "",
+          "description": "Optimiser l'utilisation des RTX 3090 en ajustant la taille du batch et en appliquant des techniques de quantification, si nécessaire."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "performance_tuner",
+          "args": "",
+          "description": "Ajuster les paramètres des conteneurs en fonction des performances des GPU pour maximiser l'efficacité."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "container_cleaner",
+          "args": "",
+          "description": "Nettoyer les conteneurs Docker inutiles pour libérer des ressources et améliorer la performance globale."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "system_health_report",
+          "args": "",
+          "description": "Générer un rapport de santé du système basé sur les diagnostics effectués pour proposer des améliorations."
+        },
+        {
+          "action": "manage_infra",
+          "infra_action": "status",
+          "description": "Vérifier la santé des conteneurs Docker"
+        }
+      ],
+      "timestamp": "2026-07-26T00:31:49.620884+00:00",
+      "agent": "adam-doctor"
+    },
+    {
+      "id": "m_188",
+      "mission": "Optimise l'infrastructure: vérifie les conteneurs et propose des améliorations — Ta contribution en tant que doctor",
+      "result": {
+        "agent": "adam-doctor",
+        "mission": "Optimise l'infrastructure: vérifie les conteneurs et propose des améliorations — Ta contribution en tant que doctor",
+        "success": false,
+        "steps": 9,
+        "elapsed_s": 22.09,
+        "results": [
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "docker_inspect",
+              "args": {},
+              "code": "",
+              "target_agent": "",
+              "description": "Inspecte les conteneurs Docker pour identifier tout problème potentiel et vérifier la configuration."
+            },
+            "result": {
+              "tool": "docker_inspect",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "resource_monitor",
+              "args": {},
+              "code": "",
+              "target_agent": "",
+              "description": "Mesure la consommation de ressources CPU/GPU/RAM des conteneurs Docker pour identifier les inefficacités."
+            },
+            "result": {
+              "tool": "resource_monitor",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "system_health_monitor",
+              "args": {},
+              "code": "",
+              "target_agent": "",
+              "description": "Utilise docker_inspect et resource_monitor pour fournir un aperçu de la santé globale du système."
+            },
+            "result": {
+              "tool": "system_health_monitor",
+              "exit_code": 1,
+              "stdout": "",
+              "stderr": "Traceback (most recent call last):\n  File \"/home/aza/eva-adam-v2/agents/doctor/tools/system_health_monitor.py\", line 1, in <module>\n    python\nNameError: name 'python' is not defined\n",
+              "success": false
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "container_diagnostic",
+              "args": {},
+              "code": "",
+              "target_agent": "",
+              "description": "Analyse les données recueillies par docker_inspect et resource_monitor pour diagnostiquer les problèmes potentiels des conteneurs."
+            },
+            "result": {
+              "tool": "container_diagnostic",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "gpu_usage_optimizer",
+              "args": {},
+              "code": "",
+              "target_agent": "",
+              "description": "Optimise l'utilisation des RTX 3090 en ajustant la taille du batch et en appliquant des techniques de quantification."
+            },
+            "result": {
+              "tool": "gpu_usage_optimizer",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "performance_tuner",
+              "args": {},
+              "code": "",
+              "target_agent": "",
+              "description": "Ajuste les paramètres des conteneurs en fonction des performances des GPU pour maximiser l'efficacité."
+            },
+            "result": {
+              "tool": "performance_tuner",
+              "exit_code": 1,
+              "stdout": "",
+              "stderr": "  File \"/home/aza/eva-adam-v2/agents/doctor/tools/performance_tuner.py\", line 1\n    Créer un outil qui utilise les données recueillies par docker_inspect et resource_monitor pour ajuster dynamiquement les paramètres de batch et de quantification en fonction des performances des GPU RTX 3090.\n          ^^\nSyntaxError: invalid syntax\n",
+              "success": false
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "container_cleaner",
+              "args": {},
+              "code": "",
+              "target_agent": "",
+              "description": "Nettoie les conteneurs Docker inutiles pour libérer des ressources et améliorer l'efficacité de l'infrastructure."
+            },
+            "result": {
+              "tool": "container_cleaner",
+              "exit_code": 1,
+              "stdout": "",
+              "stderr": "  File \"/home/aza/eva-adam-v2/agents/doctor/tools/container_cleaner.py\", line 1\n    Crée un outil container_cleaner pour nettoyer les conteneurs Docker identifiés comme inutiles en utilisant les données collectées par container_identifier.\n         ^^\nSyntaxError: invalid syntax\n",
+              "success": false
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "system_health_report",
+              "args": {},
+              "code": "",
+              "target_agent": "",
+              "description": "Génère un rapport de santé du système basé sur les diagnostics effectués pour proposer des améliorations spécifiques."
+            },
+            "result": {
+              "tool": "system_health_report",
+              "exit_code": 1,
+              "stdout": "",
+              "stderr": "Traceback (most recent call last):\n  File \"/home/aza/eva-adam-v2/agents/doctor/tools/system_health_report.py\", line 1, in <module>\n    python\nNameError: name 'python' is not defined\n",
+              "success": false
+            }
+          },
+          {
+            "step": {
+              "action": "manage_infra",
+              "infra_action": "status",
+              "description": "Vérifier la santé des conteneurs Docker"
+            },
+            "result": {
+              "action": "status",
+              "results": [
+                {
+                  "containers": "adam-graphify Up 3 hours\neva-activity Up 3 hours\neva-monitor Up 5 hours\nadam-bus Up 16 hours (healthy)\nadam-viz Up 17 hours\nadam-chat Up 18 hours\nadam-postgres Up 18 hours (healthy)\nvllm-mistral Up 15 hours\nkali-pentest Up 38 hours\ngrafana Up 38 hours\nprometheus Up 38 hours\nnode-exporter Up 38 hours"
+                }
+              ],
+              "success": true
+            }
+          }
+        ],
+        "timestamp": "2026-07-26T00:37:25.575568+00:00"
+      },
+      "steps": [
+        {
+          "action": "execute_tool",
+          "tool": "docker_inspect",
+          "args": {},
+          "code": "",
+          "target_agent": "",
+          "description": "Inspecte les conteneurs Docker pour identifier tout problème potentiel et vérifier la configuration."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "resource_monitor",
+          "args": {},
+          "code": "",
+          "target_agent": "",
+          "description": "Mesure la consommation de ressources CPU/GPU/RAM des conteneurs Docker pour identifier les inefficacités."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "system_health_monitor",
+          "args": {},
+          "code": "",
+          "target_agent": "",
+          "description": "Utilise docker_inspect et resource_monitor pour fournir un aperçu de la santé globale du système."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "container_diagnostic",
+          "args": {},
+          "code": "",
+          "target_agent": "",
+          "description": "Analyse les données recueillies par docker_inspect et resource_monitor pour diagnostiquer les problèmes potentiels des conteneurs."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "gpu_usage_optimizer",
+          "args": {},
+          "code": "",
+          "target_agent": "",
+          "description": "Optimise l'utilisation des RTX 3090 en ajustant la taille du batch et en appliquant des techniques de quantification."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "performance_tuner",
+          "args": {},
+          "code": "",
+          "target_agent": "",
+          "description": "Ajuste les paramètres des conteneurs en fonction des performances des GPU pour maximiser l'efficacité."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "container_cleaner",
+          "args": {},
+          "code": "",
+          "target_agent": "",
+          "description": "Nettoie les conteneurs Docker inutiles pour libérer des ressources et améliorer l'efficacité de l'infrastructure."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "system_health_report",
+          "args": {},
+          "code": "",
+          "target_agent": "",
+          "description": "Génère un rapport de santé du système basé sur les diagnostics effectués pour proposer des améliorations spécifiques."
+        },
+        {
+          "action": "manage_infra",
+          "infra_action": "status",
+          "description": "Vérifier la santé des conteneurs Docker"
+        }
+      ],
+      "timestamp": "2026-07-26T00:37:25.575593+00:00",
+      "agent": "adam-doctor"
     }
   ]
 }

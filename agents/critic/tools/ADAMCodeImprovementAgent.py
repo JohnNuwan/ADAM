@@ -1,1 +1,1 @@
-Créer un agent spécialisé qui peut continuer à améliorer le code des agents ADAM basé sur les standards de qualité identifiés.
+Création d'un nouvel outil qui permettra d'améliorer le code existant en fonction des standards de qualité.
