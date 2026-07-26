@@ -3,44 +3,47 @@ import ast
 from ast import NodeTransformer
 
 class ADAMCodeImprovementAgent(NodeTransformer):
-    def __init__(self, quality_audits=None, service_configs=None):
+    def __init__(self, audit_results):
         super().__init__()
-        self.quality_audits = quality_audits or []
-        self.service_configs = service_configs or {}
+        self.audit_results = audit_results
 
-    def visit_FunctionDef(self, node):
-        # Example audit: remove unused arguments
-        used_names = {n.id for n in node.body if isinstance(n, ast.Name) and isinstance(n.ctx, ast.Load)}
-        new_args = [arg for arg in node.args.args if arg.arg in used_names]
-        node.args.args = new_args
+    def visit_Call(self, node):
+        # Example improvement: if the audit results indicate that certain functions are inefficient,
+        # replace them with more efficient alternatives.
+        func_name = node.func.id if isinstance(node.func, ast.Name) else None
+        if func_name and self.audit_results.get('inefficient_functions', {}).get(func_name):
+            replacement_func = self.audit_results['inefficient_functions'][func_name]
+            node.func = ast.Name(id=replacement_func, ctx=ast.Load())
         return self.generic_visit(node)
 
-    def visit_ImportFrom(self, node):
-        # Example audit: remove unused imports based on service configs
-        if node.module in self.service_configs:
-            used_modules = self.service_configs[node.module]
-            node.names = [name for name in node.names if name.name in used_modules]
+    def visit_Assign(self, node):
+        # Example improvement: if the audit results suggest that variables should be renamed for clarity,
+        # apply those changes here.
+        for target in node.targets:
+            if isinstance(target, ast.Name) and self.audit_results.get('rename_variables', {}).get(target.id):
+                new_var_name = self.audit_results['rename_variables'][target.id]
+                target.id = new_var_name
         return self.generic_visit(node)
 
-def improve_code(source_code, quality_audits=None, service_configs=None):
+def improve_code(source_code, audit_results):
     tree = ast.parse(source_code)
-    transformer = ADAMCodeImprovementAgent(quality_audits, service_configs)
-    new_tree = transformer.visit(tree)
-    new_tree = ast.fix_missing_locations(new_tree)
-    return compile(new_tree, filename="<ast>", mode="exec")
+    transformer = ADAMCodeImprovementAgent(audit_results)
+    improved_tree = transformer.visit(tree)
+    improved_code = compile(improved_tree, filename="<ast>", mode="exec")
+    return improved_code
 
 # Example usage
 source_code = """
-import os
-import sys
+def inefficient_function(x):
+    return x * 2
 
-def example_function(a, b, c):
-    print(a)
-    print(b)
+result = inefficient_function(5)
 """
 
-quality_audits = ["remove_unused_arguments"]
-service_configs = {"os": ["path"], "sys": ["exit"]}
+audit_results = {
+    'inefficient_functions': {'inefficient_function': 'efficient_function'},
+    'rename_variables': {'result': 'output'}
+}
 
-improved_code = improve_code(source_code, quality_audits, service_configs)
+improved_code = improve_code(source_code, audit_results)
 exec(improved_code)

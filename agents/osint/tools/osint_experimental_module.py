@@ -1,15 +1,27 @@
 import osint_innovation_tracker
-from osint_advanced_analytics import analyze_data_sources
 
-# Utiliser le module de suivi des innovations pour identifier les nouvelles sources potentielles
-def experimental_osint_module():
-    # Identifier les nouvelles sources de données OSINT
-    new_data_sources = osint_innovation_tracker.identify_new_data_sources()
-    
-    # Analyser ces nouvelles sources pour voir si elles sont utiles
-    analysis_results = analyze_data_sources(new_data_sources)
-    
-    # Retourner les résultats de l'analyse
-    return analysis_results
+class OSINTExperimentalModule:
+    def __init__(self):
+        self.innovation_tracker = osint_innovation_tracker.OSINTInnovationTracker()
 
-experimental_osint_module()
+    def identify_new_data_sources(self):
+        # Identifier et analyser de nouvelles sources de données OSINT
+        new_sources = self.innovation_tracker.track_innovations()
+        return new_sources
+
+    def analyze_sources(self, sources):
+        # Analyser les sources identifiées pour leur pertinence et leur qualité
+        analysis_results = {}
+        for source in sources:
+            analysis = self.analyze_single_source(source)
+            analysis_results[source] = analysis
+        return analysis_results
+
+    def analyze_single_source(self, source):
+        # Analyse spécifique d'une source donnée
+        pass
+
+# Instanciation et utilisation du module expérimental
+experimental_module = OSINTExperimentalModule()
+new_sources = experimental_module.identify_new_data_sources()
+analysis = experimental_module.analyze_sources(new_sources)
