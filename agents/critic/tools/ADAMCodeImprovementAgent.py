@@ -1,1 +1,1 @@
-Utiliser les résultats des audits précédents pour créer un outil qui peut améliorer le code existant.
+Créer un outil capable d'améliorer le code existant en fonction des exigences identifiées par les audits précédents.
