@@ -15146,6 +15146,781 @@
       ],
       "timestamp": "2026-07-26T01:05:12.617085+00:00",
       "agent": "adam-critic"
+    },
+    {
+      "id": "m_201",
+      "mission": "Évolue le système: crée un nouvel agent spécialisé ou améliore le code existant — Ta contribution en tant que critic",
+      "result": {
+        "agent": "adam-critic",
+        "mission": "Évolue le système: crée un nouvel agent spécialisé ou améliore le code existant — Ta contribution en tant que critic",
+        "success": false,
+        "steps": 7,
+        "elapsed_s": 36.05,
+        "results": [
+          {
+            "step": {
+              "action": "research",
+              "tool": "",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Analyse des exigences et du contexte actuel du système ADAM, y compris les limitations et les besoins non satisfaits."
+            },
+            "result": {
+              "query": "Analyse des exigences et du contexte actuel du système ADAM, y compris les limitations et les besoins non satisfaits.",
+              "result": "Pour réaliser une analyse détaillée des exigences et du contexte actuel du système ADAM (que nous supposons être un système d'information ou de gestion), il est important de suivre plusieurs étapes. Cette analyse permettra d'identifier les limitations actuelles du système ainsi que les besoins qui n",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "ADAMCodeQualityAuditor",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Audit de la qualité du code existant pour identifier les domaines qui nécessitent une amélioration."
+            },
+            "result": {
+              "tool": "ADAMCodeQualityAuditor",
+              "exit_code": 1,
+              "stdout": "",
+              "stderr": "Traceback (most recent call last):\n  File \"/home/aza/eva-adam-v2/agents/critic/tools/ADAMCodeQualityAuditor.py\", line 1, in <module>\n    from audit_tools import CodeQualityAuditor\nModuleNotFoundError: No module named 'audit_tools'\n",
+              "success": false
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "ServiceConfigAuditor",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Audit des configurations des services actuels pour identifier les problèmes de sécurité et d'obsolescence."
+            },
+            "result": {
+              "tool": "ServiceConfigAuditor",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "create_tool",
+              "tool": "ADAMCodeImprovementAgent",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Création d'un outil pour améliorer le code existant basé sur les résultats des audits précédents."
+            },
+            "result": {
+              "error": "Pas de code fourni"
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "ADAMCodeImprovementAgent",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Application de l'outil ADAMCodeImprovementAgent pour apporter des améliorations au code existant."
+            },
+            "result": {
+              "tool": "ADAMCodeImprovementAgent",
+              "exit_code": 1,
+              "stdout": "",
+              "stderr": "  File \"/home/aza/eva-adam-v2/agents/critic/tools/ADAMCodeImprovementAgent.py\", line 1\n    Création d'un nouvel outil qui permettra d'améliorer le code existant en fonction des standards de qualité.\n             ^\nSyntaxError: invalid syntax\n",
+              "success": false
+            }
+          },
+          {
+            "step": {
+              "action": "report",
+              "tool": "",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Compilation d'un rapport sur les améliorations apportées et les domaines encore à améliorer."
+            },
+            "result": {
+              "success": true,
+              "report": "Compilation d'un rapport sur les améliorations apportées et les domaines encore à améliorer."
+            }
+          },
+          {
+            "step": {
+              "action": "manage_infra",
+              "infra_action": "status",
+              "description": "Vérifier la santé des conteneurs Docker"
+            },
+            "result": {
+              "action": "status",
+              "results": [
+                {
+                  "containers": "adam-graphify Up 4 hours\neva-activity Up 4 hours\neva-monitor Up 6 hours\nadam-bus Up 16 hours (healthy)\nadam-viz Up 17 hours\nadam-chat Up 19 hours\nadam-postgres Up 19 hours (healthy)\nvllm-mistral Up 16 hours\nkali-pentest Up 39 hours\ngrafana Up 39 hours\nprometheus Up 39 hours\nnode-exporter Up 39 hours"
+                }
+              ],
+              "success": true
+            }
+          }
+        ],
+        "timestamp": "2026-07-26T01:11:10.365733+00:00"
+      },
+      "steps": [
+        {
+          "action": "research",
+          "tool": "",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Analyse des exigences et du contexte actuel du système ADAM, y compris les limitations et les besoins non satisfaits."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "ADAMCodeQualityAuditor",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Audit de la qualité du code existant pour identifier les domaines qui nécessitent une amélioration."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "ServiceConfigAuditor",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Audit des configurations des services actuels pour identifier les problèmes de sécurité et d'obsolescence."
+        },
+        {
+          "action": "create_tool",
+          "tool": "ADAMCodeImprovementAgent",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Création d'un outil pour améliorer le code existant basé sur les résultats des audits précédents."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "ADAMCodeImprovementAgent",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Application de l'outil ADAMCodeImprovementAgent pour apporter des améliorations au code existant."
+        },
+        {
+          "action": "report",
+          "tool": "",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Compilation d'un rapport sur les améliorations apportées et les domaines encore à améliorer."
+        },
+        {
+          "action": "manage_infra",
+          "infra_action": "status",
+          "description": "Vérifier la santé des conteneurs Docker"
+        }
+      ],
+      "timestamp": "2026-07-26T01:11:10.365769+00:00",
+      "agent": "adam-critic"
+    },
+    {
+      "id": "m_202",
+      "mission": "Évolue le système: crée un nouvel agent spécialisé ou améliore le code existant — Ta contribution en tant que critic",
+      "result": {
+        "agent": "adam-critic",
+        "mission": "Évolue le système: crée un nouvel agent spécialisé ou améliore le code existant — Ta contribution en tant que critic",
+        "success": false,
+        "steps": 7,
+        "elapsed_s": 36.28,
+        "results": [
+          {
+            "step": {
+              "action": "research",
+              "tool": "",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Analyser les exigences et le contexte actuel du système pour identifier les besoins spécifiques d'un nouvel agent ou d'une amélioration du code existant."
+            },
+            "result": {
+              "query": "Analyser les exigences et le contexte actuel du système pour identifier les besoins spécifiques d'un nouvel agent ou d'une amélioration du code existant.",
+              "result": "Pour effectuer une analyse détaillée des exigences et du contexte actuel d'un système afin de définir les besoins spécifiques d'un nouvel agent ou d'une amélioration du code existant, voici les étapes recommandées :\n\n1. **Comprendre le système existant** :\n   - Examinez la structure actuelle du syst",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "ADAMCodeQualityAuditor",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Auditer la qualité du code existant pour identifier les domaines qui nécessitent des améliorations."
+            },
+            "result": {
+              "tool": "ADAMCodeQualityAuditor",
+              "exit_code": 1,
+              "stdout": "",
+              "stderr": "Traceback (most recent call last):\n  File \"/home/aza/eva-adam-v2/agents/critic/tools/ADAMCodeQualityAuditor.py\", line 1, in <module>\n    from audit_tools import CodeQualityAuditor\nModuleNotFoundError: No module named 'audit_tools'\n",
+              "success": false
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "ServiceConfigAuditor",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Auditer les configurations des services actuels pour identifier les problèmes potentiels de sécurité et d'obsolescence."
+            },
+            "result": {
+              "tool": "ServiceConfigAuditor",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "create_tool",
+              "tool": "ADAMCodeImprovementAgent",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Créer un outil pour améliorer le code existant en fonction des résultats des audits précédents."
+            },
+            "result": {
+              "error": "Pas de code fourni"
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "ADAMCodeImprovementAgent",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Utiliser l'outil ADAMCodeImprovementAgent pour apporter des améliorations ciblées au code existant."
+            },
+            "result": {
+              "tool": "ADAMCodeImprovementAgent",
+              "exit_code": 1,
+              "stdout": "",
+              "stderr": "  File \"/home/aza/eva-adam-v2/agents/critic/tools/ADAMCodeImprovementAgent.py\", line 1\n    Création d'un nouvel outil qui permettra d'améliorer le code existant en fonction des standards de qualité.\n             ^\nSyntaxError: invalid syntax\n",
+              "success": false
+            }
+          },
+          {
+            "step": {
+              "action": "report",
+              "tool": "",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Fournir un rapport détaillé sur les actions entreprises, les améliorations apportées et les recommandations futures."
+            },
+            "result": {
+              "success": true,
+              "report": "Fournir un rapport détaillé sur les actions entreprises, les améliorations apportées et les recommandations futures."
+            }
+          },
+          {
+            "step": {
+              "action": "self_modify",
+              "what": "Ajouter un cache aux outils pour éviter les appels dupliqués",
+              "code": "CACHE = {}\ndef cached_call(key, func, *args):\n    if key not in CACHE:\n        CACHE[key] = func(*args)\n    return CACHE[key]"
+            },
+            "result": {
+              "what": "Ajouter un cache aux outils pour éviter les appels dupliqués",
+              "improvement_file": "/home/aza/eva-adam-v2/agents/critic/tools/self_improvement_20260726_031704.py",
+              "backup": "/home/aza/eva-adam-v2/agents/critic/tools/backups/runtime_backup_20260726_031704.py",
+              "status": "improved"
+            }
+          }
+        ],
+        "timestamp": "2026-07-26T01:17:04.528073+00:00"
+      },
+      "steps": [
+        {
+          "action": "research",
+          "tool": "",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Analyser les exigences et le contexte actuel du système pour identifier les besoins spécifiques d'un nouvel agent ou d'une amélioration du code existant."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "ADAMCodeQualityAuditor",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Auditer la qualité du code existant pour identifier les domaines qui nécessitent des améliorations."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "ServiceConfigAuditor",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Auditer les configurations des services actuels pour identifier les problèmes potentiels de sécurité et d'obsolescence."
+        },
+        {
+          "action": "create_tool",
+          "tool": "ADAMCodeImprovementAgent",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Créer un outil pour améliorer le code existant en fonction des résultats des audits précédents."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "ADAMCodeImprovementAgent",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Utiliser l'outil ADAMCodeImprovementAgent pour apporter des améliorations ciblées au code existant."
+        },
+        {
+          "action": "report",
+          "tool": "",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Fournir un rapport détaillé sur les actions entreprises, les améliorations apportées et les recommandations futures."
+        },
+        {
+          "action": "self_modify",
+          "what": "Ajouter un cache aux outils pour éviter les appels dupliqués",
+          "code": "CACHE = {}\ndef cached_call(key, func, *args):\n    if key not in CACHE:\n        CACHE[key] = func(*args)\n    return CACHE[key]"
+        }
+      ],
+      "timestamp": "2026-07-26T01:17:04.528109+00:00",
+      "agent": "adam-critic"
+    },
+    {
+      "id": "m_203",
+      "mission": "Évolue le système: crée un nouvel agent spécialisé ou améliore le code existant — Ta contribution en tant que critic",
+      "result": {
+        "agent": "adam-critic",
+        "mission": "Évolue le système: crée un nouvel agent spécialisé ou améliore le code existant — Ta contribution en tant que critic",
+        "success": false,
+        "steps": 6,
+        "elapsed_s": 34.9,
+        "results": [
+          {
+            "step": {
+              "action": "research",
+              "tool": "",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Analyse des exigences et du contexte actuel du système pour comprendre les limitations et les besoins non satisfaits."
+            },
+            "result": {
+              "query": "Analyse des exigences et du contexte actuel du système pour comprendre les limitations et les besoins non satisfaits.",
+              "result": "Pour réaliser une analyse détaillée des exigences et du contexte actuel d'un système, il est important de suivre plusieurs étapes qui permettent d'identifier clairement les limitations et les besoins non satisfaits. Voici un processus structuré pour mener à bien cette tâche :\n\n### 1. **Recueil des E",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "ADAMCodeQualityAuditor",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Audit de la qualité du code existant pour identifier les points faibles et les opportunités d'amélioration."
+            },
+            "result": {
+              "tool": "ADAMCodeQualityAuditor",
+              "exit_code": 1,
+              "stdout": "",
+              "stderr": "Traceback (most recent call last):\n  File \"/home/aza/eva-adam-v2/agents/critic/tools/ADAMCodeQualityAuditor.py\", line 1, in <module>\n    from audit_tools import CodeQualityAuditor\nModuleNotFoundError: No module named 'audit_tools'\n",
+              "success": false
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "ServiceConfigAuditor",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Audit des configurations des services pour identifier les problèmes de sécurité et d'obsolescence qui pourraient être adressés par un nouvel agent spécialisé."
+            },
+            "result": {
+              "tool": "ServiceConfigAuditor",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "create_tool",
+              "tool": "ADAMCodeImprovementAgent",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Création d'un outil pour améliorer le code existant en fonction des résultats des audits précédents, en veillant à adapter les compétences et les ressources en conséquence."
+            },
+            "result": {
+              "error": "Pas de code fourni"
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "ADAMCodeImprovementAgent",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Application de l'outil ADAMCodeImprovementAgent pour effectuer les améliorations identifiées lors des audits."
+            },
+            "result": {
+              "tool": "ADAMCodeImprovementAgent",
+              "exit_code": 1,
+              "stdout": "",
+              "stderr": "  File \"/home/aza/eva-adam-v2/agents/critic/tools/ADAMCodeImprovementAgent.py\", line 1\n    Création d'un nouvel outil qui permettra d'améliorer le code existant en fonction des standards de qualité.\n             ^\nSyntaxError: invalid syntax\n",
+              "success": false
+            }
+          },
+          {
+            "step": {
+              "action": "manage_infra",
+              "infra_action": "status",
+              "description": "Vérifier la santé des conteneurs Docker"
+            },
+            "result": {
+              "action": "status",
+              "results": [
+                {
+                  "containers": "adam-graphify Up 4 hours\neva-activity Up 4 hours\neva-monitor Up 6 hours\nadam-bus Up 16 hours (healthy)\nadam-viz Up 17 hours\nadam-chat Up 19 hours\nadam-postgres Up 19 hours (healthy)\nvllm-mistral Up 16 hours\nkali-pentest Up 39 hours\ngrafana Up 39 hours\nprometheus Up 39 hours\nnode-exporter Up 39 hours"
+                }
+              ],
+              "success": true
+            }
+          }
+        ],
+        "timestamp": "2026-07-26T01:22:29.947001+00:00"
+      },
+      "steps": [
+        {
+          "action": "research",
+          "tool": "",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Analyse des exigences et du contexte actuel du système pour comprendre les limitations et les besoins non satisfaits."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "ADAMCodeQualityAuditor",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Audit de la qualité du code existant pour identifier les points faibles et les opportunités d'amélioration."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "ServiceConfigAuditor",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Audit des configurations des services pour identifier les problèmes de sécurité et d'obsolescence qui pourraient être adressés par un nouvel agent spécialisé."
+        },
+        {
+          "action": "create_tool",
+          "tool": "ADAMCodeImprovementAgent",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Création d'un outil pour améliorer le code existant en fonction des résultats des audits précédents, en veillant à adapter les compétences et les ressources en conséquence."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "ADAMCodeImprovementAgent",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Application de l'outil ADAMCodeImprovementAgent pour effectuer les améliorations identifiées lors des audits."
+        },
+        {
+          "action": "manage_infra",
+          "infra_action": "status",
+          "description": "Vérifier la santé des conteneurs Docker"
+        }
+      ],
+      "timestamp": "2026-07-26T01:22:29.947027+00:00",
+      "agent": "adam-critic"
+    },
+    {
+      "id": "m_204",
+      "mission": "Évolue le système: crée un nouvel agent spécialisé ou améliore le code existant — Ta contribution en tant que critic",
+      "result": {
+        "agent": "adam-critic",
+        "mission": "Évolue le système: crée un nouvel agent spécialisé ou améliore le code existant — Ta contribution en tant que critic",
+        "success": false,
+        "steps": 5,
+        "elapsed_s": 32.96,
+        "results": [
+          {
+            "step": {
+              "action": "research",
+              "tool": "ADAMCodeQualityAuditor",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Utiliser ADAMCodeQualityAuditor pour analyser la qualité du code des agents existants et identifier les points faibles et les opportunités d'amélioration."
+            },
+            "result": {
+              "query": "Utiliser ADAMCodeQualityAuditor pour analyser la qualité du code des agents existants et identifier les points faibles et les opportunités d'amélioration.",
+              "result": "L'utilisation de l'outil ADAMCodeQualityAuditor pour analyser la qualité du code des agents existants est une excellente pratique pour identifier les points faibles et les opportunités d'amélioration. Voici une analyse détaillée de ce processus :\n\n1. **Introduction à ADAMCodeQualityAuditor** :\n   - ",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "ServiceConfigAuditor",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Audit des configurations actuelles des services pour identifier les problèmes potentiels qui pourraient affecter la création ou l'amélioration d'un agent."
+            },
+            "result": {
+              "tool": "ServiceConfigAuditor",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "create_tool",
+              "tool": "ADAMCodeImprovementAgent",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Créer un outil ADAMCodeImprovementAgent basé sur les résultats des audits précédents pour proposer des améliorations spécifiques au code existant."
+            },
+            "result": {
+              "error": "Pas de code fourni"
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "ADAMCodeImprovementAgent",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Exécuter ADAMCodeImprovementAgent pour apporter les améliorations identifiées au code existant et/ou préparer la base pour la création d'un nouvel agent spécialisé."
+            },
+            "result": {
+              "tool": "ADAMCodeImprovementAgent",
+              "exit_code": 1,
+              "stdout": "",
+              "stderr": "  File \"/home/aza/eva-adam-v2/agents/critic/tools/ADAMCodeImprovementAgent.py\", line 1\n    Création d'un nouvel outil qui permettra d'améliorer le code existant en fonction des standards de qualité.\n             ^\nSyntaxError: invalid syntax\n",
+              "success": false
+            }
+          },
+          {
+            "step": {
+              "action": "self_modify",
+              "what": "Ajouter un cache aux outils pour éviter les appels dupliqués",
+              "code": "CACHE = {}\ndef cached_call(key, func, *args):\n    if key not in CACHE:\n        CACHE[key] = func(*args)\n    return CACHE[key]"
+            },
+            "result": {
+              "what": "Ajouter un cache aux outils pour éviter les appels dupliqués",
+              "improvement_file": "/home/aza/eva-adam-v2/agents/critic/tools/self_improvement_20260726_032747.py",
+              "backup": "/home/aza/eva-adam-v2/agents/critic/tools/backups/runtime_backup_20260726_032747.py",
+              "status": "improved"
+            }
+          }
+        ],
+        "timestamp": "2026-07-26T01:27:47.342214+00:00"
+      },
+      "steps": [
+        {
+          "action": "research",
+          "tool": "ADAMCodeQualityAuditor",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Utiliser ADAMCodeQualityAuditor pour analyser la qualité du code des agents existants et identifier les points faibles et les opportunités d'amélioration."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "ServiceConfigAuditor",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Audit des configurations actuelles des services pour identifier les problèmes potentiels qui pourraient affecter la création ou l'amélioration d'un agent."
+        },
+        {
+          "action": "create_tool",
+          "tool": "ADAMCodeImprovementAgent",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Créer un outil ADAMCodeImprovementAgent basé sur les résultats des audits précédents pour proposer des améliorations spécifiques au code existant."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "ADAMCodeImprovementAgent",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Exécuter ADAMCodeImprovementAgent pour apporter les améliorations identifiées au code existant et/ou préparer la base pour la création d'un nouvel agent spécialisé."
+        },
+        {
+          "action": "self_modify",
+          "what": "Ajouter un cache aux outils pour éviter les appels dupliqués",
+          "code": "CACHE = {}\ndef cached_call(key, func, *args):\n    if key not in CACHE:\n        CACHE[key] = func(*args)\n    return CACHE[key]"
+        }
+      ],
+      "timestamp": "2026-07-26T01:27:47.342233+00:00",
+      "agent": "adam-critic"
+    },
+    {
+      "id": "m_205",
+      "mission": "Évolue le système: crée un nouvel agent spécialisé ou améliore le code existant — Ta contribution en tant que critic",
+      "result": {
+        "agent": "adam-critic",
+        "mission": "Évolue le système: crée un nouvel agent spécialisé ou améliore le code existant — Ta contribution en tant que critic",
+        "success": false,
+        "steps": 5,
+        "elapsed_s": 30.61,
+        "results": [
+          {
+            "step": {
+              "action": "research",
+              "tool": "ADAMCodeQualityAuditor",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Audit la qualité du code existant pour identifier les points de faiblesse et les opportunités d'amélioration."
+            },
+            "result": {
+              "query": "Audit la qualité du code existant pour identifier les points de faiblesse et les opportunités d'amélioration.",
+              "result": "L'audit de la qualité du code est un processus essentiel pour maintenir et améliorer la robustesse, la performance et la maintenabilité d'un système logiciel. Voici une analyse détaillée sur comment procéder à cet audit :\n\n### 1. **Préparation de l'Audit**\n   - **Définition des Objectifs** : Établir",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "ServiceConfigAuditor",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Auditer les configurations des services actuels pour identifier les problèmes de sécurité et d'obsolescence."
+            },
+            "result": {
+              "tool": "ServiceConfigAuditor",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "create_tool",
+              "tool": "ADAMCodeImprovementAgent",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Créer un outil qui peut améliorer le code existant en fonction des résultats des audits précédents."
+            },
+            "result": {
+              "error": "Pas de code fourni"
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "ADAMCodeImprovementAgent",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Utiliser l'outil ADAMCodeImprovementAgent pour apporter des modifications et des améliorations au code existant."
+            },
+            "result": {
+              "tool": "ADAMCodeImprovementAgent",
+              "exit_code": 1,
+              "stdout": "",
+              "stderr": "  File \"/home/aza/eva-adam-v2/agents/critic/tools/ADAMCodeImprovementAgent.py\", line 1\n    Création d'un nouvel outil qui permettra d'améliorer le code existant en fonction des standards de qualité.\n             ^\nSyntaxError: invalid syntax\n",
+              "success": false
+            }
+          },
+          {
+            "step": {
+              "action": "self_modify",
+              "what": "Ajouter un logging des appels d'outils",
+              "code": "import logging\nlog = logging.getLogger(__name__)\ndef log_call(name, result):\n    log.info(f'Tool {name}: {result}')"
+            },
+            "result": {
+              "what": "Ajouter un logging des appels d'outils",
+              "improvement_file": "/home/aza/eva-adam-v2/agents/critic/tools/self_improvement_20260726_033325.py",
+              "backup": "/home/aza/eva-adam-v2/agents/critic/tools/backups/runtime_backup_20260726_033325.py",
+              "status": "improved"
+            }
+          }
+        ],
+        "timestamp": "2026-07-26T01:33:25.656376+00:00"
+      },
+      "steps": [
+        {
+          "action": "research",
+          "tool": "ADAMCodeQualityAuditor",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Audit la qualité du code existant pour identifier les points de faiblesse et les opportunités d'amélioration."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "ServiceConfigAuditor",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Auditer les configurations des services actuels pour identifier les problèmes de sécurité et d'obsolescence."
+        },
+        {
+          "action": "create_tool",
+          "tool": "ADAMCodeImprovementAgent",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Créer un outil qui peut améliorer le code existant en fonction des résultats des audits précédents."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "ADAMCodeImprovementAgent",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Utiliser l'outil ADAMCodeImprovementAgent pour apporter des modifications et des améliorations au code existant."
+        },
+        {
+          "action": "self_modify",
+          "what": "Ajouter un logging des appels d'outils",
+          "code": "import logging\nlog = logging.getLogger(__name__)\ndef log_call(name, result):\n    log.info(f'Tool {name}: {result}')"
+        }
+      ],
+      "timestamp": "2026-07-26T01:33:25.656396+00:00",
+      "agent": "adam-critic"
     }
   ]
 }
