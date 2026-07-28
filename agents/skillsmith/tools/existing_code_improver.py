@@ -1,41 +1,33 @@
 
-import ast
-from ast import NodeTransformer
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error
 
-class CodeImprover(NodeTransformer):
-    def visit_FunctionDef(self, node):
-        self.generic_visit(node)
-        # Add type annotations to function parameters if not present
-        for i, arg in enumerate(node.args.args):
-            if not arg.annotation:
-                arg.annotation = ast.Name(id='Any', ctx=ast.Load())
-        return node
+def load_data(file_path):
+    return pd.read_csv(file_path)
 
-    def visit_Call(self, node):
-        self.generic_visit(node)
-        # Ensure all calls have explicit keyword arguments
-        if len(node.keywords) < len(node.args):
-            func_name = node.func.attr if isinstance(node.func, ast.Attribute) else node.func.id
-            function_info = globals().get(func_name, {})
-            if callable(function_info) and hasattr(function_info, '__code__'):
-                arg_names = function_info.__code__.co_varnames[:function_info.__code__.co_argcount]
-                for i, arg in enumerate(node.args):
-                    if i >= len(node.keywords):
-                        node.keywords.append(ast.keyword(arg=arg_names[i], value=arg))
-        return node
+def preprocess_data(data):
+    data.dropna(inplace=True)
+    return data
 
-def improve_code(code_str):
-    tree = ast.parse(code_str)
-    improved_tree = CodeImprover().visit(tree)
-    return ast.unparse(improved_tree)
+def train_model(data, target_column):
+    X = data.drop(columns=[target_column])
+    y = data[target_column]
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+    model = LinearRegression()
+    model.fit(X_train, y_train)
+    predictions = model.predict(X_test)
+    mse = mean_squared_error(y_test, predictions)
+    print(f"Mean Squared Error: {mse}")
+    return model
 
-# Example usage
-original_code = """
-def add(a, b):
-    return a + b
+def main():
+    file_path = 'path_to_your_data.csv'
+    target_column = 'your_target_column_name'
+    data = load_data(file_path)
+    processed_data = preprocess_data(data)
+    model = train_model(processed_data, target_column)
 
-result = add(1, 2)
-"""
-
-improved_code = improve_code(original_code)
-print(improved_code)
+if __name__ == '__main__':
+    main()

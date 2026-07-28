@@ -1,90 +1,185 @@
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EVA - Premium Landing Page</title>
-    <style>
-        body {
-            background-color: #050510;
-            color: white;
-            font-family: 'Inter', sans-serif;
-        }
-        .hero {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background: linear-gradient(135deg, #00ffcb, #00bfff);
-            text-align: center;
-        }
-        .stats {
-            margin-top: 2rem;
-        }
-        .product-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 2rem;
-            padding: 2rem;
-        }
-        .product-card {
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 12px;
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-            backdrop-filter: blur(5px);
-            transition: transform 0.3s ease-in-out;
-        }
-        .product-card:hover {
-            transform: scale(1.05);
-        }
-        .product-title {
-            font-size: 1.5em;
-        }
-        .product-price {
-            font-weight: bold;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EVA - Autonomous Agent Ecosystem</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;510;590;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #08090a;
+  --panel: #0f1011;
+  --surface: #191a1b;
+  --text: #f7f8f8;
+  --text-secondary: #d0d6e0;
+  --text-muted: #8a8f98;
+  --brand: #5e6ad2;
+  --accent: #7170ff;
+  --accent-hover: #828fff;
+  --green: #27a644;
+  --border: rgba(255,255,255,0.08);
+  --border-subtle: rgba(255,255,255,0.05);
+  --radius: 8px;
+  --radius-lg: 12px;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-feature-settings: "cv01", "ss03";
+  -webkit-font-smoothing: antialiased;
+}
+.hero {
+  min-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 80px 24px;
+  background-image: radial-gradient(ellipse at 50% 0%, rgba(94,106,210,0.12) 0%, transparent 60%);
+}
+.hero h1 {
+  font-size: 72px;
+  font-weight: 510;
+  letter-spacing: -1.584px;
+  line-height: 1.0;
+  margin-bottom: 20px;
+  background: linear-gradient(135deg, var(--text) 0%, var(--accent) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.hero p {
+  font-size: 18px;
+  font-weight: 400;
+  color: var(--text-muted);
+  line-height: 1.6;
+  max-width: 600px;
+  margin-bottom: 40px;
+}
+.stats { display: flex; gap: 48px; flex-wrap: wrap; justify-content: center; }
+.stat { text-align: center; }
+.stat .num { font-size: 36px; font-weight: 590; color: var(--accent); letter-spacing: -0.5px; }
+.stat .label { font-size: 12px; font-weight: 510; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-top: 4px; }
+.products { max-width: 1200px; margin: 0 auto; padding: 80px 24px; }
+.products h2 { font-size: 48px; font-weight: 510; letter-spacing: -1.056px; text-align: center; margin-bottom: 12px; }
+.products .sub { font-size: 15px; color: var(--text-muted); text-align: center; margin-bottom: 48px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 16px; }
+.card {
+  background: rgba(255,255,255,0.02);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 28px;
+  transition: all 0.2s cubic-bezier(0.4,0,0.2,1);
+  position: relative;
+}
+.card:hover {
+  background: rgba(255,255,255,0.04);
+  border-color: rgba(255,255,255,0.12);
+  transform: translateY(-2px);
+}
+.card .cat { font-size: 11px; font-weight: 510; color: var(--accent); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+.card h3 { font-size: 20px; font-weight: 590; letter-spacing: -0.24px; margin-bottom: 6px; }
+.card .desc { font-size: 14px; color: var(--text-muted); line-height: 1.5; margin-bottom: 16px; }
+.card .price { font-size: 28px; font-weight: 590; color: var(--green); margin-bottom: 16px; }
+.card ul { list-style: none; margin-bottom: 20px; }
+.card li { font-size: 13px; color: var(--text-secondary); padding: 4px 0; padding-left: 20px; position: relative; }
+.card li::before { content: ""; position: absolute; left: 0; top: 10px; width: 4px; height: 4px; border-radius: 50%; background: var(--accent); }
+.card .target { font-size: 11px; color: var(--text-muted); padding-top: 12px; border-top: 1px solid var(--border-subtle); }
+.card .cta {
+  display: inline-block; margin-top: 16px; padding: 8px 16px;
+  background: var(--brand); color: #fff; font-size: 13px; font-weight: 510;
+  border-radius: 6px; text-decoration: none; transition: background 0.15s;
+}
+.card .cta:hover { background: var(--accent-hover); }
+footer { border-top: 1px solid var(--border-subtle); padding: 40px 24px; text-align: center; }
+footer p { font-size: 13px; color: var(--text-muted); line-height: 1.8; }
+footer .badge {
+  display: inline-block; padding: 6px 16px;
+  background: rgba(255,255,255,0.03); border: 1px solid var(--border-subtle);
+  border-radius: 9999px; font-size: 12px; font-weight: 510;
+  color: var(--text-secondary); margin-bottom: 16px;
+}
+footer .badge strong { color: var(--text); }
+footer .badge .hl { color: var(--accent); }
+@media (max-width: 768px) { .hero h1 { font-size: 40px; } .stats { gap: 24px; } }
+</style>
 </head>
 <body>
-    <header class="hero">
-        <div>
-            <h1>EVA</h1>
-            <p>Your Ultimate AI Companion</p>
-            <div class="stats">
-                <span>1M+</span>
-                <span>Satisfied Users</span>
-            </div>
-        </div>
-    </header>
-    
-    <main>
-        <section class="product-grid">
-            <article class="product-card">
-                <h2 class="product-title">Security Scanner</h2>
-                <p class="product-price">€299</p>
-            </article>
-            <article class="product-card">
-                <h2 class="product-title">Trading Bot</h2>
-                <p class="product-price">€199</p>
-            </article>
-            <article class="product-card">
-                <h2 class="product-title">Maeve Content</h2>
-                <p class="product-price">€149</p>
-            </article>
-            <article class="product-card">
-                <h2 class="product-title">OSINT</h2>
-                <p class="product-price">€499</p>
-            </article>
-            <article class="product-card">
-                <h2 class="product-title">Code Audit</h2>
-                <p class="product-price">€399</p>
-            </article>
-            <article class="product-card">
-                <h2 class="product-title">Skills Pack</h2>
-                <p class="product-price">€299</p>
-            </article>
-        </section>
-    </main>
+  <div class="hero">
+    <h1>EVA</h1>
+    <p>16 agents IA autonomes propulses par Qwen2.5-32B. 1127 skills. 120+ outils. 100% local. Voici ce que EVA a cree et peut vendre.</p>
+    <div class="stats">
+      <div class="stat"><div class="num">19</div><div class="label">Agents</div></div>
+      <div class="stat"><div class="num">1127</div><div class="label">Skills</div></div>
+      <div class="stat"><div class="num">120+</div><div class="label">Outils</div></div>
+      <div class="stat"><div class="num">4000+</div><div class="label">Lecons</div></div>
+    </div>
+  </div>
+  <div class="products">
+    <h2>Produits &amp; Services</h2>
+    <p class="sub">Genere et developpe par les agents ADAM autonomes</p>
+    <div class="grid">
+      <div class="card">
+        <div class="cat">SECURITE</div>
+        <h3>ADAM Security Scanner</h3>
+        <p class="desc">Scanner de vulnerabilites automatise pour serveurs et applications web</p>
+        <div class="price">299&euro;/mois</div>
+        <ul><li>Scan automatique des CVE</li><li>Rapport de vulnerabilites detaille</li><li>Recommandations de hardening</li></ul>
+        <div class="target">Cible: PME et startups tech</div>
+        <a href="#" class="cta">Demander une demo</a>
+      </div>
+      <div class="card">
+        <div class="cat">TRADING</div>
+        <h3>EVA Trading Bot</h3>
+        <p class="desc">Bot de trading algorithmique pour Freedom24 avec strategies optimisees</p>
+        <div class="price">199&euro;/mois</div>
+        <ul><li>Strategies de trading algorithmique</li><li>Backtesting automatique</li><li>Gestion du risque integree</li></ul>
+        <div class="target">Cible: Traders particuliers et investisseurs</div>
+        <a href="#" class="cta">Demander une demo</a>
+      </div>
+      <div class="card">
+        <div class="cat">CONTENU</div>
+        <h3>Maeve Tech Content</h3>
+        <p class="desc">Generateur de contenu IA pour Instagram et reseaux sociaux</p>
+        <div class="price">149&euro;/mois</div>
+        <ul><li>Generation de posts Instagram</li><li>Calendrier editorial automatique</li><li>Analyse de tendances</li></ul>
+        <div class="target">Cible: Createurs de contenu et marques</div>
+        <a href="#" class="cta">Demander une demo</a>
+      </div>
+      <div class="card">
+        <div class="cat">OSINT</div>
+        <h3>OSINT Due Diligence</h3>
+        <p class="desc">Rapports OSINT B2B pour due diligence et investigations</p>
+        <div class="price">499&euro;/rapport</div>
+        <ul><li>Collecte OSINT automatisee</li><li>Rapport structure B2B</li><li>Analyse de traces numeriques</li></ul>
+        <div class="target">Cible: Cabinets d'avocats, investisseurs</div>
+        <a href="#" class="cta">Demander une demo</a>
+      </div>
+      <div class="card">
+        <div class="cat">CODE</div>
+        <h3>ADAM Code Audit</h3>
+        <p class="desc">Audit de qualite de code automatise par IA</p>
+        <div class="price">399&euro;/audit</div>
+        <ul><li>Analyse de qualite du code</li><li>Detection de vulnerabilites</li><li>Recommandations d'architecture</li></ul>
+        <div class="target">Cible: Equipes de developpement</div>
+        <a href="#" class="cta">Demander une demo</a>
+      </div>
+      <div class="card">
+        <div class="cat">IA</div>
+        <h3>EVA AI Skills Pack</h3>
+        <p class="desc">Pack de 1127+ skills IA pour agents autonomes</p>
+        <div class="price">299&euro;/pack</div>
+        <ul><li>1127 SKILL.md couvrant 60+ domaines</li><li>Skills de securite, IA, data science</li><li>Format standardise reutilisable</li></ul>
+        <div class="target">Cible: Developpeurs IA et equipes R&amp;D</div>
+        <a href="#" class="cta">Demander une demo</a>
+      </div>
+    </div>
+  </div>
+  <footer>
+    <div class="badge"><strong>EVA</strong> &middot; 100% local &middot; <span class="hl">Qwen2.5-32B</span> &middot; AGI Niveau 5</div>
+    <p>Cree par les agents ADAM &middot; Cycle 90+ &middot; 17 agents &middot; DeepSeek V4 verification</p>
+  </footer>
 </body>
 </html>

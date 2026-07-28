@@ -7284,6 +7284,408 @@
       ],
       "timestamp": "2026-07-26T06:03:37.925953+00:00",
       "agent": "adam-garbler"
+    },
+    {
+      "id": "m_106",
+      "mission": "Exécute ta mission",
+      "result": {
+        "agent": "adam-garbler",
+        "mission": "Exécute ta mission",
+        "success": true,
+        "steps": 2,
+        "elapsed_s": 3.36,
+        "results": [
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "CodeCleaner",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Utiliser l'outil CodeCleaner pour nettoyer le code mort dans le système ADAM."
+            },
+            "result": {
+              "tool": "CodeCleaner",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "manage_infra",
+              "infra_action": "status",
+              "description": "Vérifier la santé des conteneurs Docker"
+            },
+            "result": {
+              "action": "status",
+              "results": [
+                {
+                  "containers": "eva-products Up 33 minutes\nadam-graphify Up 9 hours\neva-activity Up About an hour\neva-monitor Up 11 hours\nadam-bus Up 22 hours (healthy)\nadam-viz Up 23 hours\nadam-chat Up 24 hours\nadam-postgres Up 24 hours (healthy)\nvllm-mistral Up 21 hours\nkali-pentest Up 44 hours\ngrafana Up 44 hours\nprometheus Up "
+                }
+              ],
+              "success": true
+            }
+          }
+        ],
+        "timestamp": "2026-07-26T06:37:14.943748+00:00"
+      },
+      "steps": [
+        {
+          "action": "execute_tool",
+          "tool": "CodeCleaner",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Utiliser l'outil CodeCleaner pour nettoyer le code mort dans le système ADAM."
+        },
+        {
+          "action": "manage_infra",
+          "infra_action": "status",
+          "description": "Vérifier la santé des conteneurs Docker"
+        }
+      ],
+      "timestamp": "2026-07-26T06:37:14.943781+00:00",
+      "agent": "adam-garbler"
+    },
+    {
+      "id": "m_107",
+      "mission": "Exécute ta mission",
+      "result": {
+        "agent": "adam-garbler",
+        "mission": "Exécute ta mission",
+        "success": false,
+        "steps": 2,
+        "elapsed_s": 3.3,
+        "results": [
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "CodeCleaner",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Utiliser l'outil CodeCleaner pour nettoyer le code mort dans le système ADAM."
+            },
+            "result": {
+              "tool": "CodeCleaner",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "self_modify",
+              "what": "Ajouter un système de retry aux outils",
+              "code": "import time\ndef retry(func, max=3):\n    for i in range(max):\n        try: return func()\n        except: time.sleep(1)\n    return None"
+            },
+            "result": {
+              "what": "Ajouter un système de retry aux outils",
+              "improvement_file": "/home/aza/eva-adam-v2/agents/garbler/tools/self_improvement_20260726_084635.py",
+              "backup": "/home/aza/eva-adam-v2/agents/garbler/tools/backups/runtime_backup_20260726_084635.py",
+              "status": "improved"
+            }
+          }
+        ],
+        "timestamp": "2026-07-26T06:46:35.515824+00:00"
+      },
+      "steps": [
+        {
+          "action": "execute_tool",
+          "tool": "CodeCleaner",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Utiliser l'outil CodeCleaner pour nettoyer le code mort dans le système ADAM."
+        },
+        {
+          "action": "self_modify",
+          "what": "Ajouter un système de retry aux outils",
+          "code": "import time\ndef retry(func, max=3):\n    for i in range(max):\n        try: return func()\n        except: time.sleep(1)\n    return None"
+        }
+      ],
+      "timestamp": "2026-07-26T06:46:35.515838+00:00",
+      "agent": "adam-garbler"
+    },
+    {
+      "id": "m_108",
+      "mission": "Exécute ta mission",
+      "result": {
+        "agent": "adam-garbler",
+        "mission": "Exécute ta mission",
+        "success": false,
+        "steps": 3,
+        "elapsed_s": 6.99,
+        "results": [
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "CodeCleaner",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Utiliser l'outil CodeCleaner pour identifier et supprimer le code mort dans les systèmes gérés par ADAM."
+            },
+            "result": {
+              "tool": "CodeCleaner",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "delegate",
+              "tool": "",
+              "args": "",
+              "code": "",
+              "target_agent": "praetor/system_checker.py",
+              "description": "Déléguer la vérification de l'intégrité des systèmes à system_checker.py pour s'assurer que le nettoyage du code mort n'affecte pas la stabilité du système."
+            },
+            "result": {
+              "status": "delegated",
+              "target": "praetor/system_checker.py",
+              "subtask": "Déléguer la vérification de l'intégrité des systèmes à system_checker.py pour s'assurer que le nettoyage du code mort n'affecte pas la stabilité du système."
+            }
+          },
+          {
+            "step": {
+              "action": "self_modify",
+              "what": "Ajouter un logging des appels d'outils",
+              "code": "import logging\nlog = logging.getLogger(__name__)\ndef log_call(name, result):\n    log.info(f'Tool {name}: {result}')"
+            },
+            "result": {
+              "what": "Ajouter un logging des appels d'outils",
+              "improvement_file": "/home/aza/eva-adam-v2/agents/garbler/tools/self_improvement_20260726_085601.py",
+              "backup": "/home/aza/eva-adam-v2/agents/garbler/tools/backups/runtime_backup_20260726_085601.py",
+              "status": "improved"
+            }
+          }
+        ],
+        "timestamp": "2026-07-26T06:56:01.487910+00:00"
+      },
+      "steps": [
+        {
+          "action": "execute_tool",
+          "tool": "CodeCleaner",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Utiliser l'outil CodeCleaner pour identifier et supprimer le code mort dans les systèmes gérés par ADAM."
+        },
+        {
+          "action": "delegate",
+          "tool": "",
+          "args": "",
+          "code": "",
+          "target_agent": "praetor/system_checker.py",
+          "description": "Déléguer la vérification de l'intégrité des systèmes à system_checker.py pour s'assurer que le nettoyage du code mort n'affecte pas la stabilité du système."
+        },
+        {
+          "action": "self_modify",
+          "what": "Ajouter un logging des appels d'outils",
+          "code": "import logging\nlog = logging.getLogger(__name__)\ndef log_call(name, result):\n    log.info(f'Tool {name}: {result}')"
+        }
+      ],
+      "timestamp": "2026-07-26T06:56:01.487924+00:00",
+      "agent": "adam-garbler"
+    },
+    {
+      "id": "m_109",
+      "mission": "Exécute ta mission",
+      "result": {
+        "agent": "adam-garbler",
+        "mission": "Exécute ta mission",
+        "success": false,
+        "steps": 3,
+        "elapsed_s": 7.63,
+        "results": [
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "CodeCleaner",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Utiliser l'outil CodeCleaner pour commencer à nettoyer le code mort. Cela correspond à ma fonction principale et permet de s'assurer que je comprends bien ma mission."
+            },
+            "result": {
+              "tool": "CodeCleaner",
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "delegate",
+              "tool": "",
+              "args": "",
+              "code": "",
+              "target_agent": "praetor/agent_performance_analyzer.py",
+              "description": "Déléguer l'analyse de ma performance à l'agent praetor/agent_performance_analyzer.py afin d'obtenir des retours sur mon efficacité et de m'adapter en conséquence."
+            },
+            "result": {
+              "status": "delegated",
+              "target": "praetor/agent_performance_analyzer.py",
+              "subtask": "Déléguer l'analyse de ma performance à l'agent praetor/agent_performance_analyzer.py afin d'obtenir des retours sur mon efficacité et de m'adapter en conséquence."
+            }
+          },
+          {
+            "step": {
+              "action": "self_modify",
+              "what": "Optimiser la gestion d'erreur des outils",
+              "code": "def safe_exec(func):\n    try: return func()\n    except Exception as e: return {'error': str(e)}"
+            },
+            "result": {
+              "what": "Optimiser la gestion d'erreur des outils",
+              "improvement_file": "/home/aza/eva-adam-v2/agents/garbler/tools/self_improvement_20260726_090432.py",
+              "backup": "/home/aza/eva-adam-v2/agents/garbler/tools/backups/runtime_backup_20260726_090432.py",
+              "status": "improved"
+            }
+          }
+        ],
+        "timestamp": "2026-07-26T07:04:32.380140+00:00"
+      },
+      "steps": [
+        {
+          "action": "execute_tool",
+          "tool": "CodeCleaner",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Utiliser l'outil CodeCleaner pour commencer à nettoyer le code mort. Cela correspond à ma fonction principale et permet de s'assurer que je comprends bien ma mission."
+        },
+        {
+          "action": "delegate",
+          "tool": "",
+          "args": "",
+          "code": "",
+          "target_agent": "praetor/agent_performance_analyzer.py",
+          "description": "Déléguer l'analyse de ma performance à l'agent praetor/agent_performance_analyzer.py afin d'obtenir des retours sur mon efficacité et de m'adapter en conséquence."
+        },
+        {
+          "action": "self_modify",
+          "what": "Optimiser la gestion d'erreur des outils",
+          "code": "def safe_exec(func):\n    try: return func()\n    except Exception as e: return {'error': str(e)}"
+        }
+      ],
+      "timestamp": "2026-07-26T07:04:32.380150+00:00",
+      "agent": "adam-garbler"
+    },
+    {
+      "id": "m_110",
+      "mission": "MÉTA: Évalue si le système a besoin d'un nouvel agent spécialisé, d'une auto-modification, ou d'une action d'infrastructure. Propose et exécute une action AGI (create_agent, self_modify, ou manage_infra).",
+      "result": {
+        "agent": "adam-garbler",
+        "mission": "MÉTA: Évalue si le système a besoin d'un nouvel agent spécialisé, d'une auto-modification, ou d'une action d'infrastructure. Propose et exécute une action AGI (create_agent, self_modify, ou manage_infra).",
+        "success": false,
+        "steps": 4,
+        "elapsed_s": 14.02,
+        "results": [
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "system_comprehension_assessor.py",
+              "args": {},
+              "code": "",
+              "target_agent": "praetor",
+              "description": "Utiliser l'outil system_comprehension_assessor.py pour évaluer les besoins actuels du système et identifier si un nouvel agent spécialisé, une auto-modification ou une action d'infrastructure est nécessaire."
+            },
+            "result": {
+              "error": "Outil 'system_comprehension_assessor.py' introuvable"
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "multi_agent_architecture_planner.py",
+              "args": {},
+              "code": "",
+              "target_agent": "praetor",
+              "description": "Utiliser l'outil multi_agent_architecture_planner.py pour analyser l'architecture actuelle et proposer des modifications si nécessaire."
+            },
+            "result": {
+              "error": "Outil 'multi_agent_architecture_planner.py' introuvable"
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "agent_performance_analyzer.py",
+              "args": {},
+              "code": "",
+              "target_agent": "praetor",
+              "description": "Analyser la performance des agents actuels pour déterminer s'il y a des lacunes qui pourraient être comblées par un nouvel agent spécialisé."
+            },
+            "result": {
+              "error": "Outil 'agent_performance_analyzer.py' introuvable"
+            }
+          },
+          {
+            "step": {
+              "action": "create_agent",
+              "tool": "agent_specialist_creator.py",
+              "args": {
+                "specialization": "nouvelle_spécialisation"
+              },
+              "code": "",
+              "target_agent": "praetor",
+              "description": "Créer un nouvel agent spécialisé si nécessaire, basé sur les résultats des analyses précédentes."
+            },
+            "result": {
+              "agent_name": "adam-new",
+              "role": "Créer un nouvel agent spécialisé si nécessaire, basé sur les résultats des analyses précédentes.",
+              "status": "created",
+              "created_by": "adam-garbler"
+            }
+          }
+        ],
+        "timestamp": "2026-07-26T08:58:38.513357+00:00"
+      },
+      "steps": [
+        {
+          "action": "execute_tool",
+          "tool": "system_comprehension_assessor.py",
+          "args": {},
+          "code": "",
+          "target_agent": "praetor",
+          "description": "Utiliser l'outil system_comprehension_assessor.py pour évaluer les besoins actuels du système et identifier si un nouvel agent spécialisé, une auto-modification ou une action d'infrastructure est nécessaire."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "multi_agent_architecture_planner.py",
+          "args": {},
+          "code": "",
+          "target_agent": "praetor",
+          "description": "Utiliser l'outil multi_agent_architecture_planner.py pour analyser l'architecture actuelle et proposer des modifications si nécessaire."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "agent_performance_analyzer.py",
+          "args": {},
+          "code": "",
+          "target_agent": "praetor",
+          "description": "Analyser la performance des agents actuels pour déterminer s'il y a des lacunes qui pourraient être comblées par un nouvel agent spécialisé."
+        },
+        {
+          "action": "create_agent",
+          "tool": "agent_specialist_creator.py",
+          "args": {
+            "specialization": "nouvelle_spécialisation"
+          },
+          "code": "",
+          "target_agent": "praetor",
+          "description": "Créer un nouvel agent spécialisé si nécessaire, basé sur les résultats des analyses précédentes."
+        }
+      ],
+      "timestamp": "2026-07-26T08:58:38.513381+00:00",
+      "agent": "adam-garbler"
     }
   ]
 }

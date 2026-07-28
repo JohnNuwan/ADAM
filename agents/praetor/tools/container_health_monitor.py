@@ -1,13 +1,25 @@
-def monitor_container_health():
-    # Récupère les données de system_checker et agent_performance_analyzer
-    system_data = system_checker()
-    performance_data = agent_performance_analyzer()
-    
-    # Analyse les données pour identifier les conteneurs malades
-    unhealthy_containers = []
-    for container in system_data:
-        if container['cpu_usage'] > 80 or container['memory_usage'] > 80 or container['disk_usage'] > 80:
-            unhealthy_containers.append(container)
 
-    # Retourne la liste des conteneurs malades
+import docker
+
+def get_container_health(client):
+    containers = client.containers.list()
+    unhealthy_containers = []
+    for container in containers:
+        if container.status == 'running':
+            health = container.attrs['State']['Health']
+            if health and health['Status'] != 'healthy':
+                unhealthy_containers.append((container.name, health['Status']))
     return unhealthy_containers
+
+def monitor_health():
+    client = docker.DockerClient(base_url='unix://var/run/docker.sock')
+    unhealthy_containers = get_container_health(client)
+    if unhealthy_containers:
+        print("Unhealthy containers found:")
+        for name, status in unhealthy_containers:
+            print(f"Container: {name}, Status: {status}")
+    else:
+        print("All containers are healthy.")
+
+if __name__ == '__main__':
+    monitor_health()

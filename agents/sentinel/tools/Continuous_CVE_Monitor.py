@@ -1,41 +1,42 @@
 
 import requests
-from datetime import datetime, timedelta
+from bs4 import BeautifulSoup
+import time
 
-def fetch_latest_cves(api_url):
-    response = requests.get(api_url)
+def fetch_cve_data(url):
+    response = requests.get(url)
     if response.status_code == 200:
-        return response.json()
+        return response.text
     else:
-        return None
+        raise Exception(f"Failed to fetch data from {url}")
 
-def filter_new_cves(all_cves, last_check_time):
-    new_cves = []
-    for cve in all_cves:
-        published_date = datetime.strptime(cve['publishedDate'], '%Y-%m-%dT%H:%M:%SZ')
-        if published_date > last_check_time:
-            new_cves.append(cve)
-    return new_cves
+def parse_cve_data(html_content):
+    soup = BeautifulSoup(html_content, 'html.parser')
+    cves = []
+    # Example parsing logic, adjust according to actual HTML structure
+    for entry in soup.find_all('entry'):
+        cve_id = entry.cveid.string
+        summary = entry.summary.string
+        cves.append({'cve_id': cve_id, 'summary': summary})
+    return cves
 
-def monitor_cves(api_url, interval_minutes=15):
-    last_check_time = datetime.now() - timedelta(days=1)  # Start with a date far back enough
+def monitor_cves(url, interval=3600):
+    last_known_cves = set()
     while True:
-        print(f"Checking for new CVEs at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-        cves = fetch_latest_cves(api_url)
-        if cves:
-            new_cves = filter_new_cves(cves, last_check_time)
+        try:
+            html_content = fetch_cve_data(url)
+            current_cves = parse_cve_data(html_content)
+            new_cves = [cve for cve in current_cves if cve['cve_id'] not in last_known_cves]
             if new_cves:
                 print("New CVEs found:")
                 for cve in new_cves:
-                    print(f"- {cve['id']} : {cve['summary']}")
-            else:
-                print("No new CVEs found.")
-            last_check_time = datetime.now()
-        else:
-            print("Failed to fetch CVEs.")
-        time.sleep(interval_minutes * 60)
+                    print(f"CVE ID: {cve['cve_id']}, Summary: {cve['summary']}")
+                last_known_cves.update([cve['cve_id'] for cve in current_cves])
+            time.sleep(interval)
+        except Exception as e:
+            print(f"An error occurred: {e}")
+            time.sleep(interval)
 
 if __name__ == '__main__':
-    import time
-    API_URL = "https://services.nvd.nist.gov/rest/json/cves/1.0"
-    monitor_cves(API_URL)
+    url = "https://www.example.com/cve-feed.xml"  # Replace with the actual URL of the CVE feed
+    monitor_cves(url)

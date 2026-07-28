@@ -299,6 +299,550 @@
       ],
       "timestamp": "2026-07-26T06:03:41.356504+00:00",
       "agent": "adam-verifier"
+    },
+    {
+      "id": "m_5",
+      "mission": "Exécute ta mission",
+      "result": {
+        "agent": "adam-verifier",
+        "mission": "Exécute ta mission",
+        "success": false,
+        "steps": 7,
+        "elapsed_s": 15.59,
+        "results": [
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "mission_interpreter",
+              "args": "Exécute ta mission",
+              "description": "Interpréter clairement les instructions de la mission et définir les objectifs."
+            },
+            "result": {
+              "tool": "mission_interpreter",
+              "exit_code": 0,
+              "stdout": "{'objectives': ['atteindre la base ennemie. objectif 2: récupérer le document secret.']}\n",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "delegate",
+              "tool": "praetor/system_comprehension_assessor.py",
+              "args": "",
+              "description": "Évaluer la compréhension actuelle de la mission et identifier les compétences nécessaires."
+            },
+            "result": {
+              "status": "delegated",
+              "target": "",
+              "subtask": "Évaluer la compréhension actuelle de la mission et identifier les compétences nécessaires."
+            }
+          },
+          {
+            "step": {
+              "action": "create_agent",
+              "tool": "praetor/agent_specialist_creator.py",
+              "args": "helper_agent",
+              "description": "Créer un agent assistant spécialisé pour aider à accomplir la mission."
+            },
+            "result": {
+              "agent_name": "adam-new",
+              "role": "Créer un agent assistant spécialisé pour aider à accomplir la mission.",
+              "status": "created",
+              "created_by": "adam-verifier"
+            }
+          },
+          {
+            "step": {
+              "action": "delegate",
+              "tool": "praetor/system_checker.py",
+              "args": "",
+              "description": "Vérifier le système pour s'assurer qu'il est prêt à exécuter la mission."
+            },
+            "result": {
+              "status": "delegated",
+              "target": "",
+              "subtask": "Vérifier le système pour s'assurer qu'il est prêt à exécuter la mission."
+            }
+          },
+          {
+            "step": {
+              "action": "delegate",
+              "tool": "praetor/agent_performance_analyzer.py",
+              "args": "",
+              "description": "Analyser la performance de l'agent pour s'assurer qu'il peut accomplir la mission efficacement."
+            },
+            "result": {
+              "status": "delegated",
+              "target": "",
+              "subtask": "Analyser la performance de l'agent pour s'assurer qu'il peut accomplir la mission efficacement."
+            }
+          },
+          {
+            "step": {
+              "action": "delegate",
+              "tool": "praetor/error_fixer.py",
+              "args": "",
+              "description": "Fixer les erreurs potentielles qui pourraient empêcher la réussite de la mission."
+            },
+            "result": {
+              "status": "delegated",
+              "target": "",
+              "subtask": "Fixer les erreurs potentielles qui pourraient empêcher la réussite de la mission."
+            }
+          },
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "helper_agent",
+              "args": "",
+              "description": "Exécuter la mission avec l'aide de l'agent assistant."
+            },
+            "result": {
+              "error": "Outil 'helper_agent' introuvable"
+            }
+          }
+        ],
+        "timestamp": "2026-07-26T06:37:31.389461+00:00"
+      },
+      "steps": [
+        {
+          "action": "execute_tool",
+          "tool": "mission_interpreter",
+          "args": "Exécute ta mission",
+          "description": "Interpréter clairement les instructions de la mission et définir les objectifs."
+        },
+        {
+          "action": "delegate",
+          "tool": "praetor/system_comprehension_assessor.py",
+          "args": "",
+          "description": "Évaluer la compréhension actuelle de la mission et identifier les compétences nécessaires."
+        },
+        {
+          "action": "create_agent",
+          "tool": "praetor/agent_specialist_creator.py",
+          "args": "helper_agent",
+          "description": "Créer un agent assistant spécialisé pour aider à accomplir la mission."
+        },
+        {
+          "action": "delegate",
+          "tool": "praetor/system_checker.py",
+          "args": "",
+          "description": "Vérifier le système pour s'assurer qu'il est prêt à exécuter la mission."
+        },
+        {
+          "action": "delegate",
+          "tool": "praetor/agent_performance_analyzer.py",
+          "args": "",
+          "description": "Analyser la performance de l'agent pour s'assurer qu'il peut accomplir la mission efficacement."
+        },
+        {
+          "action": "delegate",
+          "tool": "praetor/error_fixer.py",
+          "args": "",
+          "description": "Fixer les erreurs potentielles qui pourraient empêcher la réussite de la mission."
+        },
+        {
+          "action": "execute_tool",
+          "tool": "helper_agent",
+          "args": "",
+          "description": "Exécuter la mission avec l'aide de l'agent assistant."
+        }
+      ],
+      "timestamp": "2026-07-26T06:37:31.389493+00:00",
+      "agent": "adam-verifier"
+    },
+    {
+      "id": "m_6",
+      "mission": "Exécute ta mission",
+      "result": {
+        "agent": "adam-verifier",
+        "mission": "Exécute ta mission",
+        "success": false,
+        "steps": 5,
+        "elapsed_s": 11.56,
+        "results": [
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "mission_interpreter",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Interpréter clairement la mission et définir les objectifs."
+            },
+            "result": {
+              "tool": "mission_interpreter",
+              "exit_code": 0,
+              "stdout": "{'objectives': ['atteindre la base ennemie. objectif 2: récupérer le document secret.']}\n",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "delegate",
+              "tool": "praetor/system_comprehension_assessor.py",
+              "args": "",
+              "code": "",
+              "target_agent": "praetor",
+              "description": "Évaluer la compréhension de la mission et s'assurer qu'elle est claire."
+            },
+            "result": {
+              "status": "delegated",
+              "target": "praetor",
+              "subtask": "Évaluer la compréhension de la mission et s'assurer qu'elle est claire."
+            }
+          },
+          {
+            "step": {
+              "action": "delegate",
+              "tool": "praetor/security_audit_scheduler.py",
+              "args": "",
+              "code": "",
+              "target_agent": "praetor",
+              "description": "Planifier une vérification de sécurité pour s'assurer que toutes les mesures sont en place avant l'exécution."
+            },
+            "result": {
+              "status": "delegated",
+              "target": "praetor",
+              "subtask": "Planifier une vérification de sécurité pour s'assurer que toutes les mesures sont en place avant l'exécution."
+            }
+          },
+          {
+            "step": {
+              "action": "delegate",
+              "tool": "praetor/agent_performance_analyzer.py",
+              "args": "",
+              "code": "",
+              "target_agent": "praetor",
+              "description": "Analyser la performance de l'agent pour s'adapter aux obstacles potentiels."
+            },
+            "result": {
+              "status": "delegated",
+              "target": "praetor",
+              "subtask": "Analyser la performance de l'agent pour s'adapter aux obstacles potentiels."
+            }
+          },
+          {
+            "step": {
+              "action": "manage_infra",
+              "infra_action": "status",
+              "description": "Vérifier la santé des conteneurs Docker"
+            },
+            "result": {
+              "action": "status",
+              "results": [
+                {
+                  "containers": "eva-products Up 42 minutes\nadam-graphify Up 9 hours\neva-activity Up 2 hours\neva-monitor Up 11 hours\nadam-bus Up 22 hours (healthy)\nadam-viz Up 23 hours\nadam-chat Up 24 hours\nadam-postgres Up 24 hours (healthy)\nvllm-mistral Up 21 hours\nkali-pentest Up 44 hours\ngrafana Up 44 hours\nprometheus Up 44 hou"
+                }
+              ],
+              "success": true
+            }
+          }
+        ],
+        "timestamp": "2026-07-26T06:46:48.451500+00:00"
+      },
+      "steps": [
+        {
+          "action": "execute_tool",
+          "tool": "mission_interpreter",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Interpréter clairement la mission et définir les objectifs."
+        },
+        {
+          "action": "delegate",
+          "tool": "praetor/system_comprehension_assessor.py",
+          "args": "",
+          "code": "",
+          "target_agent": "praetor",
+          "description": "Évaluer la compréhension de la mission et s'assurer qu'elle est claire."
+        },
+        {
+          "action": "delegate",
+          "tool": "praetor/security_audit_scheduler.py",
+          "args": "",
+          "code": "",
+          "target_agent": "praetor",
+          "description": "Planifier une vérification de sécurité pour s'assurer que toutes les mesures sont en place avant l'exécution."
+        },
+        {
+          "action": "delegate",
+          "tool": "praetor/agent_performance_analyzer.py",
+          "args": "",
+          "code": "",
+          "target_agent": "praetor",
+          "description": "Analyser la performance de l'agent pour s'adapter aux obstacles potentiels."
+        },
+        {
+          "action": "manage_infra",
+          "infra_action": "status",
+          "description": "Vérifier la santé des conteneurs Docker"
+        }
+      ],
+      "timestamp": "2026-07-26T06:46:48.451521+00:00",
+      "agent": "adam-verifier"
+    },
+    {
+      "id": "m_7",
+      "mission": "Exécute ta mission",
+      "result": {
+        "agent": "adam-verifier",
+        "mission": "Exécute ta mission",
+        "success": false,
+        "steps": 4,
+        "elapsed_s": 10.5,
+        "results": [
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "mission_interpreter",
+              "args": "Exécute ta mission",
+              "description": "Interpréter clairement les instructions de la mission pour définir les objectifs."
+            },
+            "result": {
+              "tool": "mission_interpreter",
+              "exit_code": 0,
+              "stdout": "{'objectives': ['atteindre la base ennemie. objectif 2: récupérer le document secret.']}\n",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "delegate",
+              "tool": "praetor/system_comprehension_assessor.py",
+              "args": "",
+              "target_agent": "praetor",
+              "description": "Évaluer la compréhension de la mission et s'assurer qu'elle est clairement comprise."
+            },
+            "result": {
+              "status": "delegated",
+              "target": "praetor",
+              "subtask": "Évaluer la compréhension de la mission et s'assurer qu'elle est clairement comprise."
+            }
+          },
+          {
+            "step": {
+              "action": "create_agent",
+              "tool": "helper_agent",
+              "args": "",
+              "description": "Créer un agent assistant pour gérer les aspects spécifiques de la mission et s'adapter aux obstacles."
+            },
+            "result": {
+              "agent_name": "adam-new",
+              "role": "Créer un agent assistant pour gérer les aspects spécifiques de la mission et s'adapter aux obstacles.",
+              "status": "created",
+              "created_by": "adam-verifier"
+            }
+          },
+          {
+            "step": {
+              "action": "delegate",
+              "tool": "praetor/agent_performance_analyzer.py",
+              "args": "",
+              "target_agent": "helper_agent",
+              "description": "Analyser la performance de l'agent assistant et ajuster son travail en fonction des feedbacks reçus."
+            },
+            "result": {
+              "status": "delegated",
+              "target": "helper_agent",
+              "subtask": "Analyser la performance de l'agent assistant et ajuster son travail en fonction des feedbacks reçus."
+            }
+          }
+        ],
+        "timestamp": "2026-07-26T06:56:13.054779+00:00"
+      },
+      "steps": [
+        {
+          "action": "execute_tool",
+          "tool": "mission_interpreter",
+          "args": "Exécute ta mission",
+          "description": "Interpréter clairement les instructions de la mission pour définir les objectifs."
+        },
+        {
+          "action": "delegate",
+          "tool": "praetor/system_comprehension_assessor.py",
+          "args": "",
+          "target_agent": "praetor",
+          "description": "Évaluer la compréhension de la mission et s'assurer qu'elle est clairement comprise."
+        },
+        {
+          "action": "create_agent",
+          "tool": "helper_agent",
+          "args": "",
+          "description": "Créer un agent assistant pour gérer les aspects spécifiques de la mission et s'adapter aux obstacles."
+        },
+        {
+          "action": "delegate",
+          "tool": "praetor/agent_performance_analyzer.py",
+          "args": "",
+          "target_agent": "helper_agent",
+          "description": "Analyser la performance de l'agent assistant et ajuster son travail en fonction des feedbacks reçus."
+        }
+      ],
+      "timestamp": "2026-07-26T06:56:13.054800+00:00",
+      "agent": "adam-verifier"
+    },
+    {
+      "id": "m_8",
+      "mission": "Exécute ta mission",
+      "result": {
+        "agent": "adam-verifier",
+        "mission": "Exécute ta mission",
+        "success": false,
+        "steps": 6,
+        "elapsed_s": 16.45,
+        "results": [
+          {
+            "step": {
+              "action": "execute_tool",
+              "tool": "mission_interpreter",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Interpréter clairement les instructions de la mission pour définir les objectifs."
+            },
+            "result": {
+              "tool": "mission_interpreter",
+              "exit_code": 0,
+              "stdout": "{'objectives': ['atteindre la base ennemie. objectif 2: récupérer le document secret.']}\n",
+              "stderr": "",
+              "success": true
+            }
+          },
+          {
+            "step": {
+              "action": "delegate",
+              "tool": "praetor/system_comprehension_assessor.py",
+              "args": "",
+              "code": "",
+              "target_agent": "praetor",
+              "description": "Évaluer la compréhension de la mission et identifier les aspects clairs et obscurs pour adapter la stratégie."
+            },
+            "result": {
+              "status": "delegated",
+              "target": "praetor",
+              "subtask": "Évaluer la compréhension de la mission et identifier les aspects clairs et obscurs pour adapter la stratégie."
+            }
+          },
+          {
+            "step": {
+              "action": "delegate",
+              "tool": "praetor/agent_performance_analyzer.py",
+              "args": "",
+              "code": "",
+              "target_agent": "praetor",
+              "description": "Analyser la performance passée pour identifier les facteurs de succès et d'échec."
+            },
+            "result": {
+              "status": "delegated",
+              "target": "praetor",
+              "subtask": "Analyser la performance passée pour identifier les facteurs de succès et d'échec."
+            }
+          },
+          {
+            "step": {
+              "action": "create_agent",
+              "tool": "",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Créer un agent helper pour gérer les tâches spécifiques de la mission et diviser le travail."
+            },
+            "result": {
+              "agent_name": "adam-new",
+              "role": "Créer un agent helper pour gérer les tâches spécifiques de la mission et diviser le travail.",
+              "status": "created",
+              "created_by": "adam-verifier"
+            }
+          },
+          {
+            "step": {
+              "action": "delegate",
+              "tool": "praetor/error_fixer.py",
+              "args": "",
+              "code": "",
+              "target_agent": "praetor",
+              "description": "Identifier et corriger les erreurs potentielles basées sur les leçons apprises et l'analyse de performance."
+            },
+            "result": {
+              "status": "delegated",
+              "target": "praetor",
+              "subtask": "Identifier et corriger les erreurs potentielles basées sur les leçons apprises et l'analyse de performance."
+            }
+          },
+          {
+            "step": {
+              "action": "report",
+              "tool": "",
+              "args": "",
+              "code": "",
+              "target_agent": "",
+              "description": "Produire un rapport final sur l'exécution de la mission, y compris les résultats et les adaptations apportées."
+            },
+            "result": {
+              "success": true,
+              "report": "Produire un rapport final sur l'exécution de la mission, y compris les résultats et les adaptations apportées."
+            }
+          }
+        ],
+        "timestamp": "2026-07-26T07:04:49.910389+00:00"
+      },
+      "steps": [
+        {
+          "action": "execute_tool",
+          "tool": "mission_interpreter",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Interpréter clairement les instructions de la mission pour définir les objectifs."
+        },
+        {
+          "action": "delegate",
+          "tool": "praetor/system_comprehension_assessor.py",
+          "args": "",
+          "code": "",
+          "target_agent": "praetor",
+          "description": "Évaluer la compréhension de la mission et identifier les aspects clairs et obscurs pour adapter la stratégie."
+        },
+        {
+          "action": "delegate",
+          "tool": "praetor/agent_performance_analyzer.py",
+          "args": "",
+          "code": "",
+          "target_agent": "praetor",
+          "description": "Analyser la performance passée pour identifier les facteurs de succès et d'échec."
+        },
+        {
+          "action": "create_agent",
+          "tool": "",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Créer un agent helper pour gérer les tâches spécifiques de la mission et diviser le travail."
+        },
+        {
+          "action": "delegate",
+          "tool": "praetor/error_fixer.py",
+          "args": "",
+          "code": "",
+          "target_agent": "praetor",
+          "description": "Identifier et corriger les erreurs potentielles basées sur les leçons apprises et l'analyse de performance."
+        },
+        {
+          "action": "report",
+          "tool": "",
+          "args": "",
+          "code": "",
+          "target_agent": "",
+          "description": "Produire un rapport final sur l'exécution de la mission, y compris les résultats et les adaptations apportées."
+        }
+      ],
+      "timestamp": "2026-07-26T07:04:49.910409+00:00",
+      "agent": "adam-verifier"
     }
   ]
 }

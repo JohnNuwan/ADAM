@@ -183,21 +183,108 @@ def get_autonomous_mission(agent, cycle, pnl_status="unknown"):
 
 # Missions par défaut (legacy fallback)
 DEFAULT_MISSIONS = {
-    "praetor": "Vérifie l'état du système et propose des corrections",
-    "sentinel": "Scanne les 3 dernières CVE et crée un rapport",
-    "critic": "Audite la qualité du code des agents",
-    "scribe": "Rédige un rapport de l'état du système",
-    "skillsmith": "Crée un nouveau skill pour un domaine manquant",
-    "doctor": "Diagnostique les conteneurs Docker",
-    "treasurer": "Analyse les stratégies pour Freedom24",
-    "social": "Propose 3 posts Instagram pour Maeve.tech",
-    "osint": "Collecte des informations sur une cible",
-    "researcher": "Recherche les dernières publications sur les agents IA",
-    "rag": "Indexe les documents et crée une recherche sémantique",
-    "viz": "Vérifie le dashboard 3D et propose des améliorations",
-    "ctf": "Analyse un challenge CTF et propose une solution",
-    "blue-team": "Analyse les vulnérabilités du serveur",
-    "red-team": "Crée un outil de scan de sécurité"
+    "sentinel": [
+        "Parcours cve.mitre.org et apprends les 3 dernieres CVE. Cree un outil de scan qui utilise ces CVE",
+        "Utilise nmap pour scanner les ports du serveur local. Documente les vulnérabilités trouvées",
+        "Utilise nikto pour scanner les vulnérabilités web. Cree un rapport de sécurité",
+        "Analyse les logs SSH et detecte les tentatives dintrusion",
+    ],
+    "red-team": [
+        "Utilise sqlmap pour tester les injections SQL sur le serveur local",
+        "Utilise nmap pour faire un scan agressif. Documente les services exposés",
+        " Cree un outil dexploit basé sur une vulnérabilité trouvée avec nmap",
+        "Developpe un outil de pentest web complet (XSS, SQLi, LFI)",
+    ],
+    "blue-team": [
+        "Analyse les résultats de nmap et propose un plan de hardening",
+        "Configure des règles de pare-feu pour bloquer les attaques détectées",
+        "Cree un outil de monitoring de sécurité qui analyse les logs en temps réel",
+        "Developpe un outil de detection dintrusion (IDS) simple",
+    ],
+    "ctf": [
+        "Resous le challenge CTF crypto_base64.py dans challenges/. Documente ta méthode",
+        "Resous le challenge CTF forensics_hidden.py. Utilise grep pour trouver le flag",
+        "Resous le challenge CTF reversing_simple.py. Documente lalgorithme de décodage",
+        "Cree un nouveau challenge CTF pour les autres agents basé sur ce que tu as appris",
+    ],
+    "osint": [
+        "Parcours des sites OSINT et apprends de nouvelles techniques de collecte",
+        " Cree un outil OSINT qui collecte des informations sur un domaine (WHOIS, DNS, IP)",
+        "Developpe un outil de footprinting qui cartographie une cible",
+        "Analyse les traces numeriques dun utilisateur a partir de son email",
+    ],
+    "researcher": [
+        "Parcours github.com et cherche les derniers projets IA autonomes. Documente ce que tu apprends",
+        "Etudie les papiers de recherche sur lAGI et le self-improvement. Resume les points clés",
+        "Analyse les tendances IA de 2026. Quelles technologies sont emergentes?",
+        " Cree un outil danalyse de tendances qui scrape les sites de tech",
+    ],
+    "scribe": [
+        "Parcours awwwards.com et etudie les sites primés. Cree une landing page basée sur ce que tu as appris",
+        "Redige un article SEO de 500 mots sur les agents IA autonomes",
+        " Cree une documentation technique complete pour un produit EVA",
+        "Redige un livre blanc sur la sécurité IA",
+    ],
+    "skillsmith": [
+        "Parcours github.com et cherche de nouveaux skills a ajouter au systeme",
+        "Ameliore un skill existant basé sur les leçons apprises par les agents",
+        "Cree un skill pour lutilisation des outils Kali Linux (nmap, sqlmap, nikto)",
+        "Cree un skill pour le web crawling et lextraction de connaissances",
+    ],
+    "treasurer": [
+        "Analyse les marchés financiers actuels. Quelles sont les opportunités?",
+        "Developpe un bot de trading algorithmique fonctionnel avec strategie et backtesting",
+        "Cree un outil danalyse financiere qui collecte des donnees de marche",
+        "Etudie les strategies de trading algorithmique et documente les plus efficaces",
+    ],
+    "social": [
+        "Genere 3 posts Instagram professionnels pour Maeve.tech basés sur les tendances actuelles",
+        "Analyse les tendances Instagram et cree un calendrier editorial pour Maeve.tech",
+        "Cree un outil de generation de contenu viral base sur les tendances",
+        "Developpe une strategie de monétisation pour Maeve.tech (sponsors, affiliation)",
+    ],
+    "doctor": [
+        "Diagnostique les conteneurs Docker et mesure la consommation GPU/CPU/RAM",
+        "Optimise les performances du serveur. Propose des actions concretes",
+        "Cree un outil de monitoring qui alerte quand un service tombe",
+        "Analyse les logs systeme et detecte les anomalies",
+    ],
+    "praetor": [
+        "Optimise linfrastructure: verifie les conteneurs et propose des améliorations",
+        "Configure le scaling automatique des services",
+        "Cree un outil de gestion dinfrastructure qui automatise les deploiements",
+        "Analyse la securite de linfrastructure et propose des correctifs",
+    ],
+    "critic": [
+        "Audite la qualite du code de tous les agents. Documente les problèmes trouvés",
+        "Evalue la securite de la configuration de chaque service",
+        "Cree un outil daudit de qualite qui analyse le code Python",
+        "Propose des améliorations concrètes pour le systeme ADAM",
+    ],
+    "viz": [
+        "Ameliore le design du dashboard 8090 (glassmorphism, animations)",
+        "Cree une interface web premium pour les produits EVA",
+        "Ajoute le suivi du P&L dans le dashboard avec graphiques",
+        "Etudie les designs Awwwards et applique les meilleures pratiques au dashboard",
+    ],
+    "rag": [
+        "Indexe les nouveaux documents dans PostgreSQL (CVE, outils, leçons)",
+        "Cree un pipeline RAG pour les connaissances ADAM",
+        "Ameliore le moteur de recherche sémantique",
+        "Indexe les skills pour que les agents puissent les rechercher",
+    ],
+    "garbler": [
+        "Nettoie le code mort et les fichiers dupliqués",
+        "Analyse les outils et supprime ceux qui sont des doublons",
+        "Optimise lespace disque en supprimant les fichiers inutiles",
+        "Cree un outil de nettoyage automatique",
+    ],
+    "verifier": [
+        "Valide tous les outils créés par les agents. Régénère les squelettes",
+        "Verifie que le code Python est fonctionnel et professionnel",
+        "Scanne les outils et corrige les implémentations incomplètes",
+        "Audite la qualite du code et propose des améliorations",
+    ],
 }
 
 # Missions évolutives (basées sur les leçons apprises)
