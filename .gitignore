@@ -1,41 +1,25 @@
-# === Bases de données ===
+# Runtime Databases & Logs
 *.db
 *.db-shm
 *.db-wal
-*.db.corrupt.bak*
-data/*.db
-data/*.db-shm
-data/*.db-wal
-
-# === Cache Python ===
-__pycache__/
-*.pyc
-*.pyo
-
-# === PIDs ===
-*.pid
-
-# === Logs ===
 logs/
 *.log
 
-# === OS temporaires ===
-osint_reports/
-research/
+# Caches & Environments
+__pycache__/
+*.pyc
+osint_env/
+venv/
+.venv/
+.pytest_cache/
+.ruff_cache/
+
+# OS & IDE
+.DS_Store
+.vscode/
+.idea/
+
+# Large datasets & wordlists
 wordlists/
-
-# === Fixes / sauvegardes ===
-fixes/
-
-# === Fichiers locaux ===
-.env
-*.local
-*.bak
-*.swp
-*.swo
-
-# === Architecture diagrams (regenerated) ===
-architecture-diagram.png
-architecture-diagram.svg
-architecture-diagram.html
-
+data/event_bus.db*
+*.corrupt.bak*
